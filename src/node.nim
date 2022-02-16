@@ -60,3 +60,39 @@ type
   SelfExpr* = ref object of Expr
     keyword*: Token
 
+# ----------------- Statements ---------------------
+  Stmt* = ref object of RootObj
+
+  ExprStmt* = ref object of Stmt
+    expression*: Expr
+  
+  VariableStmt* = ref object of Stmt
+    name*: Token
+    init*: Expr
+
+  IfStmt* = ref object of Stmt
+    condition*: Expr
+    thenBranch*: Stmt
+    elseBranch*: Stmt
+  
+  BlockStmt* = ref object of Stmt
+    statements*: seq[Stmt]
+
+  WhileStmt* = ref object of Stmt
+    condition*: Expr
+    body*: Stmt
+  
+  FuncStmt* = ref object of Stmt
+    name*: Token
+    parameters*: seq[Token]
+    body*: seq[Stmt]
+  
+  ReturnStmt* = ref object of Stmt
+    keyword*: Token
+    value*: Expr
+    
+  ClassStmt* = ref object of Stmt
+    name*: Token
+    superclass*: VariableExpr
+    methods*: seq[FuncStmt]
+  
