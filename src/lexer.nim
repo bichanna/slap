@@ -184,3 +184,4 @@ proc tokenize*(l: var Lexer): seq[Token] =
         l.makeIdentifier()
       elif c in " \t": discard
       else: error(l.error, l.line, "SyntaxError", fmt"Unrecognized character '{c}'")
+  return l.tokens
