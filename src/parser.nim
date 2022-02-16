@@ -9,9 +9,18 @@ import token, error, node
 
 type
   # Parser takes in a list of tokens (seq[Token]) and 
-  # returns an abstract syntax tree.
+  # generates an abstract syntax tree
   Parser* = object
     error*: Error
     tokens*: seq[Token]
     current*: int
-    
+
+proc newParser(tokens: seq[Token], errorObj: Error): Parser =
+  return Parser(
+    error: errorObj,
+    tokens: tokens,
+    current: 0
+  )
+
+# ----------------------------------------------------------------------
+
