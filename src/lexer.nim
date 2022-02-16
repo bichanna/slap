@@ -122,3 +122,12 @@ proc makeNumber(l: var Lexer) =
   if hadDot: l.appendToken(Float, strNumber)
   else: l.appendToken(Int, strNumber)
 
+# makes an identifier and appends it to the list
+proc makeIdentifier(l: var Lexer) =
+  var identifier: string = ""
+  while l.currentChar() in Letters:
+    identifier.add(l.currentChar())
+    l.advance()
+  if keywords.hasKey(identifier): l.appendToken(keywords[identifier])
+  else: l.appendToken(Identifier, identifier)
+
