@@ -11,52 +11,52 @@ import token
 type
   Expr* = ref object of RootObj
 
-  Binary* = ref object of Expr
+  BinaryExpr* = ref object of Expr
     left*: Expr
     operator*: Token
     right*: Expr
 
-  Grouping* = ref object of Expr
+  GroupingExpr* = ref object of Expr
     expression*: Expr
 
-  Unary* = ref object of Expr
+  UnaryExpr* = ref object of Expr
     operator*: Token
     right*: Expr
 
-  Literal* = ref object of Expr
+  LiteralExpr* = ref object of Expr
     kind*: TokenType
     value*: string
 
-  Logical* = ref object of Expr
+  LogicalExpr* = ref object of Expr
     left*: Expr
     operator*: Token
     right*: Expr
 
-  Variable* = ref object of Expr
+  VariableExpr* = ref object of Expr
     name*: Token
 
-  Assign* = ref object of Expr
+  AssignExpr* = ref object of Expr
     name*: Token
     value*: Expr
 
-  Call* = ref object of Expr
+  CallExpr* = ref object of Expr
     callee*: Expr
     paren*: Token
     arguments*: seq[Expr]
 
-  Get* = ref object of Expr
+  GetExpr* = ref object of Expr
     instance*: Expr
     name*: Token
 
-  Set* = ref object of Expr
+  SetExpr* = ref object of Expr
     instance*: Expr
     name*: Token
     value*: Expr
 
-  Super* = ref object of Expr
+  SuperExpr* = ref object of Expr
     keyword*: Token
     class_method*: Token
 
-  Self* = ref object of Expr
+  SelfExpr* = ref object of Expr
     keyword*: Token
 
