@@ -5,11 +5,14 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import os
+import os, lexer, error
 
 # actually executes a source code
 proc execute(source: string) = 
-  discard
+  let error = Error(source: source)
+  var lexer = newLexer(source, error)
+  let tokens = lexer.tokenize()
+  echo(tokens)
 
 # reads a file and pass it to the execute func
 proc runFile(path: string) =
