@@ -131,3 +131,56 @@ proc makeIdentifier(l: var Lexer) =
   if keywords.hasKey(identifier): l.appendToken(keywords[identifier])
   else: l.appendToken(Identifier, identifier)
 
+proc tokenize*(l: var Lexer): seq[Token] =
+  var c: char
+  while not l.isAtEnd():
+    c = l.advance()
+    case c:
+    of '(': l.appendToken(LeftParen)
+    of ')': l.appendToken(RightParen)
+    of '[': l.appendToken(LeftBrace)
+    of ']': l.appendToken(RightBrace)
+    of '{': l.appendToken(LeftBracket)
+    of '}': l.appendToken(RightBracket)
+    of ':': l.appendToken(Colon)
+    of ';': l.appendToken(SemiColon)
+    of '+': l.appendToken(Plus)
+    of '-': l.appendToken(Minus)
+    of '~': l.appendToken(Tilde)
+    of '*': l.appendToken(Star)
+    of '/': l.appendToken(Slash)
+    of '@': l.appendToken(At)
+    of '^': l.appendToken(Caret)
+    of ',': l.appendToken(Comma)
+    of '"': l.makeString()
+    of '!':
+      if l.doesMatch('='): l.appendToken(BangEqual)
+      else: l.appendToken(Bang)
+    of '<':
+      if l.doesMatch('-'): l.appendToken(LeftArrow)
+      elif l.doesMatch('='): l.appendToken(LessEqual)
+      else: l.appendToken(Less)
+    of '=':
+      if l.doesMatch('='): l.appendToken(EqualEqual)
+      else: l.appendToken(Equals)
+    of '>':
+      if l.doesMatch('='): l.appendToken(GreaterEqual)
+      else: l.appendToken(Greater)
+    of '.':
+      if l.doesMatch('.'): l.appendToken(DoubleDot)
+      else: l.appendToken(Dot)
+    of '#':
+      while l.currentChar() != '\n' and not l.isAtEnd():
+        l.advance()
+    of '\n':
+      l.appendToken(NewLine)
+      l.line += 1
+    else:
+      if c in Digits:
+        l.reverse()
+        l.makeNumber()
+      elif c in Letters:
+        l.reverse()
+        l.makeIdentifier()
+      elif c in " \t": discard
+      else: error(l.error, l.line, "SyntaxError", fmt"Unrecognized character '{c}'")
