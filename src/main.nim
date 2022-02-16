@@ -13,7 +13,8 @@ proc execute(source: string) =
 
 # reads a file and pass it to the execute func
 proc runFile(path: string) =
-  execute(readFile(path))
+  let source = readFile(path)
+  execute(source)
 
 # starts a new REPL session
 proc repl() =
@@ -30,9 +31,6 @@ when isMainModule:
   setControlCHook(handleCtrlC)
 
   let params = commandLineParams()
-  if params.len > 1:
-    quit("USAGE: slap <file>.slp")
-  elif params.len == 1:
-    runFile(params[0])
-  else:
-    repl()
+  if params.len > 1: quit("Usage: slap <file>.slp")
+  elif params.len == 1: runFile(params[0])
+  else: repl()
