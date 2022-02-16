@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import tables, std/strformat, strutils
+import tables, std/strformat
 import token, error
 
 const
