@@ -5,23 +5,28 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error
+import error, node
 
 type
   # Interpreter takes in an abstract syntax tree and executes
   Interpreter* = object
     error*: Error
+  
+  BaseType = ref object of RootObj
 
-  SlapValueType* = enum
-    slapString, slapInt, slapFloat, slapBool, slapNull
+  SlapStr = ref object of BaseType
+    value*: string
 
-  SlapValue* = object
-    case kind*: SlapValueType
-    of slapString: strValue*: string
-    of slapInt: intValue*: int64
-    of slapBool: boolValue*: bool
-    of slapFloat: floatValue*: float64
-    of slapNull: nil
+  SlapInt = ref object of BaseType
+    value*: int64
+  
+  SlapFloat = ref object of BaseType
+    value*: float64
+  
+  SlapBool = ref object of BaseType
+    value*: bool
+  
+  SlapNull = ref object of BaseType
 
 proc newInterpreter*(errorObj: Error): Interpreter =
   return Interpreter(
