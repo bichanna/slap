@@ -12,6 +12,17 @@ type
   Interpreter* = object
     error*: Error
 
+  SlapValueType* = enum
+    slapString, slapInt, slapFloat, slapBool, slapNull
+
+  SlapValue* = object
+    case kind*: SlapValueType
+    of slapString: strValue*: string
+    of slapInt: intValue*: int64
+    of slapBool: boolValue*: bool
+    of slapFloat: floatValue*: float64
+    of slapNull: nil
+
 proc newInterpreter*(errorObj: Error): Interpreter =
   return Interpreter(
     error: errorObj
