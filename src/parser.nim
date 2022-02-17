@@ -99,3 +99,5 @@ proc equality(p: var Parser): Expr =
   return expre
 
 proc expression(p: var Parser): Expr = return p.equality()
+
+proc parse*(p: var Parser): Expr = return p.expression()
