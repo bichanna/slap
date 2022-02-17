@@ -5,7 +5,8 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node
+import error, node, token
+import strutils
 
 type
   # Interpreter takes in an abstract syntax tree and executes
@@ -32,6 +33,16 @@ proc newInterpreter*(errorObj: Error): Interpreter =
   return Interpreter(
     error: errorObj
   )
+
+proc newString(value: string): SlapStr = return SlapStr(value: value)
+
+proc newInt(value: int64): SlapInt = return SlapInt(value: value)
+
+proc newFloat(value: float64): SlapFloat = return SlapFloat(value: value)
+
+proc newBool(value: bool): SlapBool = return SlapBool(value: value)
+
+proc newNull(): SlapNull = return SlapNull()
 
 # ----------------------------------------------------------------------
 
