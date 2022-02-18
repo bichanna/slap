@@ -14,6 +14,12 @@ type
     values*: Table[string, BaseType]
     error*: Error
 
+proc newEnv*(errorObj: Error): Environment =
+  return Environment(
+    values: initTable[string, BaseType](),
+    error: errorObj
+  )
+
 # binds a name to a value
 proc define*(env: var Environment, name: string, value: BaseType) = env.values[name] = value
 
