@@ -206,11 +206,6 @@ proc interpret*(self: Interpreter, expre: Expr) =
 
 # ---------------------------- HELPERS ---------------------------------
 
-# proc checkNumOperand(self: Interpreter, operator: Token, operand: BaseType) =
-#   if operand of SlapInt or operand of SlapFloat: return
-#   else:
-#     error(self.error, operator.line, RuntimeError, "Operands must be numbers")
-
 proc isTruthy(self: Interpreter, obj: BaseType): bool =
   if obj of SlapNull: return false
   if obj of SlapBool: return SlapBool(obj).value
