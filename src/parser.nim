@@ -102,4 +102,15 @@ proc equality(p: var Parser): Expr =
 
 proc expression(p: var Parser): Expr = return p.equality()
 
-proc parse*(p: var Parser): Expr = return p.expression()
+proc exprStmt(p: var Parser): Stmt =
+  let expre = p.expression()
+  p.expect(NewLine, "Expected a new line or ';'")
+  return ExprStmt(expression: expre)
+
+proc statement(p: var Parser): Stmt = return p.exprStmt()
+
+proc parse*(p: var Parser): seq[Stmt] =
+  var statements: seq[Stmt] = @[]
+  while not p.isAtEnd():
+    statements.add(p.statement())
+  return statements
