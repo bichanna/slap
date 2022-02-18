@@ -13,7 +13,7 @@ type
     source*: string
 
 proc error*(e: Error, line: int, errorName: string, message: string) =
-  echo(fmt"line {line+1} -> {splitLines(e.source)[line]}")
+  echo(fmt"line {line+1}: {splitLines(e.source)[line]}")
   quit(fmt"{errorName}: {message}")
 
 proc error*(e: Error, token: Token, errorName: string, message: string) =
