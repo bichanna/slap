@@ -80,6 +80,7 @@ proc factor(p: var Parser): Expr =
   var expre: Expr = p.unary()
   while p.doesMatch(Slash, Star):
     expre = BinaryExpr(left: expre, operator: p.previousToken(), right: p.unary())
+  return expre
 
 proc term(p: var Parser): Expr =
   var expre: Expr = p.factor()
