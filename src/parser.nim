@@ -57,7 +57,12 @@ proc doesMatch(p: var Parser, types: varargs[TokenType]): bool =
 proc expect(p: var Parser, ttype: TokenType, message: string): Token {.discardable.} =
   if p.checkCurrentTok(ttype): return p.advance()
   else: 
-    error(p.error, p.currentToken().line, "SyntaxError", "Unterminated string, expected '\"'")
+    error(p.error, p.currentToken().line, "SyntaxError", message)
+
+proc expect(p: var Parser, ttypes: seq[TokenType], message: string): Token {.discardable.} =
+  for i in ttypes:
+    if i == p.currentToken().kind: return p.advance()
+  error(p.error, p.currentToken().line, "SyntaxError", message)
 
 proc primary(p: var Parser): Expr =
   if p.doesMatch(True): return LiteralExpr(kind: True, value: "true")
@@ -104,7 +109,7 @@ proc expression(p: var Parser): Expr = return p.equality()
 
 proc exprStmt(p: var Parser): Stmt =
   let expre = p.expression()
-  p.expect(NewLine, "Expected a new line or ';'")
+  p.expect(@[NewLine, EOF], "Expected a new line or ';'")
   return ExprStmt(expression: expre)
 
 proc statement(p: var Parser): Stmt = return p.exprStmt()

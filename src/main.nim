@@ -13,7 +13,6 @@ proc execute(source: string) =
   let error = Error(source: source)
   var lexer = newLexer(source, error)
   let tokens = lexer.tokenize()
-  echo(tokens)
   
   # parsing
   var parser = newParser(tokens, error)
