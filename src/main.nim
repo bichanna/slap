@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import os, lexer, error, parser
+import os, lexer, error, parser, interpreter
 
 # actually executes a source code
 proc execute(source: string) = 
@@ -13,10 +13,15 @@ proc execute(source: string) =
   let error = Error(source: source)
   var lexer = newLexer(source, error)
   let tokens = lexer.tokenize()
+  echo(tokens)
   
   # parsing
   var parser = newParser(tokens, error)
   let nodes = parser.parse()
+
+  # interpreting
+  let interpreter = newInterpreter(error)
+  interpreter.interpret(nodes)
 
 # reads a file and pass it to the execute func
 proc runFile(path: string) =

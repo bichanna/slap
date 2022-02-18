@@ -146,7 +146,7 @@ proc eval*(self: Interpreter, expre: BinaryExpr): BaseType =
     else:
       discard
 
-proc interpret(self: Interpreter, expre: Expr) =
+proc interpret*(self: Interpreter, expre: Expr) =
   let value: BaseType = self.eval(expre)
   echo value
 
