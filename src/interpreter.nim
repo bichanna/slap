@@ -93,11 +93,15 @@ method eval*(self: Interpreter, expre: BinaryExpr): BaseType =
 
   case expre.operator.kind
     of Plus: # allows string concatenation and addition
-      if (left of SlapFloat and right of SlapFloat) or (left of SlapFloat and right of SlapInt) or (left of SlapInt and right of SlapFloat):
+      if left of SlapFloat and right of SlapFloat:
         return newFloat(SlapFloat(left).value + SlapFloat(right).value)
-      elif left of SlapInt and left of SlapInt:
+      elif left of SlapFloat and right of SlapInt:
+        return newFloat(SlapFloat(left).value + float(SlapInt(right).value))
+      elif left of SlapInt and right of SlapFloat:
+        return newFloat(float(SlapInt(left).value) + SlapFloat(right).value)
+      elif left of SlapInt and right of SlapInt:
         return newInt(SlapInt(left).value + SlapInt(right).value)
-      elif left of SlapString and left of SlapString:
+      elif left of SlapString and right of SlapString:
         return newString(SlapString(left).value & SlapString(right).value)
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either string or int and float")
