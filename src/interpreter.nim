@@ -56,7 +56,7 @@ proc `$`(obj: BaseType): string
 
 method eval*(self: Interpreter, expre: Expr): BaseType {.base.} = discard
 
-method eval*(self: Interpreter, expre: LiteralExpr): BaseType {.base.} =
+method eval*(self: Interpreter, expre: LiteralExpr): BaseType =
   case expre.kind
   of String: return newString(expre.value)
   of Int: return newInt(parseInt(expre.value))
@@ -67,11 +67,11 @@ method eval*(self: Interpreter, expre: LiteralExpr): BaseType {.base.} =
   else: discard
 
 # eval GroupingExpr (just for making it easier to search using Command+F)
-proc eval*(self: Interpreter, expre: GroupingExpr): BaseType =
+method eval*(self: Interpreter, expre: GroupingExpr): BaseType =
   return self.eval(expre.expression)
 
 # eval UnaryExpr
-proc eval*(self: Interpreter, expre: UnaryExpr): BaseType =
+method eval*(self: Interpreter, expre: UnaryExpr): BaseType =
   let right: BaseType = self.eval(expre.right)
 
   case expre.operator.kind
@@ -87,7 +87,7 @@ proc eval*(self: Interpreter, expre: UnaryExpr): BaseType =
     discard
 
 # eval BinaryExpr
-proc eval*(self: Interpreter, expre: BinaryExpr): BaseType =
+method eval*(self: Interpreter, expre: BinaryExpr): BaseType =
   var left = self.eval(expre.left)
   var right = self.eval(expre.right)
 
@@ -110,7 +110,10 @@ proc eval*(self: Interpreter, expre: BinaryExpr): BaseType =
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
     of Slash: # division always returns a flost
       if (left of SlapInt or left of SlapFloat) and (right of SlapInt or right of SlapFloat):
-        return newFloat(SlapFloat(left).value / SlapFloat(right).value)
+        if SlapFloat(right).value == 0:
+          error(self.error, expre.operator.line, RuntimeError, "Cannot divide by 0")
+        else:
+          return newFloat(SlapFloat(left).value / SlapFloat(right).value)
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
     of Star:
