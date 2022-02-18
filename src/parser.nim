@@ -70,6 +70,7 @@ proc primary(p: var Parser): Expr =
   elif p.doesMatch(Null): return LiteralExpr(kind: Null, value: "null")
 
   if p.doesMatch(Int, Float, String): return LiteralExpr(kind: p.previousToken().kind, value: p.previousToken().value)
+  elif p.doesMatch(Identifier): return VariableExpr(name: p.previousToken())
   elif p.doesMatch(LeftParen):
     let expre = p.expression()
     p.expect(RightParen, "Expected ')'")
@@ -114,8 +115,20 @@ proc exprStmt(p: var Parser): Stmt =
 
 proc statement(p: var Parser): Stmt = return p.exprStmt()
 
+proc varDeclaration(p: var Parser): Stmt = 
+  let name = p.expect(Identifier, "Expected an identifier")
+  var init: Expr
+  if p.doesMatch(Equals): init = p.expression()
+  p.expect(NewLine, "Expected a new line or ';' after variable declaration")
+  return VariableStmt(name: name, init: init)
+
+proc declaration(p: var Parser): Stmt =
+  if p.doesMatch(Let): return p.varDeclaration()
+  elif p.doesMatch(Const): return p.varDeclaration()
+  else: return p.statement()
+
 proc parse*(p: var Parser): seq[Stmt] =
   var statements: seq[Stmt] = @[]
   while not p.isAtEnd():
-    statements.add(p.statement())
+    statements.add(p.declaration())
   return statements
