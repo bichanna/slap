@@ -46,7 +46,7 @@ type
     EOF                 = "EOF"
 
     # keywords
-    Defun               = "defun"
+    Define              = "define"
     Class               = "class"
     And                 = "and"
     Let                 = "let"
