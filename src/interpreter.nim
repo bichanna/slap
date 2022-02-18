@@ -220,7 +220,9 @@ proc doesEqual(self: Interpreter, left: BaseType, right: BaseType): bool =
   if left of SlapNull and right of SlapNull: return true
   elif left of SlapNull: return false
   elif left of SlapInt and right of SlapInt: return SlapInt(left).value == SlapInt(right).value
+  elif left of SlapInt and right of SlapFloat: return float(SlapInt(left).value) == SlapFloat(right).value
   elif left of SlapFloat and right of SlapFloat: return SlapFloat(left).value == SlapFloat(right).value
+  elif left of SlapFloat and right of SlapInt: return SlapFloat(left).value == float(SlapInt(right).value)
   elif left of SlapString and right of SlapString: return SlapString(left).value == SlapString(right).value
   # I will add for classes, functions, etc.
   else: return false
