@@ -53,6 +53,7 @@ proc isTruthy(self: Interpreter, obj: BaseType): bool
 proc doesEqual(self: Interpreter, left: BaseType, right: BaseType): bool
 proc `$`(obj: BaseType): string
 
+# --------------------------- EXPRESSIONS ------------------------------
 
 method eval*(self: Interpreter, expre: Expr): BaseType {.base.} = discard
 
@@ -200,9 +201,15 @@ method eval*(self: Interpreter, expre: BinaryExpr): BaseType =
     else:
       discard
 
-proc interpret*(self: Interpreter, expre: Expr) =
-  let value: BaseType = self.eval(expre)
-  echo value
+# --------------------------- STATEMENTS -------------------------------
+
+method eval*(self: Interpreter, statement: Stmt) {.base.} = discard
+
+method eval*(self: Interpreter, statement: ExprStmt) = discard self.eval(statement.expression)
+
+proc interpret*(self: Interpreter, statements: seq[Stmt]) =
+  for s in statements:
+    self.eval(s)
 
 # ---------------------------- HELPERS ---------------------------------
 
