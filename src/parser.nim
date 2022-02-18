@@ -119,7 +119,7 @@ proc varDeclaration(p: var Parser): Stmt =
   let name = p.expect(Identifier, "Expected an identifier")
   var init: Expr
   if p.doesMatch(Equals): init = p.expression()
-  p.expect(NewLine, "Expected a new line or ';' after variable declaration")
+  p.expect(@[NewLine, EOF], "Expected a new line or ';' after variable declaration")
   return VariableStmt(name: name, init: init)
 
 proc declaration(p: var Parser): Stmt =
