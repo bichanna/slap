@@ -117,11 +117,26 @@ method eval*(self: Interpreter, expre: BinaryExpr): BaseType =
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either string or int and float")
     of Slash: # division always returns a flost
-      if (left of SlapInt or left of SlapFloat) and (right of SlapInt or right of SlapFloat):
+      if left of SlapFloat and right of SlapFloat:
         if SlapFloat(right).value == 0:
           error(self.error, expre.operator.line, RuntimeError, "Cannot divide by 0")
         else:
           return newFloat(SlapFloat(left).value / SlapFloat(right).value)
+      elif left of SlapFloat and right of SlapInt:
+        if SlapInt(right).value == 0:
+          error(self.error, expre.operator.line, RuntimeError, "Cannot divide by 0")
+        else:
+          return newFloat(SlapFloat(left).value / float(SlapInt(right).value))
+      elif left of SlapInt and right of SlapFloat:
+        if SlapFloat(right).value == 0:
+          error(self.error, expre.operator.line, RuntimeError, "Cannot divide by 0")
+        else:
+          return newFloat(float(SlapInt(left).value) / SlapFloat(right).value)
+      elif left of SlapInt and right of SlapInt:
+        if SlapInt(right).value == 0:
+          error(self.error, expre.operator.line, RuntimeError, "Cannot divide by 0")
+        else:
+          return newFloat(float(SlapInt(left).value) / float(SlapInt(right).value))
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
     of Star:
