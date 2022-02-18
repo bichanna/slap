@@ -106,12 +106,16 @@ method eval*(self: Interpreter, expre: BinaryExpr): BaseType =
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either string or int and float")
     of Minus:
-      if left of SlapFloat or right of SlapFloat:
-        return newFloat(SlapFloat(left).value - SlapFloat(right).value)
+      if left of SlapFloat and right of SlapFloat:
+        return newFloat(SlapFloat(left).value + SlapFloat(right).value)
+      elif left of SlapFloat and right of SlapInt:
+        return newFloat(SlapFloat(left).value + float(SlapInt(right).value))
+      elif left of SlapInt and right of SlapFloat:
+        return newFloat(float(SlapInt(left).value) + SlapFloat(right).value)
       elif left of SlapInt and right of SlapInt:
-        return newInt(SlapInt(left).value - SlapInt(right).value)
+        return newInt(SlapInt(left).value + SlapInt(right).value)
       else:
-        error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
+        error(self.error, expre.operator.line, RuntimeError, "All operands must be either string or int and float")
     of Slash: # division always returns a flost
       if (left of SlapInt or left of SlapFloat) and (right of SlapInt or right of SlapFloat):
         if SlapFloat(right).value == 0:
