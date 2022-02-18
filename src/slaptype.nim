@@ -31,3 +31,10 @@ proc newFloat*(value: float64): SlapFloat = return SlapFloat(value: value)
 proc newBool*(value: bool): SlapBool = return SlapBool(value: value)
 
 proc newNull*(): SlapNull = return SlapNull()
+
+proc `$`*(value: BaseType): string =
+  if value of SlapString: return SlapString(value).value
+  elif value of SlapInt: return $SlapInt(value).value
+  elif value of SlapFloat: return $SlapFloat(value).value
+  elif value of SlapBool: return $SlapBool(value).value
+  elif value of SlapNull: return "null"
