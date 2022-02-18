@@ -68,7 +68,7 @@ proc primary(p: var Parser): Expr =
   elif p.doesMatch(LeftParen):
     let expre = p.expression()
     p.expect(RightParen, "Expected ')'")
-    return GroupingExpr(expre)
+    return GroupingExpr(expression: expre)
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
 
 proc unary(p: var Parser): Expr =
