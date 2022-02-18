@@ -11,7 +11,7 @@ import token, error
 const
   # keywords in SLAP
   keywords = {
-    "defun": Defun,
+    "define": Define,
     "class": Class,
     "and": And,
     "let": Let,
@@ -143,7 +143,7 @@ proc tokenize*(l: var Lexer): seq[Token] =
     of '{': l.appendToken(LeftBracket)
     of '}': l.appendToken(RightBracket)
     of ':': l.appendToken(Colon)
-    of ';': l.appendToken(SemiColon)
+    of ';': l.appendToken(NewLine)
     of '+': l.appendToken(Plus)
     of '-': l.appendToken(Minus)
     of '~': l.appendToken(Tilde)
