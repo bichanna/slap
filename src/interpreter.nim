@@ -163,18 +163,36 @@ method eval*(self: Interpreter, expre: BinaryExpr): BaseType =
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
     of GreaterEqual:
-      if (left of SlapInt or left of SlapFloat) and (right of SlapInt or right of SlapFloat):
+      if left of SlapFloat and right of SlapFloat:
         return newBool(SlapFloat(left).value >= SlapFloat(right).value)
+      elif left of SlapFloat and right of SlapInt:
+        return newBool(SlapFloat(left).value >= float(SlapInt(right).value))
+      elif left of SlapInt and right of SlapFloat:
+        return newBool(float(SlapInt(left).value) >= SlapFloat(right).value)
+      elif left of SlapInt and right of SlapInt:
+        return newBool(SlapInt(left).value >= SlapInt(right).value)
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
     of Less:
-      if (left of SlapInt or left of SlapFloat) and (right of SlapInt or right of SlapFloat):
+      if left of SlapFloat and right of SlapFloat:
         return newBool(SlapFloat(left).value < SlapFloat(right).value)
+      elif left of SlapFloat and right of SlapInt:
+        return newBool(SlapFloat(left).value < float(SlapInt(right).value))
+      elif left of SlapInt and right of SlapFloat:
+        return newBool(float(SlapInt(left).value) < SlapFloat(right).value)
+      elif left of SlapInt and right of SlapInt:
+        return newBool(SlapInt(left).value < SlapInt(right).value)
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
     of LessEqual:
-      if (left of SlapInt or left of SlapFloat) and (right of SlapInt or right of SlapFloat):
+      if left of SlapFloat and right of SlapFloat:
         return newBool(SlapFloat(left).value <= SlapFloat(right).value)
+      elif left of SlapFloat and right of SlapInt:
+        return newBool(SlapFloat(left).value <= float(SlapInt(right).value))
+      elif left of SlapInt and right of SlapFloat:
+        return newBool(float(SlapInt(left).value) <= SlapFloat(right).value)
+      elif left of SlapInt and right of SlapInt:
+        return newBool(SlapInt(left).value <= SlapInt(right).value)
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
     of BangEqual: return newBool(not self.doesEqual(left, right))
