@@ -5,19 +5,21 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node, token, slaptype
+import error, node, token, slaptype, env
 import strutils
 
 type
   # Interpreter takes in an abstract syntax tree and executes
   Interpreter* = object
     error*: Error
+    env*: Environment
 
 const RuntimeError = "RuntimeError"
 
 proc newInterpreter*(errorObj: Error): Interpreter =
   return Interpreter(
-    error: errorObj
+    error: errorObj,
+    env: newEnv(errorObj)
   )
 
 # ----------------------------------------------------------------------
