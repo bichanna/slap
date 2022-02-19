@@ -28,3 +28,10 @@ proc get*(env: var Environment, name: Token): BaseType =
   if env.values.hasKey(name.value): return env.values[name.value]
   else:
     error(env.error, name.line, "RuntimeError", "'" & name.value & "' is not defined")
+
+# assign
+proc assign*(env: var Environment, name: Token, value: BaseType) =
+  if env.values.hasKey(name.value):
+    env.values[name.value] = value
+    return
+  error(env.error, name.line, "RuntimeError", "'" & name.value & "' is not defined")

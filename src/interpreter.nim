@@ -66,6 +66,12 @@ method eval(self: var Interpreter, expre: UnaryExpr): BaseType =
 # eval VariableExpr
 method eval(self: var Interpreter, expre: VariableExpr): BaseType = return self.env.get(expre.name)
 
+# eval AssignExpr
+method eval(self: var Interpreter, expre: AssignExpr): BaseType =
+  let value = self.eval(expre.value)
+  self.env.assign(expre.name, value)
+  return value
+
 # eval BinaryExpr
 method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
   var left = self.eval(expre.left)
