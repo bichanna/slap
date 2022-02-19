@@ -110,6 +110,7 @@ proc expression(p: var Parser): Expr = return p.equality()
 
 proc exprStmt(p: var Parser): Stmt =
   let expre = p.expression()
+  p.advance()
   p.expect(@[NewLine, EOF], "Expected a new line or ';'")
   return ExprStmt(expression: expre)
 

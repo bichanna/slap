@@ -6,7 +6,7 @@
 #
 
 import error, node, token, slaptype, env
-import strutils
+import strutils, tables
 
 type
   # Interpreter takes in an abstract syntax tree and executes
@@ -25,15 +25,15 @@ proc newInterpreter*(errorObj: Error): Interpreter =
 # ----------------------------------------------------------------------
 
 # forward declarations for helper functions
-proc isTruthy(self: Interpreter, obj: BaseType): bool
-proc doesEqual(self: Interpreter, left: BaseType, right: BaseType): bool
+proc isTruthy(self: var Interpreter, obj: BaseType): bool
+proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool
 proc `$`(obj: BaseType): string
 
 # --------------------------- EXPRESSIONS ------------------------------
 
-method eval*(self: Interpreter, expre: Expr): BaseType {.base.} = discard
+method eval(self: var Interpreter, expre: Expr): BaseType {.base.} = discard
 
-method eval*(self: Interpreter, expre: LiteralExpr): BaseType =
+method eval(self: var Interpreter, expre: LiteralExpr): BaseType =
   case expre.kind
   of String: return newString(expre.value)
   of Int: return newInt(parseInt(expre.value))
@@ -44,11 +44,11 @@ method eval*(self: Interpreter, expre: LiteralExpr): BaseType =
   else: discard
 
 # eval GroupingExpr (just for making it easier to search using Command+F)
-method eval*(self: Interpreter, expre: GroupingExpr): BaseType =
+method eval(self: var Interpreter, expre: GroupingExpr): BaseType =
   return self.eval(expre.expression)
 
 # eval UnaryExpr
-method eval*(self: Interpreter, expre: UnaryExpr): BaseType =
+method eval(self: var Interpreter, expre: UnaryExpr): BaseType =
   let right: BaseType = self.eval(expre.right)
 
   case expre.operator.kind
@@ -63,8 +63,11 @@ method eval*(self: Interpreter, expre: UnaryExpr): BaseType =
   else:
     discard
 
+# eval VariableExpr
+method eval(self: var Interpreter, expre: VariableExpr): BaseType = return self.env.get(expre.name)
+
 # eval BinaryExpr
-method eval*(self: Interpreter, expre: BinaryExpr): BaseType =
+method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
   var left = self.eval(expre.left)
   var right = self.eval(expre.right)
 
@@ -179,22 +182,30 @@ method eval*(self: Interpreter, expre: BinaryExpr): BaseType =
 
 # --------------------------- STATEMENTS -------------------------------
 
-method eval*(self: Interpreter, statement: Stmt) {.base.} = discard
+method eval(self: var Interpreter, statement: Stmt) {.base.} = discard
 
-method eval*(self: Interpreter, statement: ExprStmt) = discard self.eval(statement.expression)
+method eval(self: var Interpreter, statement: ExprStmt) = discard self.eval(statement.expression)
 
-proc interpret*(self: Interpreter, statements: seq[Stmt]) =
+method eval(self: var Interpreter, statement: VariableStmt) = 
+  var value: BaseType = newNull() # defaults to null
+  if not statement.init.isNil: value = self.eval(statement.init)
+  self.env.define(statement.name.value, value)
+
+# ----------------------------------------------------------------------
+
+proc interpret*(self: var Interpreter, statements: seq[Stmt]) =
   for s in statements:
     self.eval(s)
+    echo($self.env.values)
 
 # ---------------------------- HELPERS ---------------------------------
 
-proc isTruthy(self: Interpreter, obj: BaseType): bool =
+proc isTruthy(self: var Interpreter, obj: BaseType): bool =
   if obj of SlapNull: return false
   if obj of SlapBool: return SlapBool(obj).value
   else: return true
 
-proc doesEqual(self: Interpreter, left: BaseType, right: BaseType): bool = 
+proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool = 
   if left of SlapNull and right of SlapNull: return true
   elif left of SlapNull: return false
   elif left of SlapInt and right of SlapInt: return SlapInt(left).value == SlapInt(right).value
