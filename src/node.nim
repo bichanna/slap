@@ -7,6 +7,8 @@
 
 import token
 
+var isRepl*: bool = false
+
 # ----------------- Expressions ---------------------
 type
   Expr* = ref object of RootObj

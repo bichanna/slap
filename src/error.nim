@@ -6,7 +6,7 @@
 # 
 
 import std/strformat, strutils
-import token
+import token, node
 
 type
   Error* = object
@@ -14,7 +14,8 @@ type
 
 proc error*(e: Error, line: int, errorName: string, message: string) =
   echo "\e[31m", fmt"{line+1}: {splitLines(e.source)[line]}"
-  quit(fmt"{errorName}: {message}" & "\e[0m")
+  if node.isRepl: echo(fmt"{errorName}: {message}" & "\e[0m")
+  else: quit(fmt"{errorName}: {message}" & "\e[0m")
 
 proc error*(e: Error, token: Token, errorName: string, message: string) =
   e.error(token.line, errorName, message)

@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import os, lexer, error, parser, interpreter
+import os, lexer, error, parser, interpreter, node
 
 # actually executes a source code
 proc execute(source: string) = 
@@ -19,7 +19,7 @@ proc execute(source: string) =
   let nodes = parser.parse()
 
   # interpreting
-  let interpreter = newInterpreter(error)
+  var interpreter = newInterpreter(error)
   interpreter.interpret(nodes)
 
 # reads a file and pass it to the execute func
@@ -29,6 +29,7 @@ proc runFile(path: string) =
 
 # starts a new REPL session
 proc repl() =
+  node.isRepl = true
   while true:
     stdout.write(">> ")
     execute(readline(stdin))
