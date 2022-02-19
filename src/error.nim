@@ -13,8 +13,8 @@ type
     source*: string
 
 proc error*(e: Error, line: int, errorName: string, message: string) =
-  echo(fmt"{line+1}: {splitLines(e.source)[line]}")
-  quit(fmt"{errorName}: {message}")
+  echo "\e[31m", fmt"{line+1}: {splitLines(e.source)[line]}"
+  quit(fmt"{errorName}: {message}" & "\e[0m")
 
 proc error*(e: Error, token: Token, errorName: string, message: string) =
   e.error(token.line, errorName, message)
