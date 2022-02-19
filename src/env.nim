@@ -10,12 +10,14 @@ import slaptype, token, error
 
 type
   # Environment holds all the variables and values
-  Environment* = object
+  Environment* = ref object
     values*: Table[string, BaseType]
     error*: Error
+    enclosing*: Environment
 
-proc newEnv*(errorObj: Error): Environment =
+proc newEnv*(errorObj: Error, enclosing: Environment = nil): Environment =
   return Environment(
+    enclosing: enclosing,
     values: initTable[string, BaseType](),
     error: errorObj
   )
@@ -26,6 +28,7 @@ proc define*(env: var Environment, name: string, value: BaseType) = env.values[n
 # looks up the variable and returns its value
 proc get*(env: var Environment, name: Token): BaseType =
   if env.values.hasKey(name.value): return env.values[name.value]
+  if not env.enclosing.isNil: return env.enclosing.get(name)
   else:
     error(env.error, name.line, "RuntimeError", "'" & name.value & "' is not defined")
 
@@ -33,5 +36,8 @@ proc get*(env: var Environment, name: Token): BaseType =
 proc assign*(env: var Environment, name: Token, value: BaseType) =
   if env.values.hasKey(name.value):
     env.values[name.value] = value
+    return
+  elif not env.enclosing.isNil:
+    env.enclosing.assign(name, value)
     return
   error(env.error, name.line, "RuntimeError", "'" & name.value & "' is not defined")
