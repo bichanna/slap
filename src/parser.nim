@@ -106,11 +106,22 @@ proc equality(p: var Parser): Expr =
     expre = BinaryExpr(left: expre, operator: p.previousToken(), right: p.comparison())
   return expre
 
-proc expression(p: var Parser): Expr = return p.equality()
+proc assignment(p: var Parser): Expr =
+  var expre = p.equality()
+  if p.doesMatch(Equals):
+    let equals = p.previousToken()
+    let value = p.assignment()
+    if expre of VariableExpr:
+      let name = VariableExpr(expre).name
+      return AssignExpr(name: name, value: value)
+    else:
+      error(p.error, equals.line, "SyntaxError", "Invalid assignment target")
+  return expre
+
+proc expression(p: var Parser): Expr = return p.assignment()
 
 proc exprStmt(p: var Parser): Stmt =
   let expre = p.expression()
-  p.advance()
   p.expect(@[NewLine, EOF], "Expected a new line or ';'")
   return ExprStmt(expression: expre)
 
