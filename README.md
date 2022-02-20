@@ -28,6 +28,9 @@ SLAP will look like this:
      - [x] else
  - [x] While loops
  - [x] For loops
+     - [ ] Break
+     - [ ] Continue
+     - [ ] "Enhanced" for loop (not sure if I want this)
  - [ ] Functions
  - [ ] Standard library
  - [ ] Closures
