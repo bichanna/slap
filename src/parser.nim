@@ -63,11 +63,6 @@ proc expect(p: var Parser, ttype: TokenType, message: string): Token {.discardab
   else: 
     error(p.error, p.currentToken().line, "SyntaxError", message)
 
-proc expect(p: var Parser, ttypes: seq[TokenType], message: string): Token {.discardable.} =
-  for i in ttypes:
-    if i == p.currentToken().kind: return p.advance()
-  error(p.error, p.currentToken().line, "SyntaxError", message)
-
 proc primary(p: var Parser): Expr =
   if p.doesMatch(True): return LiteralExpr(kind: True, value: "true")
   elif p.doesMatch(False): return LiteralExpr(kind: False, value: "false")
