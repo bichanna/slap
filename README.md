@@ -19,6 +19,8 @@ SLAP will look like this:
      - [x] String
      - [x] Boolean
      - [x] Null
+     - [ ] Array
+     - [ ] Map
  - [x] Basic arithmetics
  - [x] Variables
  - [x] If statement 
