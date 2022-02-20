@@ -143,7 +143,7 @@ proc tokenize*(l: var Lexer): seq[Token] =
     of '{': l.appendToken(LeftBrace)
     of '}': l.appendToken(RightBrace)
     of ':': l.appendToken(Colon)
-    of ';': l.appendToken(NewLine)
+    of ';': l.appendToken(SemiColon)
     of '+': l.appendToken(Plus)
     of '-': l.appendToken(Minus)
     of '~': l.appendToken(Tilde)
