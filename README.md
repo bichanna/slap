@@ -32,4 +32,3 @@ SLAP will look like this:
  - [ ] Standard library
  - [ ] Closures
  - [ ] Classes
-     - [ ] Inheritance
