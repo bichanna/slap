@@ -137,6 +137,17 @@ proc varDeclaration(p: var Parser): Stmt =
   p.expect(@[NewLine, EOF], "Expected ';' after variable declaration")
   return VariableStmt(name: name, init: init)
 
+proc ifStatement(p: var Parser): Stmt =
+  p.expect(LeftParen, "Expected '(' after 'if'")
+  let condition = p.expression()
+  p.expect(RightParen, "Expected ')' after if condition")
+  let thenBranch = p.statement()
+  # TODO: add elif branches
+  var elseBranch: Stmt
+  if p.doesMatch(Else):
+    elseBranch = p.statement()
+  return IfStmt(condition: condition, thenBranch: thenBranch, elseBranch: elseBranch)
+
 proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()
   elif p.doesMatch(Const): return p.varDeclaration()
