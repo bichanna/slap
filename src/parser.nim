@@ -28,6 +28,7 @@ proc newParser*(tokens: seq[Token], errorObj: Error): Parser =
 proc expression(p: var Parser): Expr
 proc parseBlock(p: var Parser): seq[Stmt]
 proc ifStatement(p: var Parser): Stmt
+proc whileStatement(p: var Parser): Stmt
 
 # returns the previous token
 proc previousToken(p: var Parser): Token = return p.tokens[p.current - 1]
@@ -142,6 +143,7 @@ proc exprStmt(p: var Parser): Stmt =
 proc statement(p: var Parser): Stmt =
   if p.doesMatch(LeftBrace): return BlockStmt(statements: p.parseBlock())
   elif p.doesMatch(If): return p.ifStatement()
+  elif p.doesMatch(While): return p.whileStatement()
   return p.exprStmt()
 
 proc varDeclaration(p: var Parser): Stmt = 
@@ -150,6 +152,13 @@ proc varDeclaration(p: var Parser): Stmt =
   if p.doesMatch(Equals): init = p.expression()
   p.expect(@[NewLine, EOF], "Expected ';' after variable declaration")
   return VariableStmt(name: name, init: init)
+
+proc whileStatement(p: var Parser): Stmt =
+  p.expect(LeftParen, "Expected '(' after 'while'")
+  let condition = p.expression()
+  p.expect(RightParen, "Expected ')' after while condition")
+  let body = p.statement()
+  return WhileStmt(condition: condition, body: body)
 
 proc ifStatement(p: var Parser): Stmt =
   p.expect(LeftParen, "Expected '(' after 'if'")

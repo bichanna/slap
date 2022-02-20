@@ -216,6 +216,10 @@ proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Env
 
 method eval(self: var Interpreter, statement: BlockStmt) = self.executeBlock(statement.statements, newEnv(self.error))
 
+method eval(self: var Interpreter, statement: WhileStmt) =
+  while self.isTruthy(self.eval(statement.condition)):
+    self.eval(statement.body)
+
 method eval(self: var Interpreter, statement: IfStmt) =
   if self.isTruthy(self.eval(statement.condition)):
     self.eval(statement.thenBranch)
