@@ -107,8 +107,20 @@ proc equality(p: var Parser): Expr =
     expre = BinaryExpr(left: expre, operator: p.previousToken(), right: p.comparison())
   return expre
 
+proc andExpr(p: var Parser): Expr =
+  var expre = p.equality();
+  while p.doesMatch(And):
+    expre = LogicalExpr(left: expre, operator: p.previousToken(), right: p.equality())
+  return expre
+
+proc orExpr(p: var Parser): Expr =
+  var expre = p.andExpr()
+  while p.doesMatch(Or):
+    expre = LogicalExpr(left: expre, operator: p.previousToken(), right: p.andExpr())
+  return expre
+
 proc assignment(p: var Parser): Expr =
-  var expre = p.equality()
+  var expre = p.orExpr()
   if p.doesMatch(Equals):
     let equals = p.previousToken()
     let value = p.assignment()

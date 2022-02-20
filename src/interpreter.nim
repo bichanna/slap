@@ -72,6 +72,15 @@ method eval(self: var Interpreter, expre: AssignExpr): BaseType =
   self.env.assign(expre.name, value)
   return value
 
+# eval LogicalExpr
+method eval(self: var Interpreter, expre: LogicalExpr): BaseType =
+  let left = self.eval(expre.left)
+  if expre.operator.kind == Or:
+    if self.isTruthy(left): return left
+  else:
+    if not self.isTruthy(left): return left
+  return self.eval(expre.right)
+
 # eval BinaryExpr
 method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
   var left = self.eval(expre.left)
