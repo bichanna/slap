@@ -27,6 +27,7 @@ proc newParser*(tokens: seq[Token], errorObj: Error): Parser =
 # forward declaration
 proc expression(p: var Parser): Expr
 proc parseBlock(p: var Parser): seq[Stmt]
+proc ifStatement(p: var Parser): Stmt
 
 # returns the previous token
 proc previousToken(p: var Parser): Token = return p.tokens[p.current - 1]
@@ -140,6 +141,7 @@ proc exprStmt(p: var Parser): Stmt =
 
 proc statement(p: var Parser): Stmt =
   if p.doesMatch(LeftBrace): return BlockStmt(statements: p.parseBlock())
+  elif p.doesMatch(If): return p.ifStatement()
   return p.exprStmt()
 
 proc varDeclaration(p: var Parser): Stmt = 
