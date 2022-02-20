@@ -1,5 +1,5 @@
 <div align="center">
-    <h1>SLAP Programming Language</h1>
+    <h1>The SLAP Programming Language (WIP)</h1>
 </div>
 
 **WARNING!! THIS LANGUAGE IS IN DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT.**
