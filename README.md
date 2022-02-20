@@ -9,7 +9,7 @@ SLAP is a **Sl**ow **A**nd **P**owerless programming language.
 SLAP will look like this:
 
 <div align="center">
-    <img width="600px" src="https://user-images.githubusercontent.com/60306074/154825941-ecca5719-5c33-4eb6-889a-af2ab580d4fe.png">
+    <img width="600px" src="https://user-images.githubusercontent.com/60306074/154850081-2db1f87a-0c93-4958-a796-74cfbd343bb8.png">
 </div>
 
 ## TODO
