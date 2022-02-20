@@ -30,9 +30,12 @@ proc runFile(path: string) =
 # starts a new REPL session
 proc repl() =
   node.isRepl = true
-  while true:
-    stdout.write(">> ")
-    execute(readline(stdin))
+  try:
+    while true:
+      stdout.write(">> ")
+      execute(readline(stdin))
+  except EOFError:
+    quit("\nBye!")
 
 # handles Ctrl-C
 proc handleCtrlC() {.noconv.} =
