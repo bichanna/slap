@@ -173,7 +173,7 @@ proc tokenize*(l: var Lexer): seq[Token] =
       while l.currentChar() != '\n' and not l.isAtEnd():
         l.advance()
     of '\n':
-      l.appendToken(NewLine)
+      # l.appendToken(NewLine)
       l.line += 1
     else:
       if c in Digits:

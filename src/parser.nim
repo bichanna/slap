@@ -26,6 +26,7 @@ proc newParser*(tokens: seq[Token], errorObj: Error): Parser =
 
 # forward declaration
 proc expression(p: var Parser): Expr
+proc parseBlock(p: var Parser): seq[Stmt]
 
 # returns the previous token
 proc previousToken(p: var Parser): Token = return p.tokens[p.current - 1]
@@ -125,19 +126,28 @@ proc exprStmt(p: var Parser): Stmt =
   p.expect(@[NewLine, EOF], "Expected a new line or ';'")
   return ExprStmt(expression: expre)
 
-proc statement(p: var Parser): Stmt = return p.exprStmt()
+proc statement(p: var Parser): Stmt =
+  if p.doesMatch(LeftBrace): return BlockStmt(statements: p.parseBlock())
+  return p.exprStmt()
 
 proc varDeclaration(p: var Parser): Stmt = 
   let name = p.expect(Identifier, "Expected an identifier")
   var init: Expr
   if p.doesMatch(Equals): init = p.expression()
-  p.expect(@[NewLine, EOF], "Expected a new line or ';' after variable declaration")
+  p.expect(@[NewLine, EOF], "Expected ';' after variable declaration")
   return VariableStmt(name: name, init: init)
 
 proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()
   elif p.doesMatch(Const): return p.varDeclaration()
   else: return p.statement()
+
+proc parseBlock(p: var Parser): seq[Stmt] =
+  var statements: seq[Stmt] = @[]
+  while not p.checkCurrentTok(RightBrace) and not p.isAtEnd():
+    statements.add(p.declaration())
+  p.expect(RightBrace, "Expected '}' after a block")
+  return statements
 
 proc parse*(p: var Parser): seq[Stmt] =
   var statements: seq[Stmt] = @[]

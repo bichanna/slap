@@ -6,7 +6,7 @@
 #
 
 import error, node, token, slaptype, env
-import strutils, tables
+import strutils
 
 type
   # Interpreter takes in an abstract syntax tree and executes
@@ -197,12 +197,21 @@ method eval(self: var Interpreter, statement: VariableStmt) =
   if not statement.init.isNil: value = self.eval(statement.init)
   self.env.define(statement.name.value, value)
 
+proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment) =
+  let previous = self.env
+  try:
+    for i in statements:
+      self.eval(i)
+  finally:
+    self.env = previous
+
+method eval(self: var Interpreter, statement: BlockStmt) = self.executeBlock(statement.statements, newEnv(self.error))
+
 # ----------------------------------------------------------------------
 
 proc interpret*(self: var Interpreter, statements: seq[Stmt]) =
   for s in statements:
     self.eval(s)
-    echo($self.env.values)
 
 # ---------------------------- HELPERS ---------------------------------
 
