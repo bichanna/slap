@@ -23,6 +23,8 @@ SLAP will look like this:
      - [ ] Map
  - [x] Basic arithmetics
  - [x] Variables
+     - [x] Let (mutable)
+     - [ ] Const (immutable)
  - [x] If statement 
      - [ ] elif
      - [x] else
