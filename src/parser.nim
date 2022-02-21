@@ -61,6 +61,7 @@ proc doesMatch(p: var Parser, types: varargs[TokenType]): bool =
 proc expect(p: var Parser, ttype: TokenType, message: string): Token {.discardable.} =
   if p.checkCurrentTok(ttype): return p.advance()
   else: 
+    echo $ttype & " -> " & $p.currentToken()
     error(p.error, p.currentToken().line, "SyntaxError", message)
 
 proc primary(p: var Parser): Expr =
@@ -76,10 +77,30 @@ proc primary(p: var Parser): Expr =
     return GroupingExpr(expression: expre)
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
 
+proc finishCall(p: var Parser, callee: Expr): Expr =
+  var arguments: seq[Expr]
+  if not p.checkCurrentTok(RightParen):
+    arguments.add(p.expression())
+    while p.doesMatch(Comma):
+      if arguments.len >= 256:
+        error(p.error, p.currentToken().line, "SyntaxError", "Cannot have more than 256 arguments")
+      arguments.add(p.expression())
+  let paren = p.expect(RightParen, "Expected ')' after arguments")
+  return CallExpr(callee: callee, paren: paren, arguments: arguments)
+
+proc call(p: var Parser): Expr =
+  var expre: Expr = p.primary()
+  while true:
+    if p.doesMatch(LeftParen):
+      expre = p.finishCall(expre)
+    else:
+      break
+  return expre
+
 proc unary(p: var Parser): Expr =
   if p.doesMatch(Bang, Minus):
     return UnaryExpr(operator: p.previousToken(), right: p.unary())
-  return p.primary()
+  return p.call()
 
 proc factor(p: var Parser): Expr = 
   var expre: Expr = p.unary()
@@ -191,9 +212,24 @@ proc ifStatement(p: var Parser): Stmt =
     elseBranch = p.statement()
   return IfStmt(condition: condition, thenBranch: thenBranch, elseBranch: elseBranch)
 
+proc function(p: var Parser, kind: string): Stmt =
+  let name = p.expect(Identifier, "Expected " & kind & " name")
+  p.expect(LeftParen, "Expected '(' after " & kind & " name")
+  var parameters: seq[Token]
+  if not p.checkCurrentTok(RightParen):
+    parameters.add(p.expect(Identifier, "Expected parameter name"))
+    while p.doesMatch(Comma):
+      if parameters.len >= 256: error(p.error, p.currentToken().line, "SyntaxError", "Cannot have more than 256 parameters")
+      parameters.add(p.expect(Identifier, "Expected parameter name"))
+  p.expect(RightParen, "Expected ')' after parameters")
+  p.expect(LeftBrace, "Expected '{' before " & kind & " body")
+  let body = p.parseBlock()
+  return FuncStmt(name: name, parameters: parameters, body: body)
+
 proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()
   elif p.doesMatch(Const): return p.varDeclaration()
+  elif p.doesMatch(Define): return p.function("function")
   else: return p.statement()
 
 proc parseBlock(p: var Parser): seq[Stmt] =

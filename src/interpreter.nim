@@ -13,14 +13,46 @@ type
   Interpreter* = object
     error*: Error
     env*: Environment
-
+    globals*: Environment
+  
+  FuncType* = ref object of BaseType
+    call*: proc (self: var Interpreter, args: seq[BaseType]): BaseType
+    arity*: proc (): int
+  
+  Function* = ref object of FuncType
+    declaration*: FuncStmt
+  
 const RuntimeError = "RuntimeError"
 
+proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment)
+
 proc newInterpreter*(errorObj: Error): Interpreter =
-  return Interpreter(
-    error: errorObj,
-    env: newEnv(errorObj)
-  )
+  var globals = newEnv(errorObj)
+  globals.define("writeln", FuncType(
+    arity: proc(): int = 1,
+    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+      echo(args[0])
+      return newNull()
+  ))
+  globals.define("write", FuncType(
+    arity: proc(): int = 1,
+    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+      stdout.write(args[0])
+      return newNull()
+  ))
+  return Interpreter(error: errorObj, env: globals, globals: globals)
+
+proc newFunction*(declaration: FuncStmt): Function =
+  var fun = Function()
+  fun.declaration = declaration
+  fun.arity = proc(): int = fun.declaration.parameters.len
+  fun.call = proc(self: var Interpreter, args: seq[BaseType]): BaseType = 
+    var environment = newEnv(self.error, self.env)
+    for i in 0 ..< fun.declaration.parameters.len:
+      environment.define(fun.declaration.parameters[i].value, args[i])
+    self.executeBlock(declaration.body, environment)
+    return newNull()
+  return fun
 
 # ----------------------------------------------------------------------
 
@@ -80,6 +112,18 @@ method eval(self: var Interpreter, expre: LogicalExpr): BaseType =
   else:
     if not self.isTruthy(left): return left
   return self.eval(expre.right)
+
+# eval CallExpr
+method eval(self: var Interpreter, expre: CallExpr): BaseType =
+  let callee = self.eval(expre.callee)
+  var arguments: seq[BaseType]
+  for arg in expre.arguments: arguments.add(self.eval(arg))
+  if not (callee of FuncType):
+    error(self.error, expre.paren, RuntimeError, "Can only call classes and functions")
+  let function = FuncType(callee)
+  if arguments.len != function.arity():
+    error(self.error, expre.paren, RuntimeError, "Expected " & $function.arity() & " arguments but got " & $arguments.len)
+  return function.call(self, arguments)
 
 # eval BinaryExpr
 method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
@@ -206,9 +250,14 @@ method eval(self: var Interpreter, statement: VariableStmt) =
   if not statement.init.isNil: value = self.eval(statement.init)
   self.env.define(statement.name.value, value)
 
+method eval(self: var Interpreter, statement: FuncStmt) =
+  let function = newFunction(statement)
+  self.env.define(statement.name.value, function)
+
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment) =
   let previous = self.env
   try:
+    self.env = environment
     for i in statements:
       self.eval(i)
   finally:
@@ -256,6 +305,7 @@ proc `$`(obj: BaseType): string =
   elif obj of SlapFloat: return $SlapFloat(obj).value
   elif obj of SlapString: return SlapString(obj).value
   elif obj of SlapBool: return $SlapBool(obj).value
+  elif obj of Function: return "<function " & Function(obj).declaration.name.value & ">"
   
-  # unreachable
-  return "??"
+  # hopefully unreachable
+  return "unknown type"
