@@ -31,7 +31,7 @@ SLAP will look like this:
      - [ ] Break
      - [ ] Continue
      - [ ] "Enhanced" for loop (not sure if I want this)
- - [ ] Functions
- - [ ] Standard library
+ - [x] Functions
+ - [x] Standard library
  - [ ] Closures
  - [ ] Classes
