@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node, token, slaptype, env
+import error, node, token, slaptype, env, exception
 import strutils
 
 type
@@ -50,7 +50,9 @@ proc newFunction*(declaration: FuncStmt): Function =
     var environment = newEnv(self.error, self.env)
     for i in 0 ..< fun.declaration.parameters.len:
       environment.define(fun.declaration.parameters[i].value, args[i])
-    self.executeBlock(declaration.body, environment)
+    try:
+      self.executeBlock(declaration.body, environment)
+    except ReturnException as rx: return rx.value
     return newNull()
   return fun
 
@@ -264,6 +266,11 @@ proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Env
     self.env = previous
 
 method eval(self: var Interpreter, statement: BlockStmt) = self.executeBlock(statement.statements, newEnv(self.error))
+
+method eval(self: var Interpreter, statement: ReturnStmt) =
+  var value: BaseType
+  if not statement.value.isNil: value = self.eval(statement.value)
+  raise ReturnException(value: value)
 
 method eval(self: var Interpreter, statement: WhileStmt) =
   while self.isTruthy(self.eval(statement.condition)):

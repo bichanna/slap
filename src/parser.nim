@@ -30,6 +30,7 @@ proc parseBlock(p: var Parser): seq[Stmt]
 proc ifStatement(p: var Parser): Stmt
 proc whileStatement(p: var Parser): Stmt
 proc forStatement(p: var Parser): Stmt
+proc returnStatement(p: var Parser): Stmt
 
 # returns the previous token
 proc previousToken(p: var Parser): Token = return p.tokens[p.current - 1]
@@ -61,7 +62,6 @@ proc doesMatch(p: var Parser, types: varargs[TokenType]): bool =
 proc expect(p: var Parser, ttype: TokenType, message: string): Token {.discardable.} =
   if p.checkCurrentTok(ttype): return p.advance()
   else: 
-    echo $ttype & " -> " & $p.currentToken()
     error(p.error, p.currentToken().line, "SyntaxError", message)
 
 proc primary(p: var Parser): Expr =
@@ -162,7 +162,15 @@ proc statement(p: var Parser): Stmt =
   elif p.doesMatch(If): return p.ifStatement()
   elif p.doesMatch(While): return p.whileStatement()
   elif p.doesMatch(For): return p.forStatement()
+  elif p.doesMatch(Return): return p.returnStatement()
   return p.exprStmt()
+
+proc returnStatement(p: var Parser): Stmt =
+  let keyword = p.previousToken()
+  var value: Expr
+  if not p.checkCurrentTok(SemiColon): value = p.expression()
+  p.expect(SemiColon, "Expected ';' after return value")
+  return ReturnStmt(keyword: keyword, value: value)
 
 proc varDeclaration(p: var Parser): Stmt = 
   let name = p.expect(Identifier, "Expected an identifier")
