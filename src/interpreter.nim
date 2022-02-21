@@ -148,13 +148,13 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either string or int and float")
     of Minus:
       if left of SlapFloat and right of SlapFloat:
-        return newFloat(SlapFloat(left).value + SlapFloat(right).value)
+        return newFloat(SlapFloat(left).value - SlapFloat(right).value)
       elif left of SlapFloat and right of SlapInt:
-        return newFloat(SlapFloat(left).value + float(SlapInt(right).value))
+        return newFloat(SlapFloat(left).value - float(SlapInt(right).value))
       elif left of SlapInt and right of SlapFloat:
-        return newFloat(float(SlapInt(left).value) + SlapFloat(right).value)
+        return newFloat(float(SlapInt(left).value) - SlapFloat(right).value)
       elif left of SlapInt and right of SlapInt:
-        return newInt(SlapInt(left).value + SlapInt(right).value)
+        return newInt(SlapInt(left).value - SlapInt(right).value)
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either string or int and float")
     of Slash: # division always returns a flost
@@ -265,7 +265,7 @@ proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Env
   finally:
     self.env = previous
 
-method eval(self: var Interpreter, statement: BlockStmt) = self.executeBlock(statement.statements, newEnv(self.error))
+method eval(self: var Interpreter, statement: BlockStmt) = self.executeBlock(statement.statements, newEnv(self.error, self.env))
 
 method eval(self: var Interpreter, statement: ReturnStmt) =
   var value: BaseType
