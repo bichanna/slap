@@ -10,5 +10,5 @@ import slaptype
 type
   # ReturnException is used to unwind all the way
   # down to the body of the function
-  ReturnException* = ref object of Exception
+  ReturnException* = ref object of CatchableError
     value*: BaseType
