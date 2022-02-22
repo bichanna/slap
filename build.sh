@@ -8,6 +8,7 @@ NC='\033[0m'
 echo "Building SLAP..."
 nimble build --multimethods:on -d:release --silent
 if [ $? -eq 0 ]; then
+	cp ./main /usr/local/bin/slap
 	echo -e "${GREEN}Completed${NC}"
 	exit 0
 else
