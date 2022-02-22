@@ -4,13 +4,9 @@
 
 **WARNING!! THIS LANGUAGE IS IN DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT.**
 
-SLAP is a **Sl**ow **A**nd **P**owerless programming language.
+SLAP stands for **Sl**ow **A**nd **P**owerless. And I hope to make it '**P**owerfull' someday.<br>
+SLAP is a dynamically and strongly typed, object-oriented programming language with the syntax of the C family.
 
-SLAP will look like this:
-
-<div align="center">
-    <img width="600px" src="https://user-images.githubusercontent.com/60306074/154850081-2db1f87a-0c93-4958-a796-74cfbd343bb8.png">
-</div>
 
 ## TODO
  - [x] Basic data types
@@ -37,3 +33,6 @@ SLAP will look like this:
  - [x] Standard library
  - [ ] Closures
  - [ ] Classes
+
+
+
