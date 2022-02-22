@@ -148,6 +148,7 @@ proc tokenize*(l: var Lexer): seq[Token] =
     of '-': l.appendToken(Minus)
     of '~': l.appendToken(Tilde)
     of '*': l.appendToken(Star)
+    of '%': l.appendToken(Modulo)
     of '/': l.appendToken(Slash)
     of '@': l.appendToken(At)
     of '^': l.appendToken(Caret)

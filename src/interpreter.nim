@@ -191,6 +191,11 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
         return newInt(SlapInt(left).value * SlapInt(right).value)
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
+    of Modulo:
+      if left of SlapInt and right of SlapInt:
+        return newInt(SlapInt(left).value mod SlapInt(right).value)
+      else:
+        error(self.error, expre.operator.line, RuntimeError, "All operands must be int")
     # Comparison Operators
     of Greater:
       if left of SlapFloat and right of SlapFloat:

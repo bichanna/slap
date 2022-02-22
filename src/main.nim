@@ -46,6 +46,6 @@ when isMainModule:
   setControlCHook(handleCtrlC)
 
   let params = commandLineParams()
-  if params.len > 1: quit("Usage: slap [filename.slp]")
+  if params.len > 1: quit("Usage: slap [filename.slap]")
   elif params.len == 1: runFile(params[0])
   else: repl()

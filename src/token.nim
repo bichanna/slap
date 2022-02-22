@@ -25,6 +25,7 @@ type
     Minus               = "MINUS" # -
     Tilde               = "TILDE" # ~
     Star                = "STAR" # *
+    Modulo              = "MODULO" # %
     Slash               = "SLASH" # /
     Pound               = "POUND" # #
     At                  = "AT" # @
