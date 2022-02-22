@@ -9,7 +9,9 @@ echo "Building SLAP..."
 nimble build --multimethods:on -d:release --silent
 if [ $? -eq 0 ]; then
 	cp ./main /usr/local/bin/slap
+	cp ./editor/slap.vim ~/.vim/syntax
 	echo -e "${GREEN}Completed${NC}"
+	echo -e "${GREEN}Usage: 'slap [filename.slap]'${NC}"
 	exit 0
 else
 	echo -e "${RED}Failed${NC}"
