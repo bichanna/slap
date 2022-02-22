@@ -21,6 +21,7 @@ type
   
   Function* = ref object of FuncType
     declaration*: FuncStmt
+    closure*: Environment
   
 const RuntimeError = "RuntimeError"
 
@@ -42,12 +43,13 @@ proc newInterpreter*(errorObj: Error): Interpreter =
   ))
   return Interpreter(error: errorObj, env: globals, globals: globals)
 
-proc newFunction*(declaration: FuncStmt): Function =
+proc newFunction*(declaration: FuncStmt, closure: Environment): Function =
   var fun = Function()
   fun.declaration = declaration
+  fun.closure = closure
   fun.arity = proc(): int = fun.declaration.parameters.len
   fun.call = proc(self: var Interpreter, args: seq[BaseType]): BaseType = 
-    var environment = newEnv(self.error, self.env)
+    var environment = newEnv(self.error, closure)
     for i in 0 ..< fun.declaration.parameters.len:
       environment.define(fun.declaration.parameters[i].value, args[i])
     try:
@@ -258,7 +260,7 @@ method eval(self: var Interpreter, statement: VariableStmt) =
   self.env.define(statement.name.value, value)
 
 method eval(self: var Interpreter, statement: FuncStmt) =
-  let function = newFunction(statement)
+  let function = newFunction(statement, self.env)
   self.env.define(statement.name.value, function)
 
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment) =
