@@ -35,7 +35,6 @@ SLAP is a dynamically and strongly typed, object-oriented programming language w
      - [ ] "Enhanced" for loop (not sure if I want this)
  - [x] Functions
  - [x] Standard library
- - [ ] Closures
  - [ ] Classes
 
 
