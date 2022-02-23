@@ -293,7 +293,10 @@ method eval(self: var Interpreter, statement: IfStmt) =
 
 proc interpret*(self: var Interpreter, statements: seq[Stmt]) =
   for s in statements:
-    self.eval(s)
+    try:
+      self.eval(s)
+    except ReturnException as rx:
+      error(self.error, -2, "RuntimeError", "Return statement can only be used inside functions\nvalue: " & $rx.value)
 
 # ---------------------------- HELPERS ---------------------------------
 

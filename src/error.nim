@@ -13,7 +13,7 @@ type
     source*: string
 
 proc error*(e: Error, line: int, errorName: string, message: string) =
-  echo "\e[31m", fmt"{line+1}: {splitLines(e.source)[line]}"
+  if line >= -1: echo "\e[31m", fmt"{line+1}: {splitLines(e.source)[line]}"
   if node.isRepl: echo(fmt"{errorName}: {message}" & "\e[0m")
   else: quit(fmt"{errorName}: {message}" & "\e[0m")
 
