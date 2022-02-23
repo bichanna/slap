@@ -53,6 +53,9 @@ if (i < 10) {
 } else {
     writeln("bigger than 10");
 }
+
+# here's one-line if
+if (i < 10) writeln("smaller than 10");
 ```
 
 A `while` loop is just like many other languages.
