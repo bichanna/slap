@@ -28,8 +28,11 @@ proc execute(source: string) =
 
 # reads a file and pass it to the execute func
 proc runFile(path: string) =
-  let source = readFile(path)
-  execute(source)
+  try:
+    let source = readFile(path)
+    execute(source)
+  except IOError:
+    quit("Cannot open '" & path & "'. No such file or directory")
 
 # starts a new REPL session
 proc repl() =
