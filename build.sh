@@ -12,6 +12,7 @@ nimble build --multimethods:on -d:release --silent
 if [ $? -eq 0 ]; then
 	cp ./main /usr/local/bin/slap
 	cp ./editor/slap.vim ~/.vim/syntax
+	echo "autocmd BufRead,BufNewFile *.slap set filetype=slap" >> ~/.vimrc
 	echo -e "${GREEN}Completed${NC}"
 	echo -e "${GREEN}Usage: 'slap [filename.slap]'${NC}"
 	exit 0
