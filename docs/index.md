@@ -36,13 +36,12 @@ null;         # null
 ```
 
 ### Variables
-Currently, SLAP only supports one variable type: `let`, which is mutable.<br>
+Currently, SLAP only supports one variable type: `let`, which is mutable. Alternatively, you can use `$`.
 > *Note:* `const` type will be added in the future.
 ```
 let variable = "Some string";
 variable = 123;
 
-# Alternatively, you can use $
 $age = 15;
 age = age + 1;
 ```
