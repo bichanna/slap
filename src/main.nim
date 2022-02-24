@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import os, lexer, error, parser, interpreter, node
+import os, lexer, error, parser, interpreter, node, resolver
 
 # actually executes a source code
 proc execute(source: string) = 
@@ -19,7 +19,10 @@ proc execute(source: string) =
   let nodes = parser.parse()
 
   # interpreting
-  var interpreter = newInterpreter(error)
+  var
+    interpreter = newInterpreter(error)
+    resolver = newResolver(interpreter, error)
+  resolver.resolve(nodes)
   interpreter.interpret(nodes)
 
 # reads a file and pass it to the execute func
