@@ -23,6 +23,7 @@ proc execute(source: string) =
     interpreter = newInterpreter(error)
     resolver = newResolver(interpreter, error)
   resolver.resolve(nodes)
+  interpreter = resolver.interpreter
   interpreter.interpret(nodes)
 
 # reads a file and pass it to the execute func
