@@ -32,8 +32,8 @@ proc resolveFunction(self: var Resolver, function: FuncStmt, functype: FunctionT
 
 # ----------------------------------------------------------------------
 
-method resolve(self: var Resolver, expre: Expr) {.base.} = discard
-method resolve(self: var Resolver, statement: Stmt) {.base.} = discard
+method resolve(self: var Resolver, expre: Expr) {.base, locks: "unknown".} = discard
+method resolve(self: var Resolver, statement: Stmt) {.base, locks: "unknown".} = discard
 
 method resolve*(self: var Resolver, statements: seq[Stmt]) =
   for statement in statements:
