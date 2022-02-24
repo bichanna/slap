@@ -24,6 +24,7 @@ writeln("This will be printed"); # Another comment
 
 ### Data Types
 > *Note:* NYI stands for "Not Yet Implemented"
+
  - String
  - Int
  - Float
@@ -31,6 +32,7 @@ writeln("This will be printed"); # Another comment
  - Null
  - Array (NYI)
  - Map (NYI)
+
 ```
 "A string";   # string
 123;          # int
@@ -40,8 +42,10 @@ null;         # null
 ```
 
 ### Variables
+
 Currently, SLAP only supports one variable type: `let`, which is mutable. Alternatively, you can use `$`.
 > *Note:* `const` type will be added in the future.
+
 ```
 let variable = "Some string";
 variable = 123;
@@ -51,6 +55,7 @@ age = age + 1;
 ```
 
 ### Control Flow
+
 > *Note:* `elif` is not yet available but will be added soon.
 
 An `if` statement executes one of two statements based on some condition.
@@ -60,8 +65,9 @@ if (i < 10) {
 } else {
     writeln("bigger than 10");
 }
-
-# here's one-line if
+```
+You can also use just one line for an if statement.
+```
 if (i < 10) writeln("smaller than 10");
 ```
 
