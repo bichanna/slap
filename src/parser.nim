@@ -234,10 +234,20 @@ proc function(p: var Parser, kind: string): Stmt =
   let body = p.parseBlock()
   return FuncStmt(name: name, parameters: parameters, body: body)
 
+proc classDeclaration(p: var Parser): Stmt =
+  let name = p.expect(Identifier, "Expected class name")
+  p.expect(LeftBrace, "Expected '{' before class body")
+  var methods: seq[FuncStmt]
+  while not p.checkCurrentTok(RightBrace) and not p.isAtEnd():
+    methods.add(FuncStmt(p.function("method")))
+  p.expect(RightBrace, "Expected '}' after class body")
+  return ClassStmt(name: name, methods:methods)
+
 proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()
   elif p.doesMatch(Const): return p.varDeclaration()
   elif p.doesMatch(Define): return p.function("function")
+  elif p.doesMatch(Class): return p.classDeclaration()
   else: return p.statement()
 
 proc parseBlock(p: var Parser): seq[Stmt] =
