@@ -32,6 +32,13 @@ proc get*(env: var Environment, name: Token): BaseType =
   else:
     error(env.error, name.line, "RuntimeError", "'" & name.value & "' is not defined")
 
+proc ancestor(env: var Environment, distance: int): Environment =
+  var environment = env
+  for _ in 0 ..< distance: environment = environment.enclosing
+  return environment
+
+proc getAt*(env: var Environment, distance: int, name: string): BaseType = return env.ancestor(distance).values[name]
+
 # assign
 proc assign*(env: var Environment, name: Token, value: BaseType) =
   if env.values.hasKey(name.value):
@@ -41,3 +48,5 @@ proc assign*(env: var Environment, name: Token, value: BaseType) =
     env.enclosing.assign(name, value)
     return
   error(env.error, name.line, "RuntimeError", "'" & name.value & "' is not defined")
+
+proc assignAt*(env: var Environment, distance: int, name: Token, value: BaseType) = env.ancestor(distance).values[name.value] = value
