@@ -6,7 +6,7 @@
 #
 
 import error, node, token, slaptype, env, exception
-import strutils
+import strutils, tables
 
 type
   # Interpreter takes in an abstract syntax tree and executes
@@ -14,6 +14,8 @@ type
     error*: Error
     env*: Environment
     globals*: Environment
+    exprSeqForLocals*: seq[Expr]
+    locals*: Table[int, int]
   
   FuncType* = ref object of BaseType
     call*: proc (self: var Interpreter, args: seq[BaseType]): BaseType
@@ -32,7 +34,7 @@ proc newInterpreter*(errorObj: Error): Interpreter =
   globals.define("writeln", FuncType(
     arity: proc(): int = 1,
     call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
-      echo(args[0])
+      stdout.write(args[0], "\n")
       return newNull()
   ))
   globals.define("write", FuncType(
@@ -41,7 +43,7 @@ proc newInterpreter*(errorObj: Error): Interpreter =
       stdout.write(args[0])
       return newNull()
   ))
-  return Interpreter(error: errorObj, env: globals, globals: globals)
+  return Interpreter(error: errorObj, env: globals, globals: globals, locals: initTable[int, int]())
 
 proc newFunction*(declaration: FuncStmt, closure: Environment): Function =
   var fun = Function()
@@ -63,11 +65,12 @@ proc newFunction*(declaration: FuncStmt, closure: Environment): Function =
 # forward declarations for helper functions
 proc isTruthy(self: var Interpreter, obj: BaseType): bool
 proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool
-proc `$`(obj: BaseType): string
+proc loopUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType
+proc `$`*(obj: BaseType): string
 
 # --------------------------- EXPRESSIONS ------------------------------
 
-method eval(self: var Interpreter, expre: Expr): BaseType {.base.} = discard
+method eval(self: var Interpreter, expre: Expr): BaseType {.base, locks: "unknown".} = discard
 
 method eval(self: var Interpreter, expre: LiteralExpr): BaseType =
   case expre.kind
@@ -100,12 +103,20 @@ method eval(self: var Interpreter, expre: UnaryExpr): BaseType =
     discard
 
 # eval VariableExpr
-method eval(self: var Interpreter, expre: VariableExpr): BaseType = return self.env.get(expre.name)
+method eval(self: var Interpreter, expre: VariableExpr): BaseType =
+  return self.loopUpVariable(expre.name, expre)
 
 # eval AssignExpr
 method eval(self: var Interpreter, expre: AssignExpr): BaseType =
   let value = self.eval(expre.value)
-  self.env.assign(expre.name, value)
+  var gotIt = false
+  let i = self.exprSeqForLocals.find(expre)
+  if i != -1:
+    let distance = self.locals.getOrDefault(i, -1)
+    if distance != -1:
+      gotIt = true
+      self.env.assignAt(distance, expre.name, value)
+  if not gotIt: self.globals.assign(expre.name, value)
   return value
 
 # eval LogicalExpr
@@ -250,9 +261,10 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
 
 # --------------------------- STATEMENTS -------------------------------
 
-method eval(self: var Interpreter, statement: Stmt) {.base.} = discard
+method eval(self: var Interpreter, statement: Stmt) {.base, locks: "unknown".} = discard
 
-method eval(self: var Interpreter, statement: ExprStmt) = discard self.eval(statement.expression)
+method eval(self: var Interpreter, statement: ExprStmt) =
+  discard self.eval(statement.expression)
 
 method eval(self: var Interpreter, statement: VariableStmt) = 
   var value: BaseType = newNull() # defaults to null
@@ -272,7 +284,8 @@ proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Env
   finally:
     self.env = previous
 
-method eval(self: var Interpreter, statement: BlockStmt) = self.executeBlock(statement.statements, newEnv(self.error, self.env))
+method eval(self: var Interpreter, statement: BlockStmt) =
+  self.executeBlock(statement.statements, newEnv(self.error, self.env))
 
 method eval(self: var Interpreter, statement: ReturnStmt) =
   var value: BaseType
@@ -290,6 +303,10 @@ method eval(self: var Interpreter, statement: IfStmt) =
     self.eval(statement.elseBranch)
 
 # ----------------------------------------------------------------------
+
+proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
+  self.exprSeqForLocals.add(expre)
+  self.locals[self.exprSeqForLocals.len-1] = depth
 
 proc interpret*(self: var Interpreter, statements: seq[Stmt]) =
   for s in statements:
@@ -310,16 +327,27 @@ proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool =
   elif left of SlapFloat and right of SlapFloat: return SlapFloat(left).value == SlapFloat(right).value
   elif left of SlapFloat and right of SlapInt: return SlapFloat(left).value == float(SlapInt(right).value)
   elif left of SlapString and right of SlapString: return SlapString(left).value == SlapString(right).value
-  # I will add for classes, functions, etc.
   else: return false
 
-proc `$`(obj: BaseType): string =
+proc loopUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType = 
+  var gotIt = false
+  let i = self.exprSeqForLocals.find(expre)
+  if i != -1:
+    let distance = self.locals.getOrDefault(i, -1)
+    if distance != -1:
+      gotIt = true
+      return self.env.getAt(distance, name.value)
+  if not gotIt:
+    return self.globals.get(name)
+
+proc `$`*(obj: BaseType): string =
   if obj of SlapNull: return "null"
   elif obj of SlapInt: return $SlapInt(obj).value
   elif obj of SlapFloat: return $SlapFloat(obj).value
   elif obj of SlapString: return SlapString(obj).value
   elif obj of SlapBool: return $SlapBool(obj).value
   elif obj of Function: return "<function " & Function(obj).declaration.name.value & ">"
+  elif obj of FuncType: return "<native function>"
   
   # hopefully unreachable
   return "unknown type"
