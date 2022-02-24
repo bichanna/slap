@@ -48,3 +48,5 @@ proc assign*(env: var Environment, name: Token, value: BaseType) =
     env.enclosing.assign(name, value)
     return
   error(env.error, name.line, "RuntimeError", "'" & name.value & "' is not defined")
+
+proc assignAt*(env: var Environment, distance: int, name: Token, value: BaseType) = env.ancestor(distance).values[name.value] = value
