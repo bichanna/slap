@@ -13,9 +13,13 @@ type
     interpreter*: Interpreter
     error*: Error
     scopes: seq[Table[string, bool]]
+    currentFunction: FunctionType
+  
+  FunctionType = enum
+    NONE, FUNCTION
 
 proc newResolver*(interpreter: Interpreter, errorObj: Error): Resolver =
-  return Resolver(interpreter: interpreter, error: errorObj)
+  return Resolver(interpreter: interpreter, error: errorObj, currentFunction: NONE)
 
 # ----------------------------------------------------------------------
 
@@ -24,7 +28,7 @@ proc endScope(self: var Resolver)
 proc declare(self: var Resolver, name: Token)
 proc define(self: var Resolver, name: Token)
 proc resolveLocal(self: var Resolver, expre: Expr, name: Token)
-proc resolveFunction(self: var Resolver, function: FuncStmt)
+proc resolveFunction(self: var Resolver, function: FuncStmt, functype: FunctionType)
 
 # ----------------------------------------------------------------------
 
@@ -57,7 +61,7 @@ method resolve(self: var Resolver, expre: AssignExpr) =
 method resolve(self: var Resolver, statement: FuncStmt) =
   self.declare(statement.name)
   self.define(statement.name)
-  self.resolveFunction(statement)
+  self.resolveFunction(statement, FUNCTION)
 
 method resolve(self: var Resolver, statement: ExprStmt) = self.resolve(statement.expression)
 
@@ -67,6 +71,7 @@ method resolve(self: var Resolver, statement: IfStmt) =
   if not statement.elseBranch.isNil: self.resolve(statement.elseBranch)
 
 method resolve(self: var Resolver, statement: ReturnStmt) =
+  if self.currentFunction == NONE: error(self.error, statement.keyword, "ScopeError", "Cannot return from top-level code")
   if not statement.value.isNil: self.resolve(statement.value)
 
 method resolve(self: var Resolver, statement: WhileStmt) =
@@ -115,10 +120,13 @@ proc resolveLocal(self: var Resolver, expre: Expr, name: Token) =
       self.interpreter.resolve(expre, self.scopes.len - 1 - i)
       return
 
-proc resolveFunction(self: var Resolver, function: FuncStmt) =
+proc resolveFunction(self: var Resolver, function: FuncStmt, functype: FunctionType) =
+  let enclosingFunction = self.currentFunction
+  self.currentFunction = functype
   self.beginScope()
   for param in function.parameters:
     self.declare(param)
     self.define(param)
   self.resolve(function.body)
   self.endScope()
+  self.currentFunction = enclosingFunction
