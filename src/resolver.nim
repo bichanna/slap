@@ -112,7 +112,7 @@ proc define(self: var Resolver, name: Token) =
 proc resolveLocal(self: var Resolver, expre: Expr, name: Token) =
   for i in countdown(self.scopes.len-1, 0):
     if self.scopes[i].contains(name.value):
-      self.interpreter.resolve(expre, scopes.len - 1 - i)
+      self.interpreter.resolve(expre, self.scopes.len - 1 - i)
       return
 
 proc resolveFunction(self: var Resolver, function: FuncStmt) =
