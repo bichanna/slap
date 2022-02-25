@@ -8,8 +8,8 @@
 **WARNING!! THIS LANGUAGE IS IN DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT.**
 
 SLAP stands for **Sl**ow **A**nd **P**owerless. And I hope to make it '**P**owerfull' someday.<br>
-SLAP is a dynamically and strongly typed, object-oriented programming language with the syntax of the C family.
-
+SLAP is a dynamically and strongly typed, object-oriented programming language with the syntax of the C family.<br>
+SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to feel similar with a little bit of difference.
 
 
 ## TODO
