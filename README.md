@@ -30,9 +30,9 @@ SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to 
      - [x] else
  - [x] While loops
  - [x] For loops
-     - [ ] Break
+     - [x] Break
      - [ ] Continue
-     - [ ] "Enhanced" for loop (not sure if I want this)
+     - [ ] "Enhanced" for loop
  - [x] Functions
  - [x] Standard library
  - [x] Classes
