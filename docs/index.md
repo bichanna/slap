@@ -122,6 +122,28 @@ outerFunc();
 ```
 
 ### Classes
-> *Note:* Will be added soon.
+> *Note:* Inheritance is not yet implemented.
+
+A class looks like this:
+```
+class Car {
+    new(color, style, brand) {
+        self.color = color;
+        self.brand = brand;
+        &.style = style; # '&' can also be used
+	   }
+
+	   getColor() {
+  		    return self.color;
+	   }
+}
+
+$blackMazda = Car("Black", "SUV", "Mazda");
+
+writeln(blackMazda.getColor());
+writeln(blackMazda.style);
+blackMazda.color = "black";
+writeln(blackMazda.color);
+```
 
 
