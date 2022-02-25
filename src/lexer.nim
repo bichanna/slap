@@ -13,6 +13,7 @@ const
   keywords = {
     "define": Define,
     "class": Class,
+    "static": Static,
     "and": And,
     "let": Let,
     "const": Const,
