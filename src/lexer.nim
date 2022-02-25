@@ -128,7 +128,9 @@ proc makeIdentifier(l: var Lexer) =
   while l.currentChar() in Letters:
     identifier.add(l.currentChar())
     l.advance()
-  if keywords.hasKey(identifier): l.appendToken(keywords[identifier])
+  if keywords.hasKey(identifier):
+    if identifier == "self": l.appendToken(keywords[identifier], "self")
+    else: l.appendToken(keywords[identifier])
   else: l.appendToken(Identifier, identifier)
 
 proc tokenize*(l: var Lexer): seq[Token] =
