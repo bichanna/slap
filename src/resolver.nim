@@ -100,6 +100,12 @@ method resolve(self: var Resolver, statement: ClassStmt) =
 
 method resolve(self: var Resolver, expre: UnaryExpr) = self.resolve(expre.right)
 
+method resolve(self: var Resolver, expre: GetExpr) = self.resolve(expre.instance)
+
+method resolve(self: var Resolver, expre: SetExpr) =
+  self.resolve(expre.value)
+  self.resolve(expre.instance)
+
 # ---------------------------- HELPERS ---------------------------------
 
 proc beginScope(self: var Resolver) = self.scopes.add(initTable[string, bool]())
