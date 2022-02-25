@@ -14,12 +14,14 @@ type
     error*: Error
     tokens*: seq[Token]
     current*: int
+    loopDepth*: int
 
 proc newParser*(tokens: seq[Token], errorObj: Error): Parser =
   return Parser(
     error: errorObj,
     tokens: tokens,
-    current: 0
+    current: 0,
+    loopDepth: 0
   )
 
 # ----------------------------------------------------------------------
@@ -164,12 +166,19 @@ proc exprStmt(p: var Parser): Stmt =
   p.expect(SemiColon, "Expected ';'")
   return ExprStmt(expression: expre)
 
+proc breakStatement(p: var Parser): Stmt =
+  if p.loopDepth == 0:
+    error(p.error, p.previousToken(), "SyntaxError", "'break' can only be used inside a loop")
+  p.expect(SemiColon, "Expected ';' after 'break'")
+  return BreakStmt()
+
 proc statement(p: var Parser): Stmt =
   if p.doesMatch(LeftBrace): return BlockStmt(statements: p.parseBlock())
   elif p.doesMatch(If): return p.ifStatement()
   elif p.doesMatch(While): return p.whileStatement()
   elif p.doesMatch(For): return p.forStatement()
   elif p.doesMatch(Return): return p.returnStatement()
+  elif p.doesMatch(Break): return p.breakStatement()
   return p.exprStmt()
 
 proc returnStatement(p: var Parser): Stmt =
@@ -202,19 +211,27 @@ proc forStatement(p: var Parser): Stmt =
   if not p.checkCurrentTok(RightParen): increment = p.expression()
   p.expect(RightParen, "Expected ')' after for clauses")
   
-  var body = p.statement()
-  if not increment.isNil: body = BlockStmt(statements: @[body, ExprStmt(expression: increment)])
-  if condition.isNil: condition = LiteralExpr(kind: True, value: "")
-  body = WhileStmt(condition: condition, body: body)
-  if not init.isNil: body = BlockStmt(statements: @[init, body])
-  return body
+  try:
+    p.loopDepth += 1
+    var body = p.statement()
+    if not increment.isNil: body = BlockStmt(statements: @[body, ExprStmt(expression: increment)])
+    if condition.isNil: condition = LiteralExpr(kind: True, value: "")
+    body = WhileStmt(condition: condition, body: body)
+    if not init.isNil: body = BlockStmt(statements: @[init, body])
+    return body
+  finally:
+    p.loopDepth -= 1
 
 proc whileStatement(p: var Parser): Stmt =
   p.expect(LeftParen, "Expected '(' after 'while'")
   let condition = p.expression()
   p.expect(RightParen, "Expected ')' after while condition")
-  let body = p.statement()
-  return WhileStmt(condition: condition, body: body)
+  try:
+    p.loopDepth += 1
+    let body = p.statement()
+    return WhileStmt(condition: condition, body: body)
+  finally:
+    p.loopDepth -= 1
 
 proc ifStatement(p: var Parser): Stmt =
   p.expect(LeftParen, "Expected '(' after 'if'")
