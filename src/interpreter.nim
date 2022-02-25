@@ -111,13 +111,6 @@ proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
 
 proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value] = value
 
-# proc get(ct: ClassType, name: Token, i: Interpreter): BaseType =
-#   if ct.fields.hasKey(name.value): return ct.fields[name.value]
-#   let m = findMethod(ct.class, name.value)
-#   if not m.isNil: return m.`bind`(ct, i)
-#   error(i.error, name.line, RuntimeError, "Property '" & name.value & "' is not defined")
-
-# proc set(ci: ClassType, name: Token, value: BaseType) = ci.fields[name.value] = value
 # ----------------------------------------------------------------------
 
 # forward declarations for helper functions
