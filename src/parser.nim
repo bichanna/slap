@@ -93,6 +93,9 @@ proc call(p: var Parser): Expr =
   while true:
     if p.doesMatch(LeftParen):
       expre = p.finishCall(expre)
+    elif p.doesMatch(Dot):
+      let name = p.expect(Identifier, "Expected property name after '.'")
+      expre = GetExpr(instance: expre, name: name)
     else:
       break
   return expre
@@ -146,6 +149,9 @@ proc assignment(p: var Parser): Expr =
     if expre of VariableExpr:
       let name = VariableExpr(expre).name
       return AssignExpr(name: name, value: value)
+    elif expre of GetExpr:
+      let get = GetExpr(expre)
+      return SetExpr(instance: get.instance, name: get.name, value: value)
     else:
       error(p.error, equals.line, "SyntaxError", "Invalid assignment target")
   return expre
