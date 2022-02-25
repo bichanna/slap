@@ -273,6 +273,10 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
         return newFloat(float(SlapInt(left).value) * SlapFloat(right).value)
       elif left of SlapInt and right of SlapInt:
         return newInt(SlapInt(left).value * SlapInt(right).value)
+      elif left of SlapString and right of SlapInt:
+        var str = ""
+        for i in 0 ..< SlapInt(right).value: str &= SlapString(left).value
+        return newString(str)
       else:
         error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
     of Modulo:
