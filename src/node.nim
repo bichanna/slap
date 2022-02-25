@@ -98,4 +98,5 @@ type
     name*: Token
     superclass*: VariableExpr
     methods*: seq[FuncStmt]
+    classMethods*: seq[FuncStmt]
   
