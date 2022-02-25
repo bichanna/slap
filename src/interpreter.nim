@@ -364,14 +364,19 @@ method eval(self: var Interpreter, statement: ReturnStmt) =
   raise ReturnException(value: value)
 
 method eval(self: var Interpreter, statement: WhileStmt) =
-  while self.isTruthy(self.eval(statement.condition)):
-    self.eval(statement.body)
+  try:
+    while self.isTruthy(self.eval(statement.condition)):
+      self.eval(statement.body)
+  # just ignore
+  except BreakException: return
 
 method eval(self: var Interpreter, statement: IfStmt) =
   if self.isTruthy(self.eval(statement.condition)):
     self.eval(statement.thenBranch)
   elif not statement.elseBranch.isNil:
     self.eval(statement.elseBranch)
+
+method eval(self: var Interpreter, statement: BreakStmt) = raise BreakException()
 
 method eval(self: var Interpreter, statement: ClassStmt) =
   self.env.define(statement.name.value, newNull())
