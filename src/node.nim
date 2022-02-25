@@ -13,6 +13,8 @@ var isRepl*: bool = false
 type
   Expr* = ref object of RootObj
 
+  BreakExpr* = ref object of Expr
+
   BinaryExpr* = ref object of Expr
     left*: Expr
     operator*: Token
