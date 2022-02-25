@@ -49,12 +49,13 @@ type
     # keywords
     Define              = "define"
     Class               = "class"
+    Static              = "static"
     And                 = "and"
     Let                 = "let"
     Const               = "const"
     Or                  = "or"
     If                  = "if"
-    Elif                = "elif" # this may be deleted in the future
+    Elif                = "elif"
     Else                = "else"
     For                 = "for"
     Super               = "super"

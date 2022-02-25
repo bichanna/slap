@@ -245,10 +245,13 @@ proc classDeclaration(p: var Parser): Stmt =
   let name = p.expect(Identifier, "Expected class name")
   p.expect(LeftBrace, "Expected '{' before class body")
   var methods: seq[FuncStmt]
+  var classMethods: seq[FuncStmt]
   while not p.checkCurrentTok(RightBrace) and not p.isAtEnd():
-    methods.add(FuncStmt(p.function("method")))
+    let isCM = p.doesMatch(Static)
+    if not isCM: methods.add(FuncStmt(p.function("method")))
+    else: classMethods.add(FuncStmt(p.function("method")))
   p.expect(RightBrace, "Expected '}' after class body")
-  return ClassStmt(name: name, methods:methods)
+  return ClassStmt(name: name, methods: methods, classMethods: classMethods)
 
 proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()

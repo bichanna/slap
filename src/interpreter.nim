@@ -31,6 +31,7 @@ type
   ClassType* = ref object of FuncType
     name*: string
     methods*: Table[string, Function]
+    cinstance*: ClassInstance
 
   ClassInstance* = ref object of BaseType
     class*: ClassType
@@ -87,7 +88,7 @@ proc newClassInstance(class: ClassType): ClassInstance =
   var instance = ClassInstance(class: class, fields: initTable[string, BaseType]())
   return instance
 
-proc newClass(name: string, methods: Table[string, Function]): ClassType =
+proc newClass(metaclass: ClassType, name: string, methods: Table[string, Function]): ClassType =
   var class = ClassType(name: name)
   class.arity = proc(): int = 
     let init = class.findMethod("new")
@@ -99,6 +100,7 @@ proc newClass(name: string, methods: Table[string, Function]): ClassType =
     if not init.isNil: discard `bind`(init, instance, self).call(self, args)
     return instance
   class.methods = methods
+  class.cinstance = newClassInstance(metaclass)
   return class
 
 proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
@@ -109,6 +111,13 @@ proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
 
 proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value] = value
 
+# proc get(ct: ClassType, name: Token, i: Interpreter): BaseType =
+#   if ct.fields.hasKey(name.value): return ct.fields[name.value]
+#   let m = findMethod(ct.class, name.value)
+#   if not m.isNil: return m.`bind`(ct, i)
+#   error(i.error, name.line, RuntimeError, "Property '" & name.value & "' is not defined")
+
+# proc set(ci: ClassType, name: Token, value: BaseType) = ci.fields[name.value] = value
 # ----------------------------------------------------------------------
 
 # forward declarations for helper functions
@@ -191,7 +200,10 @@ method eval(self: var Interpreter, expre: CallExpr): BaseType =
 # eval GetExpr
 method eval(self: var Interpreter, expre: GetExpr): BaseType =
   let obj = self.eval(expre.instance)
-  if obj of ClassInstance: return ClassInstance(obj).get(expre.name, self)
+  if obj of ClassInstance:
+    return ClassInstance(obj).get(expre.name, self)
+  elif obj of ClassType:
+    return ClassType(obj).cinstance.get(expre.name, self)
   error(self.error, expre.name.line, RuntimeError, "Only instances have properties")
 
 # eval SetExpr
@@ -370,11 +382,17 @@ method eval(self: var Interpreter, statement: IfStmt) =
 
 method eval(self: var Interpreter, statement: ClassStmt) =
   self.env.define(statement.name.value, newNull())
+  var classMethods = initTable[string, Function]()
+  for m in statement.classMethods:
+    let fun = newFunction(m, self.env, false)
+    classMethods[m.name.value] = fun
+  let metaclass = newClass(nil, statement.name.value & " metaclass", classMethods)
+
   var methods = initTable[string, Function]()
   for m in statement.methods:
     let function = newFunction(m, self.env, m.name.value == "new")
     methods[m.name.value] = function
-  let class = newClass(statement.name.value, methods)
+  let class = newClass(metaclass, statement.name.value, methods)
   self.env.assign(statement.name, class)
 
 # ----------------------------------------------------------------------

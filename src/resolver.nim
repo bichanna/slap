@@ -113,6 +113,11 @@ method resolve(self: var Resolver, statement: ClassStmt) =
     var declaration = METHOD
     if m.name.value == "new": declaration = INITIALIZER
     self.resolveFunction(m, declaration)
+  for m in statement.classMethods:
+    self.beginScope()
+    self.scopes[self.scopes.len-1]["self"] = true
+    self.resolveFunction(m, METHOD)
+    self.endScope()
   self.endScope()
   self.currentClass = enclosingClass;
 
