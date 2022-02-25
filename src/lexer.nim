@@ -157,8 +157,10 @@ proc tokenize*(l: var Lexer): seq[Token] =
     of '^': l.appendToken(Caret)
     of ',': l.appendToken(Comma)
     of '$': l.appendToken(Let)
-    of '&': l.appendToken(Self, "self")
     of '"': l.makeString()
+    of '&': # `&property` is a shortcut for `self.property`
+      l.appendToken(Self, "self")
+      l.appendToken(Dot)
     of '!':
       if l.doesMatch('='): l.appendToken(BangEqual)
       else: l.appendToken(Bang)
