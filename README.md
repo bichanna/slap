@@ -35,7 +35,7 @@ SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to 
      - [ ] "Enhanced" for loop (not sure if I want this)
  - [x] Functions
  - [x] Standard library
- - [ ] Classes
+ - [x] Classes
 
 
 ## Contribution
