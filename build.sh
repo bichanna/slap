@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# colors for echo
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 LBLUE='\033[1;34m'
@@ -13,10 +14,11 @@ then
   exit 1
 fi
 
+# actually building the language
 echo "Building SLAP..."
 nimble build --multimethods:on -d:release --silent
 
-# if the compilation finished with status 0
+# check if building the langauge finished with status 0 (success)
 if [ $? -eq 0 ]; then
 	cp ./main /usr/local/bin/slap
 	cp ./editor/slap.vim ~/.vim/syntax
@@ -28,6 +30,6 @@ else
 	# there was a problem compiling the source code
 	echo -e "${RED}Failed${NC}"
 	echo -e "Please run this command: ${LBLUE}nimble build --multimethods:on --verbose --debug${NC}"
-	echo "And open an issue on Github: https://github.com/bichanna/slap/issues"
+	echo -e "And open an issue on Github: ${LBLUE}https://github.com/bichanna/slap/issues${NC}"
 	exit 1
 fi 
