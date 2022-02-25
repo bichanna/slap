@@ -68,6 +68,7 @@ proc primary(p: var Parser): Expr =
   if p.doesMatch(True): return LiteralExpr(kind: True, value: "true")
   elif p.doesMatch(False): return LiteralExpr(kind: False, value: "false")
   elif p.doesMatch(Null): return LiteralExpr(kind: Null, value: "null")
+  elif p.doesMatch(Self): return SelfExpr(keyword: p.previousToken())
 
   if p.doesMatch(Int, Float, String): return LiteralExpr(kind: p.previousToken().kind, value: p.previousToken().value)
   elif p.doesMatch(Identifier): return VariableExpr(name: p.previousToken())
@@ -93,6 +94,9 @@ proc call(p: var Parser): Expr =
   while true:
     if p.doesMatch(LeftParen):
       expre = p.finishCall(expre)
+    elif p.doesMatch(Dot):
+      let name = p.expect(Identifier, "Expected property name after '.'")
+      expre = GetExpr(instance: expre, name: name)
     else:
       break
   return expre
@@ -146,6 +150,9 @@ proc assignment(p: var Parser): Expr =
     if expre of VariableExpr:
       let name = VariableExpr(expre).name
       return AssignExpr(name: name, value: value)
+    elif expre of GetExpr:
+      let get = GetExpr(expre)
+      return SetExpr(instance: get.instance, name: get.name, value: value)
     else:
       error(p.error, equals.line, "SyntaxError", "Invalid assignment target")
   return expre
@@ -234,10 +241,20 @@ proc function(p: var Parser, kind: string): Stmt =
   let body = p.parseBlock()
   return FuncStmt(name: name, parameters: parameters, body: body)
 
+proc classDeclaration(p: var Parser): Stmt =
+  let name = p.expect(Identifier, "Expected class name")
+  p.expect(LeftBrace, "Expected '{' before class body")
+  var methods: seq[FuncStmt]
+  while not p.checkCurrentTok(RightBrace) and not p.isAtEnd():
+    methods.add(FuncStmt(p.function("method")))
+  p.expect(RightBrace, "Expected '}' after class body")
+  return ClassStmt(name: name, methods:methods)
+
 proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()
   elif p.doesMatch(Const): return p.varDeclaration()
   elif p.doesMatch(Define): return p.function("function")
+  elif p.doesMatch(Class): return p.classDeclaration()
   else: return p.statement()
 
 proc parseBlock(p: var Parser): seq[Stmt] =

@@ -8,6 +8,8 @@
 import error, node, token, slaptype, env, exception
 import strutils, tables
 
+proc `$`*(obj: BaseType): string
+
 type
   # Interpreter takes in an abstract syntax tree and executes
   Interpreter* = object
@@ -22,8 +24,17 @@ type
     arity*: proc (): int
   
   Function* = ref object of FuncType
+    isInitFunc*: bool
     declaration*: FuncStmt
     closure*: Environment
+
+  ClassType* = ref object of FuncType
+    name*: string
+    methods*: Table[string, Function]
+
+  ClassInstance* = ref object of BaseType
+    class*: ClassType
+    fields*: Table[string, BaseType]
   
 const RuntimeError = "RuntimeError"
 
@@ -45,8 +56,9 @@ proc newInterpreter*(errorObj: Error): Interpreter =
   ))
   return Interpreter(error: errorObj, env: globals, globals: globals, locals: initTable[int, int]())
 
-proc newFunction*(declaration: FuncStmt, closure: Environment): Function =
+proc newFunction(declaration: FuncStmt, closure: Environment, isInitFunc: bool = false): Function =
   var fun = Function()
+  fun.isInitFunc = isInitFunc
   fun.declaration = declaration
   fun.closure = closure
   fun.arity = proc(): int = fun.declaration.parameters.len
@@ -56,9 +68,46 @@ proc newFunction*(declaration: FuncStmt, closure: Environment): Function =
       environment.define(fun.declaration.parameters[i].value, args[i])
     try:
       self.executeBlock(declaration.body, environment)
-    except ReturnException as rx: return rx.value
+    except ReturnException as rx:
+      return rx.value
+    if isInitFunc: return fun.closure.getAt(0, "self")
     return newNull()
   return fun
+
+proc findMethod(ct: ClassType, name: string): Function =
+  if ct.methods.hasKey(name): return ct.methods[name]
+  return nil
+
+proc `bind`(self: Function, instance: ClassInstance, i: Interpreter): Function =
+  var env = newEnv(i.error, self.closure)
+  env.define("self", instance)
+  return newFunction(self.declaration, env, self.isInitFunc)
+
+proc newClassInstance(class: ClassType): ClassInstance = 
+  var instance = ClassInstance(class: class, fields: initTable[string, BaseType]())
+  return instance
+
+proc newClass(name: string, methods: Table[string, Function]): ClassType =
+  var class = ClassType(name: name)
+  class.arity = proc(): int = 
+    let init = class.findMethod("new")
+    if init.isNil: return 0
+    else: return init.arity()
+  class.call = proc(self: var Interpreter, args: seq[BaseType]): BaseType = 
+    var instance = newClassInstance(class)
+    var init = class.methods.getOrDefault("new", nil)
+    if not init.isNil: discard `bind`(init, instance, self).call(self, args)
+    return instance
+  class.methods = methods
+  return class
+
+proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
+  if ci.fields.hasKey(name.value): return ci.fields[name.value]
+  let m = findMethod(ci.class, name.value)
+  if not m.isNil: return m.`bind`(ci, i)
+  error(i.error, name.line, RuntimeError, "Property '" & name.value & "' is not defined")
+
+proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value] = value
 
 # ----------------------------------------------------------------------
 
@@ -66,7 +115,6 @@ proc newFunction*(declaration: FuncStmt, closure: Environment): Function =
 proc isTruthy(self: var Interpreter, obj: BaseType): bool
 proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool
 proc loopUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType
-proc `$`*(obj: BaseType): string
 
 # --------------------------- EXPRESSIONS ------------------------------
 
@@ -139,6 +187,24 @@ method eval(self: var Interpreter, expre: CallExpr): BaseType =
   if arguments.len != function.arity():
     error(self.error, expre.paren, RuntimeError, "Expected " & $function.arity() & " arguments but got " & $arguments.len)
   return function.call(self, arguments)
+
+# eval GetExpr
+method eval(self: var Interpreter, expre: GetExpr): BaseType =
+  let obj = self.eval(expre.instance)
+  if obj of ClassInstance: return ClassInstance(obj).get(expre.name, self)
+  error(self.error, expre.name.line, RuntimeError, "Only instances have properties")
+
+# eval SetExpr
+method eval(self: var Interpreter, expre: SetExpr): BaseType =
+  let instance = self.eval(expre.instance)
+  if not (instance of ClassInstance):
+    error(self.error, expre.name.line, RuntimeError, "Only instances have fields")
+  let value = self.eval(expre.value)
+  ClassInstance(instance).set(expre.name, value)
+  return value
+
+# eval SelfExpr
+method eval(self: var Interpreter, expre: SelfExpr): BaseType = return self.loopUpVariable(expre.keyword, expre)
 
 # eval BinaryExpr
 method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
@@ -302,6 +368,15 @@ method eval(self: var Interpreter, statement: IfStmt) =
   elif not statement.elseBranch.isNil:
     self.eval(statement.elseBranch)
 
+method eval(self: var Interpreter, statement: ClassStmt) =
+  self.env.define(statement.name.value, newNull())
+  var methods = initTable[string, Function]()
+  for m in statement.methods:
+    let function = newFunction(m, self.env, m.name.value == "new")
+    methods[m.name.value] = function
+  let class = newClass(statement.name.value, methods)
+  self.env.assign(statement.name, class)
+
 # ----------------------------------------------------------------------
 
 proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
@@ -349,8 +424,10 @@ proc `$`*(obj: BaseType): string =
   elif obj of SlapFloat: return $SlapFloat(obj).value
   elif obj of SlapString: return SlapString(obj).value
   elif obj of SlapBool: return $SlapBool(obj).value
-  elif obj of Function: return "<function " & Function(obj).declaration.name.value & ">"
-  elif obj of FuncType: return "<native function>"
+  elif obj of Function: return "<fn " & Function(obj).declaration.name.value & ">"
+  elif obj of FuncType: return "<native fn>"
+  elif obj of ClassType: return "<class " & ClassType(obj).name & ">"
+  elif obj of ClassInstance: return "<instance " & ClassInstance(obj).class.name & ">"
   
   # hopefully unreachable
   return "unknown type"

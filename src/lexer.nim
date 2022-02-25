@@ -18,7 +18,7 @@ const
     "const": Const,
     "or": Or,
     "if": If,
-    "elif": Elif, # this maybe deleted in the future
+    "elif": Elif,
     "else": Else,
     "for": For,
     "super": Super,
@@ -128,7 +128,9 @@ proc makeIdentifier(l: var Lexer) =
   while l.currentChar() in Letters:
     identifier.add(l.currentChar())
     l.advance()
-  if keywords.hasKey(identifier): l.appendToken(keywords[identifier])
+  if keywords.hasKey(identifier):
+    if identifier == "self": l.appendToken(keywords[identifier], "self")
+    else: l.appendToken(keywords[identifier])
   else: l.appendToken(Identifier, identifier)
 
 proc tokenize*(l: var Lexer): seq[Token] =
@@ -154,6 +156,7 @@ proc tokenize*(l: var Lexer): seq[Token] =
     of '^': l.appendToken(Caret)
     of ',': l.appendToken(Comma)
     of '$': l.appendToken(Let)
+    of '&': l.appendToken(Self, "self")
     of '"': l.makeString()
     of '!':
       if l.doesMatch('='): l.appendToken(BangEqual)
