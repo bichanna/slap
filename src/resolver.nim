@@ -14,12 +14,16 @@ type
     error*: Error
     scopes: seq[Table[string, bool]]
     currentFunction: FunctionType
+    currentClass: ClassType
   
   FunctionType = enum
     NONE, FUNCTION, METHOD
 
+  ClassType = enum
+    CNONE, CLASS
+
 proc newResolver*(interpreter: Interpreter, errorObj: Error): Resolver =
-  return Resolver(interpreter: interpreter, error: errorObj, currentFunction: NONE)
+  return Resolver(interpreter: interpreter, error: errorObj, currentFunction: NONE, currentClass: CNONE)
 
 # ----------------------------------------------------------------------
 
@@ -95,15 +99,18 @@ method resolve(self: var Resolver, expre: LogicalExpr) =
   self.resolve(expre.right)
 
 method resolve(self: var Resolver, statement: ClassStmt) = 
+  let enclosingClass = self.currentClass
+  self.currentClass = CLASS
   self.declare(statement.name)
   self.define(statement.name)
-  
+
   self.beginScope()
   self.scopes[self.scopes.len-1]["self"] = true
   for m in statement.methods:
     let declaration = METHOD
     self.resolveFunction(m, declaration)
   self.endScope()
+  self.currentClass = enclosingClass;
 
 method resolve(self: var Resolver, expre: UnaryExpr) = self.resolve(expre.right)
 
@@ -113,7 +120,10 @@ method resolve(self: var Resolver, expre: SetExpr) =
   self.resolve(expre.value)
   self.resolve(expre.instance)
 
-method resolve(self: var Resolver, expre: SelfExpr) = self.resolveLocal(expre, expre.keyword)
+method resolve(self: var Resolver, expre: SelfExpr) =
+  if self.currentClass == CNONE:
+    error(self.error, expre.keyword, "ScopeError", "Cannot use 'self' or '&' outside of a class")
+  self.resolveLocal(expre, expre.keyword)
 
 # ---------------------------- HELPERS ---------------------------------
 

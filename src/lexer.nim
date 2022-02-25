@@ -154,7 +154,7 @@ proc tokenize*(l: var Lexer): seq[Token] =
     of '^': l.appendToken(Caret)
     of ',': l.appendToken(Comma)
     of '$': l.appendToken(Let)
-    of '&': l.appendToken(Self)
+    of '&': l.appendToken(Self, "self")
     of '"': l.makeString()
     of '!':
       if l.doesMatch('='): l.appendToken(BangEqual)
