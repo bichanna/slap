@@ -145,5 +145,15 @@ writeln(blackMazda.style);
 blackMazda.color = "black";
 writeln(blackMazda.color);
 ```
+You can also define static methods:
+```
+class Math {
+	static square(n) {
+		return n * n;
+	}
+}
+
+writeln(Math.square(3));
+```
 
 
