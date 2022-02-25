@@ -13,8 +13,6 @@ var isRepl*: bool = false
 type
   Expr* = ref object of RootObj
 
-  BreakExpr* = ref object of Expr
-
   BinaryExpr* = ref object of Expr
     left*: Expr
     operator*: Token
@@ -95,6 +93,8 @@ type
   ReturnStmt* = ref object of Stmt
     keyword*: Token
     value*: Expr
+
+  BreakStmt* = ref object of Stmt
     
   ClassStmt* = ref object of Stmt
     name*: Token
