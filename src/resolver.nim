@@ -17,7 +17,7 @@ type
     currentClass: ClassType
   
   FunctionType = enum
-    NONE, FUNCTION, METHOD
+    NONE, FUNCTION, METHOD, INITIALIZER
 
   ClassType = enum
     CNONE, CLASS
@@ -55,7 +55,7 @@ method resolve(self: var Resolver, statement: VariableStmt) =
 
 method resolve(self: var Resolver, expre: VariableExpr) =
   if not (self.scopes.len == 0) and self.scopes[self.scopes.len-1].getOrDefault(expre.name.value, true) == false:
-    error(self.error, expre.name, "ScopeError", "Cannot read local variable in its own initializer")
+    error(self.error, expre.name, "SyntaxError", "Cannot read local variable in its own initializer")
   self.resolveLocal(expre, expre.name)
 
 method resolve(self: var Resolver, expre: AssignExpr) =
@@ -75,8 +75,11 @@ method resolve(self: var Resolver, statement: IfStmt) =
   if not statement.elseBranch.isNil: self.resolve(statement.elseBranch)
 
 method resolve(self: var Resolver, statement: ReturnStmt) =
-  if self.currentFunction == NONE: error(self.error, statement.keyword, "ScopeError", "Cannot return from top-level code")
-  if not statement.value.isNil: self.resolve(statement.value)
+  if self.currentFunction == NONE: error(self.error, statement.keyword, "SyntaxError", "Cannot return from top-level code")
+  if not statement.value.isNil:
+    if self.currentFunction == INITIALIZER:
+      error(self.error, statement.keyword, "SyntaxError", "Cannot return a value from an initializer")
+    self.resolve(statement.value)
 
 method resolve(self: var Resolver, statement: WhileStmt) =
   self.resolve(statement.condition)
@@ -107,7 +110,8 @@ method resolve(self: var Resolver, statement: ClassStmt) =
   self.beginScope()
   self.scopes[self.scopes.len-1]["self"] = true
   for m in statement.methods:
-    let declaration = METHOD
+    var declaration = METHOD
+    if m.name.value == "new": declaration = INITIALIZER
     self.resolveFunction(m, declaration)
   self.endScope()
   self.currentClass = enclosingClass;
@@ -122,7 +126,7 @@ method resolve(self: var Resolver, expre: SetExpr) =
 
 method resolve(self: var Resolver, expre: SelfExpr) =
   if self.currentClass == CNONE:
-    error(self.error, expre.keyword, "ScopeError", "Cannot use 'self' or '&' outside of a class")
+    error(self.error, expre.keyword, "SyntaxError", "Cannot use 'self' or '&' outside of a class")
   self.resolveLocal(expre, expre.keyword)
 
 # ---------------------------- HELPERS ---------------------------------
@@ -134,7 +138,7 @@ proc endScope(self: var Resolver) = discard self.scopes.pop()
 proc declare(self: var Resolver, name: Token) =
   if self.scopes.len == 0: return
   elif self.scopes[self.scopes.len-1].contains(name.value):
-    error(self.error, name, "ScopeError", "Variable with this name is already declared in this scope")
+    error(self.error, name, "SyntaxError", "Variable with this name is already declared in this scope")
   else: self.scopes[self.scopes.len-1][name.value] = false
 
 proc define(self: var Resolver, name: Token) =
