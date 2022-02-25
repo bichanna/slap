@@ -131,11 +131,11 @@ class Car {
         self.color = color;
         self.brand = brand;
         &.style = style; # '&' can also be used
-	   }
+    }
 
-	   getColor() {
-  		    return self.color;
-	   }
+    getColor() {
+        return self.color;
+    }
 }
 
 $blackMazda = Car("Black", "SUV", "Mazda");
@@ -148,9 +148,9 @@ writeln(blackMazda.color);
 You can also define static methods:
 ```
 class Math {
-	static square(n) {
-		return n * n;
-	}
+    static square(n) {
+        return n * n;
+    }
 }
 
 writeln(Math.square(3));
