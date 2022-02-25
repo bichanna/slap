@@ -129,7 +129,7 @@ class Car {
     new(color, style, brand) {
         self.color = color;
         self.brand = brand;
-        &.style = style; # '&' can also be used
+        &style = style; # alternatively, you can use `&` instead of `self.`
     }
 
     getColor() {
