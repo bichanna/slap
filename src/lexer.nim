@@ -18,7 +18,7 @@ const
     "const": Const,
     "or": Or,
     "if": If,
-    "elif": Elif, # this maybe deleted in the future
+    "elif": Elif,
     "else": Else,
     "for": For,
     "super": Super,
@@ -154,6 +154,7 @@ proc tokenize*(l: var Lexer): seq[Token] =
     of '^': l.appendToken(Caret)
     of ',': l.appendToken(Comma)
     of '$': l.appendToken(Let)
+    of '&': l.appendToken(Self)
     of '"': l.makeString()
     of '!':
       if l.doesMatch('='): l.appendToken(BangEqual)
