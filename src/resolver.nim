@@ -94,6 +94,10 @@ method resolve(self: var Resolver, expre: LogicalExpr) =
   self.resolve(expre.left)
   self.resolve(expre.right)
 
+method resolve(self: var Resolver, statement: ClassStmt) = 
+  self.declare(statement.name)
+  self.define(statement.name)
+
 method resolve(self: var Resolver, expre: UnaryExpr) = self.resolve(expre.right)
 
 # ---------------------------- HELPERS ---------------------------------
