@@ -96,10 +96,14 @@ method resolve(self: var Resolver, expre: LogicalExpr) =
 
 method resolve(self: var Resolver, statement: ClassStmt) = 
   self.declare(statement.name)
+  self.define(statement.name)
+  
+  self.beginScope()
+  self.scopes[self.scopes.len-1]["self"] = true
   for m in statement.methods:
     let declaration = METHOD
     self.resolveFunction(m, declaration)
-  self.define(statement.name)
+  self.endScope()
 
 method resolve(self: var Resolver, expre: UnaryExpr) = self.resolve(expre.right)
 
@@ -108,6 +112,8 @@ method resolve(self: var Resolver, expre: GetExpr) = self.resolve(expre.instance
 method resolve(self: var Resolver, expre: SetExpr) =
   self.resolve(expre.value)
   self.resolve(expre.instance)
+
+method resolve(self: var Resolver, expre: SelfExpr) = self.resolveLocal(expre, expre.keyword)
 
 # ---------------------------- HELPERS ---------------------------------
 

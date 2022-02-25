@@ -68,6 +68,7 @@ proc primary(p: var Parser): Expr =
   if p.doesMatch(True): return LiteralExpr(kind: True, value: "true")
   elif p.doesMatch(False): return LiteralExpr(kind: False, value: "false")
   elif p.doesMatch(Null): return LiteralExpr(kind: Null, value: "null")
+  elif p.doesMatch(Self): return SelfExpr(keyword: p.previousToken())
 
   if p.doesMatch(Int, Float, String): return LiteralExpr(kind: p.previousToken().kind, value: p.previousToken().value)
   elif p.doesMatch(Identifier): return VariableExpr(name: p.previousToken())
