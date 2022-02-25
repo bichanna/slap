@@ -16,7 +16,7 @@ type
     currentFunction: FunctionType
   
   FunctionType = enum
-    NONE, FUNCTION
+    NONE, FUNCTION, METHOD
 
 proc newResolver*(interpreter: Interpreter, errorObj: Error): Resolver =
   return Resolver(interpreter: interpreter, error: errorObj, currentFunction: NONE)
@@ -96,6 +96,9 @@ method resolve(self: var Resolver, expre: LogicalExpr) =
 
 method resolve(self: var Resolver, statement: ClassStmt) = 
   self.declare(statement.name)
+  for m in statement.methods:
+    let declaration = METHOD
+    self.resolveFunction(m, declaration)
   self.define(statement.name)
 
 method resolve(self: var Resolver, expre: UnaryExpr) = self.resolve(expre.right)
