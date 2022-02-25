@@ -5,6 +5,14 @@ GREEN='\033[0;32m'
 LBLUE='\033[1;34m'
 NC='\033[0m'
 
+# check if Nim is installed
+if ! command -v nimble &> /dev/null
+then
+  echo "Nim is not installed."
+  echo -e "Please install Nim: ${LBLUE}https://nim-lang.org/install.html${NC}"
+  exit 1
+fi
+
 echo "Building SLAP..."
 nimble build --multimethods:on -d:release --silent
 
