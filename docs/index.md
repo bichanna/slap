@@ -4,8 +4,7 @@ SLAP is a dynamically and strongly typed, object-oriented programming language w
 SLAP's syntax is ordinary; it is not meant to be groundbreaking but rather to feel similar with a little bit of difference.
 
 ## Benchmark
-SLAP's slow.<br>
-As you can see the benchmark [here](https://github.com/bichanna/slap/tree/master/benchmark#readme).
+SLAP's slow as you can see the benchmark [here](https://github.com/bichanna/slap/tree/master/benchmark#readme).
 
 ## Syntax
 
