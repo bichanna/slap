@@ -154,5 +154,18 @@ class Math {
 
 writeln(Math.square(3));
 ```
+Here's how a class inherits another class:
+```
+class Car {
+    init(brand) {
+        &brand = brand;
+    }
+}
 
+class Mazda <- Car {
+    init() {
+        super.init("Mazda");
+    }
+}
+```
 
