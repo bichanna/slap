@@ -9,9 +9,17 @@ NC='\033[0m'
 # check if Nim is installed
 if ! command -v nimble &> /dev/null
 then
+  # ask user if he or she would like to install Nim now
   echo "Nim is not installed."
-  echo -e "Please install Nim: ${LBLUE}https://nim-lang.org/install.html${NC}"
-  exit 1
+  read -p "Would you like to install Nim? [y/N]: " answer
+  if [[ $answer == *"yes"* ]]
+  then
+    curl https://nim-lang.org/choosenim/init.sh -sSf | sh
+	exit 0
+  else
+    echo "Nim installation canceled"
+	exit 0
+  fi
 fi
 
 # actually building the language
