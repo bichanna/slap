@@ -102,35 +102,6 @@ method resolve(self: var Resolver, expre: LogicalExpr) =
   self.resolve(expre.right)
 
 method resolve(self: var Resolver, statement: ClassStmt) = 
-#     ClassType enclosingClass = currentClass;
-#     currentClass = ClassType.CLASS;
-#     declare(stmt.name);
-#     define(stmt.name);
-#     if (stmt.superclass != null && stmt.name.lexeme.equals(stmt.superclass.name.lexeme)) {
-#       Lox.error(stmt.superclass.name,
-#           "A class can't inherit from itself.");
-#     }
-#     if (stmt.superclass != null) {
-#       currentClass = ClassType.SUBCLASS;
-#       resolve(stmt.superclass);
-#     }
-#     if (stmt.superclass != null) {
-#       beginScope();
-#       scopes.peek().put("super", true);
-#     }
-#     beginScope();
-#     scopes.peek().put("this", true);
-#     for (Stmt.Function method : stmt.methods) {
-#       FunctionType declaration = FunctionType.METHOD;
-#       if (method.name.lexeme.equals("init")) {
-#         declaration = FunctionType.INITIALIZER;
-#       }
-#       resolveFunction(method, declaration); // [local]
-#     }
-#     endScope();
-#     if (stmt.superclass != null) endScope();
-#     currentClass = enclosingClass;
-#     return null;
   let enclosingClass = self.currentClass
   self.currentClass = CLASS
   self.declare(statement.name)
@@ -141,6 +112,7 @@ method resolve(self: var Resolver, statement: ClassStmt) =
     error(self.error, statement.superclass.name, "SyntaxError", "A class cannot inherit from itself")
 
   if not statement.superclass.isNil:
+    self.currentClass = SUBCLASS
     self.resolve(statement.superclass)
   
   if not statement.superclass.isNil:
@@ -169,7 +141,12 @@ method resolve(self: var Resolver, expre: UnaryExpr) = self.resolve(expre.right)
 
 method resolve(self: var Resolver, expre: GetExpr) = self.resolve(expre.instance)
 
-method resolve(self: var Resolver, expre: SuperExpr) = self.resolveLocal(expre, expre.keyword)
+method resolve(self: var Resolver, expre: SuperExpr) =
+  if self.currentClass == CNONE:
+    error(self.error, expre.keyword, "SyntaxError", "'super' cannot be used outside of a class")
+  elif self.currentClass != SUBCLASS:
+    error(self.error, expre.keyword, "SyntaxError", "'super' cannot be used in a class with no superclass")
+  self.resolveLocal(expre, expre.keyword)
 
 method resolve(self: var Resolver, expre: SetExpr) =
   self.resolve(expre.value)
