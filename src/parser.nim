@@ -71,6 +71,11 @@ proc primary(p: var Parser): Expr =
   elif p.doesMatch(False): return LiteralExpr(kind: False, value: "false")
   elif p.doesMatch(Null): return LiteralExpr(kind: Null, value: "null")
   elif p.doesMatch(Self): return SelfExpr(keyword: p.previousToken())
+  elif p.doesMatch(Super):
+    let keyword = p.previousToken()
+    p.expect(Dot, "Expected '.' after 'super'")
+    let m = p.expect(Identifier, "Expected superclass method name")
+    return SuperExpr(keyword: keyword, classMethod: m)
 
   if p.doesMatch(Int, Float, String): return LiteralExpr(kind: p.previousToken().kind, value: p.previousToken().value)
   elif p.doesMatch(Identifier): return VariableExpr(name: p.previousToken())
@@ -260,6 +265,11 @@ proc function(p: var Parser, kind: string): Stmt =
 
 proc classDeclaration(p: var Parser): Stmt =
   let name = p.expect(Identifier, "Expected class name")
+  # check for superclass
+  var superclass: VariableExpr
+  if p.doesMatch(LeftArrow):
+    p.expect(Identifier, "Expected a superclass name")
+    superclass = VariableExpr(name: p.previousToken())
   p.expect(LeftBrace, "Expected '{' before class body")
   var methods: seq[FuncStmt]
   var classMethods: seq[FuncStmt]
@@ -268,7 +278,7 @@ proc classDeclaration(p: var Parser): Stmt =
     if not isCM: methods.add(FuncStmt(p.function("method")))
     else: classMethods.add(FuncStmt(p.function("method")))
   p.expect(RightBrace, "Expected '}' after class body")
-  return ClassStmt(name: name, methods: methods, classMethods: classMethods)
+  return ClassStmt(name: name, methods: methods, classMethods: classMethods, superclass: superclass)
 
 proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()
