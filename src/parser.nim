@@ -64,7 +64,7 @@ proc doesMatch(p: var Parser, types: varargs[TokenType]): bool =
 proc expect(p: var Parser, ttype: TokenType, message: string): Token {.discardable.} =
   if p.checkCurrentTok(ttype): return p.advance()
   else: 
-    error(p.error, p.currentToken().line, "SyntaxError", message)
+    error(p.error, p.previousToken().line, "SyntaxError", message)
 
 proc primary(p: var Parser): Expr =
   if p.doesMatch(True): return LiteralExpr(kind: True, value: "true")

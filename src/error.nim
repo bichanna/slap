@@ -13,9 +13,26 @@ type
     source*: string
 
 proc error*(e: Error, line: int, errorName: string, message: string) =
-  if line >= -1: echo "\e[31m", fmt"{line+1}: {splitLines(e.source)[line]}"
-  if node.isRepl: echo(fmt"{errorName}: {message}" & "\e[0m")
-  else: quit(fmt"{errorName}: {message}" & "\e[0m")
+  echo()
+  if line >= -1:
+
+    if line > 1:
+      echo "\e[90m", fmt"{line-1}: {splitLines(e.source)[line-2]}", "\e[0m"
+
+    if line > 0:
+      echo "\e[90m", fmt"{line}: {splitLines(e.source)[line-1]}", "\e[0m"
+    
+    echo "\e[31m", fmt"{line+1}: {splitLines(e.source)[line]}"
+    
+    if line+1 < splitLines(e.source).len:
+      echo "\e[90m", fmt"{line+2}: {splitLines(e.source)[line+1]}", "\e[0m"
+
+    if line+2 < splitLines(e.source).len:
+      echo "\e[90m", fmt"{line+3}: {splitLines(e.source)[line+2]}", "\e[0m"
+    
+  if node.isRepl:
+    echo "\n", fmt"{errorName}: {message}", "\e[0m"
+  else: quit("\n" & fmt"{errorName}: {message}" & "\e[0m")
 
 proc error*(e: Error, token: Token, errorName: string, message: string) =
   e.error(token.line, errorName, message)
