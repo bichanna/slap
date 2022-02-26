@@ -23,8 +23,6 @@ SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to 
      - [ ] Map
  - [x] Basic arithmetics
  - [x] Variables
-     - [x] Let (mutable)
-     - [ ] Const (immutable)
  - [x] If statement 
      - [ ] elif
      - [x] else
@@ -34,6 +32,7 @@ SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to 
      - [ ] Continue
      - [ ] "Enhanced" for loop
  - [x] Functions
+     - [ ] Lambdas (anonymous functions)
  - [x] Standard library
  - [x] Classes
 
