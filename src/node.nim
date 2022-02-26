@@ -57,7 +57,7 @@ type
 
   SuperExpr* = ref object of Expr
     keyword*: Token
-    class_method*: Token
+    classMethod*: Token
 
   SelfExpr* = ref object of Expr
     keyword*: Token
