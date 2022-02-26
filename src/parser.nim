@@ -255,7 +255,8 @@ proc ifStatement(p: var Parser): Stmt =
   var elseBranch: Stmt
   if p.doesMatch(Else):
     elseBranch = p.statement()
-  return IfStmt(condition: condition, thenBranch: thenBranch, elseBranch: elseBranch)
+  
+  return IfStmt(condition: condition, thenBranch: thenBranch, elseBranch: elseBranch, elifBranches: elifBranches)
 
 proc function(p: var Parser, kind: string): Stmt =
   let name = p.expect(Identifier, "Expected " & kind & " name")
