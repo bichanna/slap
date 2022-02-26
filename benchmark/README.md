@@ -13,8 +13,8 @@ slap benchmark/fib/slap.slap	 # None
 | --------- | ---- |
 | JavaScript| 0.07s|
 | Python    | 0.07s|
-| Julia     | 0.22s|
-| SLAP	    | 0.54s|
+| Julia     | 0.11s|
+| SLAP	    | 0.52s|
 
 
 ### Prime Numbers
@@ -23,4 +23,4 @@ slap benchmark/fib/slap.slap	 # None
 | JavaScript| 0.07s|
 | Python    | 0.17s|
 | Julia     | 0.32s|
-| SLAP	    | 2.13s|
+| SLAP	    | 2.09s|
