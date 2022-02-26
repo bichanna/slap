@@ -391,9 +391,17 @@ method eval(self: var Interpreter, statement: WhileStmt) =
   except BreakException: return
 
 method eval(self: var Interpreter, statement: IfStmt) =
+  var done = false
   if self.isTruthy(self.eval(statement.condition)):
     self.eval(statement.thenBranch)
-  elif not statement.elseBranch.isNil:
+    done = true
+  elif statement.elifBranches.len != 0:
+    for each in statement.elifBranches:
+      if self.isTruthy(self.eval(each.condition)):
+        self.eval(each.thenBranch)
+        done = true
+        break
+  if not statement.elseBranch.isNil and done == false:
     self.eval(statement.elseBranch)
 
 method eval(self: var Interpreter, statement: BreakStmt) = raise BreakException()
