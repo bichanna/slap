@@ -75,8 +75,12 @@ type
   IfStmt* = ref object of Stmt
     condition*: Expr
     thenBranch*: Stmt
-    # elifBranch*: seq[Stmt]
+    elifBranches*: seq[ElifStmt]
     elseBranch*: Stmt
+
+  ElifStmt* = ref object of Stmt
+    condition*: Expr
+    thenBranch*: Stmt
   
   BlockStmt* = ref object of Stmt
     statements*: seq[Stmt]

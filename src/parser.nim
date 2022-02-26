@@ -243,11 +243,20 @@ proc ifStatement(p: var Parser): Stmt =
   let condition = p.expression()
   p.expect(RightParen, "Expected ')' after if condition")
   let thenBranch = p.statement()
-  # TODO: add elif branches
+  
+  var elifBranches: seq[ElifStmt] = @[]
+  while p.doesMatch(Elif):
+    p.expect(LeftParen, "Expected '(' after 'elif'")
+    let elifCondition = p.expression()
+    p.expect(RightParen, "Expected ')' after if condition")
+    let elifThenBranch = p.statement()
+    elifBranches.add(ElifStmt(condition: elifCondition, thenBranch: elifThenBranch))
+
   var elseBranch: Stmt
   if p.doesMatch(Else):
     elseBranch = p.statement()
-  return IfStmt(condition: condition, thenBranch: thenBranch, elseBranch: elseBranch)
+  
+  return IfStmt(condition: condition, thenBranch: thenBranch, elseBranch: elseBranch, elifBranches: elifBranches)
 
 proc function(p: var Parser, kind: string): Stmt =
   let name = p.expect(Identifier, "Expected " & kind & " name")
