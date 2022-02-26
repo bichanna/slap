@@ -20,7 +20,7 @@ type
     NONE, FUNCTION, METHOD, INITIALIZER
 
   ClassType = enum
-    CNONE, CLASS
+    CNONE, CLASS, SUBCLASS
 
 proc newResolver*(interpreter: Interpreter, errorObj: Error): Resolver =
   return Resolver(interpreter: interpreter, error: errorObj, currentFunction: NONE, currentClass: CNONE)
@@ -102,10 +102,50 @@ method resolve(self: var Resolver, expre: LogicalExpr) =
   self.resolve(expre.right)
 
 method resolve(self: var Resolver, statement: ClassStmt) = 
+#     ClassType enclosingClass = currentClass;
+#     currentClass = ClassType.CLASS;
+#     declare(stmt.name);
+#     define(stmt.name);
+#     if (stmt.superclass != null && stmt.name.lexeme.equals(stmt.superclass.name.lexeme)) {
+#       Lox.error(stmt.superclass.name,
+#           "A class can't inherit from itself.");
+#     }
+#     if (stmt.superclass != null) {
+#       currentClass = ClassType.SUBCLASS;
+#       resolve(stmt.superclass);
+#     }
+#     if (stmt.superclass != null) {
+#       beginScope();
+#       scopes.peek().put("super", true);
+#     }
+#     beginScope();
+#     scopes.peek().put("this", true);
+#     for (Stmt.Function method : stmt.methods) {
+#       FunctionType declaration = FunctionType.METHOD;
+#       if (method.name.lexeme.equals("init")) {
+#         declaration = FunctionType.INITIALIZER;
+#       }
+#       resolveFunction(method, declaration); // [local]
+#     }
+#     endScope();
+#     if (stmt.superclass != null) endScope();
+#     currentClass = enclosingClass;
+#     return null;
   let enclosingClass = self.currentClass
   self.currentClass = CLASS
   self.declare(statement.name)
   self.define(statement.name)
+
+  # a case like this: `class SomeClass <- SomeClass {}`
+  if not statement.superclass.isNil and statement.name.value == statement.superclass.name.value:
+    error(self.error, statement.superclass.name, "SyntaxError", "A class cannot inherit from itself")
+
+  if not statement.superclass.isNil:
+    self.resolve(statement.superclass)
+  
+  if not statement.superclass.isNil:
+    self.beginScope()
+    self.scopes[self.scopes.len-1]["super"] = true
 
   self.beginScope()
   self.scopes[self.scopes.len-1]["self"] = true
@@ -113,17 +153,23 @@ method resolve(self: var Resolver, statement: ClassStmt) =
     var declaration = METHOD
     if m.name.value == "new": declaration = INITIALIZER
     self.resolveFunction(m, declaration)
+  
   for m in statement.classMethods:
     self.beginScope()
     self.scopes[self.scopes.len-1]["self"] = true
     self.resolveFunction(m, METHOD)
     self.endScope()
   self.endScope()
+
+  if not statement.superclass.isNil: self.endScope()
+
   self.currentClass = enclosingClass;
 
 method resolve(self: var Resolver, expre: UnaryExpr) = self.resolve(expre.right)
 
 method resolve(self: var Resolver, expre: GetExpr) = self.resolve(expre.instance)
+
+method resolve(self: var Resolver, expre: SuperExpr) = self.resolveLocal(expre, expre.keyword)
 
 method resolve(self: var Resolver, expre: SetExpr) =
   self.resolve(expre.value)
