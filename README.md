@@ -26,7 +26,7 @@ SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to 
      - [x] Let (mutable)
      - [ ] Const (immutable)
  - [x] If statement 
-     - [ ] elif
+     - [x] elif
      - [x] else
  - [x] While loops
  - [x] For loops
