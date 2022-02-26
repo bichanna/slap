@@ -40,3 +40,5 @@ SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to 
 
 ## Contribution
 Contribution is always welcome :D
+
+[![Stargazers over time](https://starchart.cc/bichanna/slap.svg)](https://starchart.cc/bichanna/slap)
