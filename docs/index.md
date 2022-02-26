@@ -55,12 +55,12 @@ age = age + 1;
 
 ### Control Flow
 
-> *Note:* `elif` is not yet available but will be added soon.
-
-An `if` statement executes one of two statements based on some condition.
+An `if` statement executes one of multiple statements based on some conditions.
 ```
 if (i < 10) {
     writeln("smaller than 10");
+} elif (i == 10) {
+    writeln("equal to 10");
 } else {
     writeln("bigger than 10");
 }
@@ -79,9 +79,9 @@ while (i < 10) {
 }
 ```
 
-A `for` loop looks like this (crude):
+A crude `for` loop looks like this:
 ```
-for (let i = 1; i < 10; i = i + 1) {
+for ($i = 1; i < 10; i = i + 1) {
     writeln(i);
 }
 ```
@@ -157,14 +157,14 @@ writeln(Math.square(3));
 Here's how a class inherits another class:
 ```
 class Car {
-    init(brand) {
-        &brand = brand;
+    drive() {
+        writeln("driving");
     }
 }
 
 class Mazda <- Car {
-    init() {
-        super.init("Mazda");
+    drive() {
+        super.drive("Mazda");
     }
 }
 ```
