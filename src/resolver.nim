@@ -20,7 +20,7 @@ type
     NONE, FUNCTION, METHOD, INITIALIZER
 
   ClassType = enum
-    CNONE, CLASS
+    CNONE, CLASS, SUBCLASS
 
 proc newResolver*(interpreter: Interpreter, errorObj: Error): Resolver =
   return Resolver(interpreter: interpreter, error: errorObj, currentFunction: NONE, currentClass: CNONE)
@@ -107,23 +107,46 @@ method resolve(self: var Resolver, statement: ClassStmt) =
   self.declare(statement.name)
   self.define(statement.name)
 
+  # a case like this: `class SomeClass <- SomeClass {}`
+  if not statement.superclass.isNil and statement.name.value == statement.superclass.name.value:
+    error(self.error, statement.superclass.name, "SyntaxError", "A class cannot inherit from itself")
+
+  if not statement.superclass.isNil:
+    self.currentClass = SUBCLASS
+    self.resolve(statement.superclass)
+  
+  if not statement.superclass.isNil:
+    self.beginScope()
+    self.scopes[self.scopes.len-1]["super"] = true
+
   self.beginScope()
   self.scopes[self.scopes.len-1]["self"] = true
   for m in statement.methods:
     var declaration = METHOD
     if m.name.value == "new": declaration = INITIALIZER
     self.resolveFunction(m, declaration)
+  
   for m in statement.classMethods:
     self.beginScope()
     self.scopes[self.scopes.len-1]["self"] = true
     self.resolveFunction(m, METHOD)
     self.endScope()
   self.endScope()
+
+  if not statement.superclass.isNil: self.endScope()
+
   self.currentClass = enclosingClass;
 
 method resolve(self: var Resolver, expre: UnaryExpr) = self.resolve(expre.right)
 
 method resolve(self: var Resolver, expre: GetExpr) = self.resolve(expre.instance)
+
+method resolve(self: var Resolver, expre: SuperExpr) =
+  if self.currentClass == CNONE:
+    error(self.error, expre.keyword, "SyntaxError", "'super' cannot be used outside of a class")
+  elif self.currentClass != SUBCLASS:
+    error(self.error, expre.keyword, "SyntaxError", "'super' cannot be used in a class with no superclass")
+  self.resolveLocal(expre, expre.keyword)
 
 method resolve(self: var Resolver, expre: SetExpr) =
   self.resolve(expre.value)

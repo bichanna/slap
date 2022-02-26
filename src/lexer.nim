@@ -131,6 +131,7 @@ proc makeIdentifier(l: var Lexer) =
     l.advance()
   if keywords.hasKey(identifier):
     if identifier == "self": l.appendToken(keywords[identifier], "self")
+    elif identifier == "super": l.appendToken(keywords[identifier], "super")
     else: l.appendToken(keywords[identifier])
   else: l.appendToken(Identifier, identifier)
 

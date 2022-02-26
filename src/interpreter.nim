@@ -32,6 +32,7 @@ type
     name*: string
     methods*: Table[string, Function]
     cinstance*: ClassInstance
+    superclass*: ClassType
 
   ClassInstance* = ref object of BaseType
     class*: ClassType
@@ -77,6 +78,7 @@ proc newFunction(declaration: FuncStmt, closure: Environment, isInitFunc: bool =
 
 proc findMethod(ct: ClassType, name: string): Function =
   if ct.methods.hasKey(name): return ct.methods[name]
+  if not ct.superclass.isNil: return ct.superclass.findMethod(name)
   return nil
 
 proc `bind`(self: Function, instance: ClassInstance, i: Interpreter): Function =
@@ -88,7 +90,7 @@ proc newClassInstance(class: ClassType): ClassInstance =
   var instance = ClassInstance(class: class, fields: initTable[string, BaseType]())
   return instance
 
-proc newClass(metaclass: ClassType, name: string, methods: Table[string, Function]): ClassType =
+proc newClass(metaclass: ClassType, superclass: ClassType, name: string, methods: Table[string, Function]): ClassType =
   var class = ClassType(name: name)
   class.arity = proc(): int = 
     let init = class.findMethod("new")
@@ -101,6 +103,7 @@ proc newClass(metaclass: ClassType, name: string, methods: Table[string, Functio
     return instance
   class.methods = methods
   class.cinstance = newClassInstance(metaclass)
+  class.superclass = superclass
   return class
 
 proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
@@ -210,6 +213,19 @@ method eval(self: var Interpreter, expre: SetExpr): BaseType =
 
 # eval SelfExpr
 method eval(self: var Interpreter, expre: SelfExpr): BaseType = return self.loopUpVariable(expre.keyword, expre)
+
+# eval SuperExpr
+method eval(self: var Interpreter, expre: SuperExpr): BaseType =
+  let i = self.exprSeqForLocals.find(expre)
+  if i != -1:
+    let distance = self.locals.getOrDefault(i, -1)
+    if distance != -1:
+      let superclass = ClassType(self.env.getAt(distance, "super"))
+      let obj = ClassInstance(self.env.getAt(distance-1, "self"))
+      let m = superclass.findMethod(expre.classMethod.value)
+      if m.isNil:
+        error(self.error, expre.classMethod, RuntimeError, "'" & expre.classMethod.value & "' is not defined")
+      return m.`bind`(obj, self)
 
 # eval BinaryExpr
 method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
@@ -383,18 +399,31 @@ method eval(self: var Interpreter, statement: IfStmt) =
 method eval(self: var Interpreter, statement: BreakStmt) = raise BreakException()
 
 method eval(self: var Interpreter, statement: ClassStmt) =
+  var superclass: BaseType
+  if not statement.superclass.isNil:
+    superclass = self.eval(statement.superclass)
+    if not (superclass of ClassType):
+      error(self.error, statement.superclass.name, RuntimeError, "Superclass must be a class")
+    
   self.env.define(statement.name.value, newNull())
   var classMethods = initTable[string, Function]()
   for m in statement.classMethods:
     let fun = newFunction(m, self.env, false)
     classMethods[m.name.value] = fun
-  let metaclass = newClass(nil, statement.name.value & " metaclass", classMethods)
+  let metaclass = newClass(nil, nil, statement.name.value & " metaclass", classMethods)
+
+  if not statement.superclass.isNil:
+    self.env = newEnv(self.error, self.env)
+    self.env.define("super", superclass)
 
   var methods = initTable[string, Function]()
   for m in statement.methods:
     let function = newFunction(m, self.env, m.name.value == "new")
     methods[m.name.value] = function
-  let class = newClass(metaclass, statement.name.value, methods)
+  let class = newClass(metaclass, ClassType(superclass), statement.name.value, methods)
+
+  if not superclass.isNil: self.env = self.env.enclosing
+
   self.env.assign(statement.name, class)
 
 # ----------------------------------------------------------------------
