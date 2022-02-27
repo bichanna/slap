@@ -38,6 +38,7 @@ SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to 
      - [ ] OS
      - [ ] I/O interfaces
      - [ ] Math
+     - [ ] Simple networking
  - [x] Classes
 
 
