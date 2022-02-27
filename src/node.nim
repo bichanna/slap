@@ -28,6 +28,10 @@ type
   LiteralExpr* = ref object of Expr
     kind*: TokenType
     value*: string
+  
+  ListLiteralExpr* = ref object of Expr
+    values*: seq[Expr]
+    keyword*: Token
 
   LogicalExpr* = ref object of Expr
     left*: Expr
