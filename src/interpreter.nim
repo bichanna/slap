@@ -227,6 +227,12 @@ method eval(self: var Interpreter, expre: SuperExpr): BaseType =
         error(self.error, expre.classMethod, RuntimeError, "'" & expre.classMethod.value & "' is not defined")
       return m.`bind`(obj, self)
 
+method eval(self: var Interpreter, expre: ListLiteralExpr): BaseType =
+  var values: seq[BaseType]
+  for value in expre.values:
+    values.add(self.eval(value))
+  return newList(values)
+
 # eval BinaryExpr
 method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
   var left = self.eval(expre.left)
@@ -480,6 +486,7 @@ proc `$`*(obj: BaseType): string =
   elif obj of SlapFloat: return $SlapFloat(obj).value
   elif obj of SlapString: return SlapString(obj).value
   elif obj of SlapBool: return $SlapBool(obj).value
+  elif obj of SlapList: return $SlapList(obj).values
   elif obj of Function: return "<fn " & Function(obj).declaration.name.value & ">"
   elif obj of FuncType: return "<native fn>"
   elif obj of ClassType: return "<class " & ClassType(obj).name & ">"
