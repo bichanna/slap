@@ -34,6 +34,10 @@ SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to 
  - [x] Functions
      - [ ] Lambdas (anonymous functions)
  - [x] Standard library
+     - [x] Basic function (e.g., `writeln`, `write`)
+     - [ ] OS
+     - [ ] I/O interfaces
+     - [ ] Math
  - [x] Classes
 
 
