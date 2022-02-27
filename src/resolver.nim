@@ -141,6 +141,10 @@ method resolve(self: var Resolver, expre: SelfExpr) =
     error(self.error, expre.keyword, "SyntaxError", "Cannot use 'self' or '&' outside of a class")
   self.resolveLocal(expre, expre.keyword)
 
+method resolve(self: var Resolver, expre: ListLiteralExpr) =
+  for value in expre.values:
+    self.resolve(value)
+
 # ---------------------------- HELPERS ---------------------------------
 
 proc beginScope(self: var Resolver) = self.scopes.add(initTable[string, bool]())
