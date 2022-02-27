@@ -20,6 +20,9 @@ type
   SlapBool* = ref object of BaseType
     value*: bool
 
+  SlapList* = ref object of BaseType
+    values*: seq[BaseType]
+
   SlapNull* = ref object of BaseType
 
 proc newString*(value: string): SlapString = return SlapString(value: value)
@@ -29,5 +32,7 @@ proc newInt*(value: int64): SlapInt = return SlapInt(value: value)
 proc newFloat*(value: float64): SlapFloat = return SlapFloat(value: value)
 
 proc newBool*(value: bool): SlapBool = return SlapBool(value: value)
+
+proc newList*(values: seq[BaseType]): SlapList = return SlapList(values: values)
 
 proc newNull*(): SlapNull = return SlapNull()
