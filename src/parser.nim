@@ -201,6 +201,7 @@ proc varDeclaration(p: var Parser): Stmt =
   return VariableStmt(name: name, init: init)
 
 proc forStatement(p: var Parser): Stmt =
+  let keyword = p.previousToken()
   p.expect(LeftParen, "Expected '(' after 'for'")
 
   var init: Stmt
@@ -221,20 +222,21 @@ proc forStatement(p: var Parser): Stmt =
     var body = p.statement()
     if not increment.isNil: body = BlockStmt(statements: @[body, ExprStmt(expression: increment)])
     if condition.isNil: condition = LiteralExpr(kind: True, value: "")
-    body = WhileStmt(condition: condition, body: body)
+    body = WhileStmt(condition: condition, body: body, keyword: keyword)
     if not init.isNil: body = BlockStmt(statements: @[init, body])
     return body
   finally:
     p.loopDepth -= 1
 
 proc whileStatement(p: var Parser): Stmt =
+  let keyword = p.previousToken()
   p.expect(LeftParen, "Expected '(' after 'while'")
   let condition = p.expression()
   p.expect(RightParen, "Expected ')' after while condition")
   try:
     p.loopDepth += 1
     let body = p.statement()
-    return WhileStmt(condition: condition, body: body)
+    return WhileStmt(condition: condition, body: body, keyword: keyword)
   finally:
     p.loopDepth -= 1
 

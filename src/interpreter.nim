@@ -387,6 +387,8 @@ method eval(self: var Interpreter, statement: WhileStmt) =
   try:
     while self.isTruthy(self.eval(statement.condition)):
       self.eval(statement.body)
+  except OverflowDefect:
+    error(self.error, statement.keyword, RuntimeError, "Over- or underflow")
   # just ignore
   except BreakException: return
 

@@ -88,6 +88,7 @@ type
   WhileStmt* = ref object of Stmt
     condition*: Expr
     body*: Stmt
+    keyword*: Token
   
   FuncStmt* = ref object of Stmt
     name*: Token
