@@ -83,6 +83,13 @@ proc primary(p: var Parser): Expr =
     let expre = p.expression()
     p.expect(RightParen, "Expected ')'")
     return GroupingExpr(expression: expre)
+  elif p.doesMatch(LeftBracket):
+    var values: seq[Expr]
+    values.add(p.expression())
+    while p.doesMatch(Comma):
+      values.add(p.expression())
+    let keyword = p.expect(RightBracket, "Expected ']'")
+    return ListLiteralExpr(values: values, keyword: keyword)
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
 
 proc finishCall(p: var Parser, callee: Expr): Expr =
