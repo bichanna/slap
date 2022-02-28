@@ -61,12 +61,12 @@ age = age + 1;
 
 An `if` statement executes one of multiple statements based on some conditions.
 ```
-if (i < 10) {
-    writeln("smaller than 10");
-} elif (i == 10) {
-    writeln("equal to 10");
+if (name == "Nobuharu") {
+    writeln("What a cool name!");
+} elif (name == "bichanna") {
+    writeln("How fabulous!");
 } else {
-    writeln("bigger than 10");
+    writeln("Hi " + name + "!");
 }
 ```
 You can also use just one line for an if statement.
