@@ -7,42 +7,28 @@
 
 **WARNING!! THIS LANGUAGE IS IN DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT.**
 
-SLAP stands for **Sl**ow **A**nd **P**owerless. And I hope to make it '**P**owerfull' someday.<br>
-SLAP is a dynamically and strongly typed, object-oriented programming language with the syntax of the C family.<br>
-SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to feel similar with a little bit of difference.
+**SLAP** stands for **Sl**ow **A**nd **P**owerless, and I hope to make it '**P**owerfull' someday.
+
+**SLAP** is a dynamically- and strongly-typed, object-oriented programming language. Its syntax is a member of the C family; it is not meant to be groundbreaking but rather to feel similar with a bit of difference.
+
+Here's an example SLAP program.
+```py
+for (let i = 1; i <= 100; i = i + 1) {
+    if (i % 3 == 0 and i % 5 == 0) {
+        writeln("fizzbuzz");
+    } elif (i % 3 == 0) {
+        writeln("fizz");
+    } elif (i % 5 == 0) {
+        writeln("buzz");
+    } else {
+        writeln(i);
+    }
+}
+```
 
 
 ## TODO
- - [x] Basic data types
-     - [x] Integer
-     - [x] Float
-     - [x] String
-     - [x] Boolean
-     - [x] Null
-     - [x] List
-     - [ ] Map
- - [x] Basic arithmetics
- - [x] Variables
- - [x] If statement 
-     - [x] elif
-     - [x] else
- - [x] While loops
- - [x] For loops
-     - [x] Break
-     - [ ] Continue
-     - [ ] "Enhanced" for loop
- - [x] Functions
-     - [ ] Lambdas (anonymous functions)
- - [x] Standard library
-     - [x] Basic function (e.g., `writeln`, `write`)
-     - [ ] OS
-     - [ ] I/O interfaces
-     - [ ] Math
-     - [ ] Simple networking
- - [x] Classes
-
+[TODO list](https://github.com/bichanna/slap/blob/master/TODO.md)
 
 ## Contribution
 Contribution is always welcome :D
-
-[![Stargazers over time](https://starchart.cc/bichanna/slap.svg)](https://starchart.cc/bichanna/slap)
