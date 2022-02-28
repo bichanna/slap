@@ -19,7 +19,7 @@ SLAP’s syntax is ordinary; it is not meant to be groundbreaking but rather to 
      - [x] String
      - [x] Boolean
      - [x] Null
-     - [ ] Array
+     - [x] List
      - [ ] Map
  - [x] Basic arithmetics
  - [x] Variables
