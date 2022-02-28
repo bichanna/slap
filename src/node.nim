@@ -40,9 +40,18 @@ type
 
   VariableExpr* = ref object of Expr
     name*: Token
+  
+  ListVariableExpr* = ref object of Expr
+    name*: Token
+    index*: Expr
 
   AssignExpr* = ref object of Expr
     name*: Token
+    value*: Expr
+
+  ListAssignExpr* = ref object of Expr
+    name*: Token
+    index*: Expr
     value*: Expr
 
   CallExpr* = ref object of Expr
