@@ -29,7 +29,7 @@ writeln("This will be printed"); # Another comment
  - Float
  - Bool
  - Null
- - Array (NYI)
+ - List
  - Map (NYI)
 
 ```
@@ -38,6 +38,10 @@ writeln("This will be printed"); # Another comment
 12.3;         # float
 true; false;  # bool
 null;         # null
+
+let list = [1, 2, "string", 3.1415]; # list
+list@[0] = "one";
+writeln(list@[0]);
 ```
 
 ### Variables
