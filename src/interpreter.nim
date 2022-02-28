@@ -159,21 +159,6 @@ method eval(self: var Interpreter, expre: UnaryExpr): BaseType =
 method eval(self: var Interpreter, expre: VariableExpr): BaseType =
   return self.loopUpVariable(expre.name, expre)
 
-# eval ListVariableExpr
-method eval(self: var Interpreter, expre: ListVariableExpr): BaseType =
-  let index = self.eval(expre.index)
-  if not (index of SlapInt):
-    error(self.error, expre.name.line, RuntimeError, "List indices must be integers")
-  
-  let variable = self.loopUpVariable(expre.name, expre)
-  if not (variable of SlapList):
-    error(self.error, expre.name.line, RuntimeError, "Only lists and dictionaries can be used with '@[]'")
-  
-  try:
-    return SlapList(variable).values[SlapInt(index).value]
-  except IndexDefect:
-    error(self.error, expre.name, RuntimeError, "Index out of range")
-
 # eval AssignExpr
 method eval(self: var Interpreter, expre: AssignExpr): BaseType =
   let value = self.eval(expre.value)
@@ -185,22 +170,6 @@ method eval(self: var Interpreter, expre: AssignExpr): BaseType =
       gotIt = true
       self.env.assignAt(distance, expre.name, value)
   if not gotIt: self.globals.assign(expre.name, value)
-  return value
-
-# eval ListAssignExpr
-method eval(self: var Interpreter, expre: ListAssignExpr): BaseType =
-  let value = self.eval(expre.value)
-  let index = self.eval(expre.index)
-  if not (index of SlapInt):
-    error(self.error, expre.name, RuntimeError, "List indices must be integers")
-  var gotIt = false
-  let i = self.exprSeqForLocals.find(expre)
-  if i != -1:
-    let distance = self.locals.getOrDefault(i, -1)
-    if distance != -1:
-      gotIt = true
-      self.env.listAssignAt(distance, expre.name, value, SlapInt(index))
-  if not gotIt: self.globals.listAssign(expre.name, value, SlapInt(index))
   return value
 
 # eval LogicalExpr
