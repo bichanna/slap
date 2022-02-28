@@ -115,6 +115,23 @@ proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
         call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
           return li.elements.pop()
       )
+    elif name.value == "insert":
+      return FuncType(
+        arity: proc(): int = 2,
+        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+          if not (args[0] of SlapInt): error(i.error, name, RuntimeError, "index must be an integer")
+          li.elements.insert(args[1], SlapInt(args[0]).value)
+          return newNull()
+      )
+    elif name.value == "set":
+      return FuncType(
+        arity: proc(): int = 2,
+        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+          if not (args[0] of SlapInt): error(i.error, name, RuntimeError, "index must be an integer")
+          if SlapInt(args[0]).value >= li.elements.len: error(i.error, name, RuntimeError, "index out of range")
+          li.elements[SlapInt(args[0]).value] = args[1]
+          return newNull()
+      )
     elif name.value == "len":
       return newInt(li.elements.len)
     else:
