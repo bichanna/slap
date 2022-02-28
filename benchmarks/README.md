@@ -1,11 +1,11 @@
 > *Note:* I'm not sure why Julia is slower than Python... Please check my code.
 
-I used these commands:
+Commands used:
 ```
-python3 benchmark/fib/python3.py # 3.9.10
-julia benchmark/fib/julia.jl     # 1.7.1
-node benchmark/fib/javascript.js # 14.16.0
-slap benchmark/fib/slap.slap	 # None
+time python3 benchmark/fib/python3.py # 3.9.10
+time julia benchmark/fib/julia.jl     # 1.7.1
+time node benchmark/fib/javascript.js # 14.16.0
+time slap benchmark/fib/slap.slap     # None
 ```
 
 ### Fibonacci Sequence
