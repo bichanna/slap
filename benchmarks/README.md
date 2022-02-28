@@ -24,3 +24,12 @@ slap benchmark/fib/slap.slap	 # None
 | Python    | 0.17s|
 | Julia     | 0.32s|
 | SLAP	    | 2.09s|
+
+
+## Bubble Sort
+| Language  | Time |
+| --------- | ---- |
+| JavaScript| 0.05s|
+| Python    | 0.19s|
+| Julia     | 0.23s|
+| SLAP	    | 3.07s|
