@@ -39,9 +39,12 @@ writeln("This will be printed"); # Another comment
 true; false;  # bool
 null;         # null
 
-let list = [1, 2, "string", 3.1415]; # list
-list@[0] = "one";
-writeln(list@[0]);
+let list = List([1, 2, "string", 3.1415]); # list
+list.append("Hello World");
+list.set(0, 2.7);
+let poppedItem = list.pop();
+list.append(list.len);
+writeln(list.get(0));
 ```
 
 ### Variables
