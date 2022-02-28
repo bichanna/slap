@@ -71,6 +71,15 @@ proc newInterpreter*(errorObj: Error): Interpreter =
         error(self.error, -1, RuntimeError, "pop function only accepts a list")
       return SlapList(args[0]).values.pop()
   ))
+  globals.define("len", FuncType(
+    arity: proc(): int = 1,
+    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+      if args[0] of SlapString:
+        return newInt(SlapString(args[0]).value.len)
+      elif args[0] of SlapList:
+        return newInt(SlapList(args[0]).values.len)
+      error(self.error, -1, RuntimeError, "len function only accepts a list or string")
+  ))
   return Interpreter(error: errorObj, env: globals, globals: globals, locals: initTable[int, int]())
 
 proc newFunction(declaration: FuncStmt, closure: Environment, isInitFunc: bool = false): Function =
