@@ -5,38 +5,10 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node, token, slaptype, env, exception
+import error, node, token, slaptype, env, exception, interpreterObj
 import strutils, tables
 
 proc `$`*(obj: BaseType): string
-
-type
-  # Interpreter takes in an abstract syntax tree and executes
-  Interpreter* = object
-    error*: Error
-    env*: Environment
-    globals*: Environment
-    exprSeqForLocals*: seq[Expr]
-    locals*: Table[int, int]
-  
-  FuncType* = ref object of BaseType
-    call*: proc (self: var Interpreter, args: seq[BaseType]): BaseType
-    arity*: proc (): int
-  
-  Function* = ref object of FuncType
-    isInitFunc*: bool
-    declaration*: FuncStmt
-    closure*: Environment
-
-  ClassType* = ref object of FuncType
-    name*: string
-    methods*: Table[string, Function]
-    cinstance*: ClassInstance
-    superclass*: ClassType
-
-  ClassInstance* = ref object of BaseType
-    class*: ClassType
-    fields*: Table[string, BaseType]
   
 const RuntimeError = "RuntimeError"
 
