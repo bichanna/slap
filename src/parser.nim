@@ -80,6 +80,11 @@ proc primary(p: var Parser): Expr =
   if p.doesMatch(Int, Float, String): return LiteralExpr(kind: p.previousToken().kind, value: p.previousToken().value)
   elif p.doesMatch(Identifier):
     let name = p.previousToken()
+    if p.doesMatch(At):
+      p.expect(LeftBracket, "Expected '['")
+      let index = p.expression()
+      p.expect(RightBracket, "Expected ']'")
+      return ListVariableExpr(name: name, index: index)
     return VariableExpr(name: name)
   elif p.doesMatch(LeftParen):
     let expre = p.expression()
@@ -170,6 +175,10 @@ proc assignment(p: var Parser): Expr =
     if expre of VariableExpr:
       let name = VariableExpr(expre).name
       return AssignExpr(name: name, value: value)
+    elif expre of ListVariableExpr:
+      let name = ListVariableExpr(expre).name
+      let index = ListVariableExpr(expre).index
+      return ListAssignExpr(name: name, index: index, value: value)
     elif expre of GetExpr:
       let get = GetExpr(expre)
       return SetExpr(instance: get.instance, name: get.name, value: value)
