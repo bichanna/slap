@@ -50,3 +50,21 @@ proc assign*(env: var Environment, name: Token, value: BaseType) =
   error(env.error, name.line, "RuntimeError", "'" & name.value & "' is not defined")
 
 proc assignAt*(env: var Environment, distance: int, name: Token, value: BaseType) = env.ancestor(distance).values[name.value] = value
+
+proc listAssign*(env: var Environment, name: Token, value: BaseType, index: SlapInt) =
+  if env.values.hasKey(name.value):
+    var list: SlapList
+    try:
+      list = SlapList(env.values[name.value])
+    except:
+      error(env.error, name.line, "RuntimeError", "Only lists and dictionaries can be used with '@[]'")
+    if index.value < list.values.len and index.value > -1:
+      list.values[index.value] = value
+    else:
+      error(env.error, name.line, "RuntimeError", "Index out of range")
+
+proc listAssignAt*(env: var Environment, distance: int, name: Token, value: BaseType, index: SlapInt) =
+  try:
+    SlapList(env.ancestor(distance).values[name.value]).values[index.value] = value
+  except:
+    error(env.error, name.line, "RuntimeError", "Only lists and dictionaries can be used with '@[]'")

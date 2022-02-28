@@ -78,11 +78,26 @@ proc primary(p: var Parser): Expr =
     return SuperExpr(keyword: keyword, classMethod: m)
 
   if p.doesMatch(Int, Float, String): return LiteralExpr(kind: p.previousToken().kind, value: p.previousToken().value)
-  elif p.doesMatch(Identifier): return VariableExpr(name: p.previousToken())
+  elif p.doesMatch(Identifier):
+    let name = p.previousToken()
+    if p.doesMatch(At):
+      p.expect(LeftBracket, "Expected '['")
+      let index = p.expression()
+      p.expect(RightBracket, "Expected ']'")
+      return ListVariableExpr(name: name, index: index)
+    else:
+      return VariableExpr(name: name)
   elif p.doesMatch(LeftParen):
     let expre = p.expression()
     p.expect(RightParen, "Expected ')'")
     return GroupingExpr(expression: expre)
+  elif p.doesMatch(LeftBracket):
+    var values: seq[Expr]
+    values.add(p.expression())
+    while p.doesMatch(Comma):
+      values.add(p.expression())
+    let keyword = p.expect(RightBracket, "Expected ']'")
+    return ListLiteralExpr(values: values, keyword: keyword)
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
 
 proc finishCall(p: var Parser, callee: Expr): Expr =
@@ -154,9 +169,14 @@ proc assignment(p: var Parser): Expr =
   if p.doesMatch(Equals):
     let equals = p.previousToken()
     let value = p.assignment()
+
     if expre of VariableExpr:
       let name = VariableExpr(expre).name
       return AssignExpr(name: name, value: value)
+    elif expre of ListVariableExpr:
+      let name = ListVariableExpr(expre).name
+      let index = ListVariableExpr(expre).index
+      return ListAssignExpr(name: name, index: index, value: value)
     elif expre of GetExpr:
       let get = GetExpr(expre)
       return SetExpr(instance: get.instance, name: get.name, value: value)
