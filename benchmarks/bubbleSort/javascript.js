@@ -1,15 +1,3 @@
-// define bubbleSort(list) {
-// 	for ($i = 0; i < len(list); i = i + 1) {
-// 	  for ($j = 0; j < len(list) - i - 1; j = j + 1) {
-// 		if (list@[j] > list@[j+1]) {
-// 		  let temp = list@[j];
-// 		  list@[j] = list@[j+1];
-// 		  list@[j+1] = temp;
-// 		}
-// 	  }
-// 	}
-//   }
-
 function bubbleSort(list) {
 	for (var i = 0; i < list.length; i = i + 1) {
 		for (var j = 0; j < list.length - i - 1; j = j + 1) {
