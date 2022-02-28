@@ -35,3 +35,6 @@ type
   ClassInstance* = ref object of BaseType
     class*: ClassType
     fields*: Table[string, BaseType]
+
+  ListInstance* = ref object of ClassInstance
+    elements*: seq[BaseType]
