@@ -56,6 +56,21 @@ proc newInterpreter*(errorObj: Error): Interpreter =
       stdout.write(args[0])
       return newNull()
   ))
+  globals.define("append", FuncType(
+    arity: proc(): int = 2,
+    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+      if not (args[0] of SlapList):
+        error(self.error, -1, RuntimeError, "append function only accepts a list and a value")
+      SlapList(args[0]).values.add(args[1])
+      return newNull()
+  ))
+  globals.define("pop", FuncType(
+    arity: proc(): int = 1,
+    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+      if not (args[0] of SlapList):
+        error(self.error, -1, RuntimeError, "pop function only accepts a list")
+      return SlapList(args[0]).values.pop()
+  ))
   return Interpreter(error: errorObj, env: globals, globals: globals, locals: initTable[int, int]())
 
 proc newFunction(declaration: FuncStmt, closure: Environment, isInitFunc: bool = false): Function =
