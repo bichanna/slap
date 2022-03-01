@@ -32,7 +32,7 @@ proc endScope(self: var Resolver)
 proc declare(self: var Resolver, name: Token)
 proc define(self: var Resolver, name: Token)
 proc resolveLocal(self: var Resolver, expre: Expr, name: Token)
-proc resolveFunction(self: var Resolver, function: FuncStmt, functype: FunctionType)
+proc resolveFunction(self: var Resolver, function: FuncExpr, functype: FunctionType)
 
 # ----------------------------------------------------------------------
 
@@ -76,7 +76,10 @@ method resolve(self: var Resolver, expre: ListAssignExpr) =
 method resolve(self: var Resolver, statement: FuncStmt) =
   self.declare(statement.name)
   self.define(statement.name)
-  self.resolveFunction(statement, FUNCTION)
+  self.resolveFunction(statement.function, FUNCTION)
+
+method resolve(self: var Resolver, expre: FuncExpr) =
+  self.resolveFunction(expre, FUNCTION)
 
 method resolve(self: var Resolver, statement: ExprStmt) = self.resolve(statement.expression)
 
@@ -130,11 +133,11 @@ method resolve(self: var Resolver, statement: ClassStmt) =
   for m in statement.methods:
     var declaration = METHOD
     if m.name.value == "new": declaration = INITIALIZER
-    self.resolveFunction(m, declaration)
+    self.resolveFunction(m.function, declaration)
   for m in statement.classMethods:
     self.beginScope()
     self.scopes[self.scopes.len-1]["self"] = true
-    self.resolveFunction(m, METHOD)
+    self.resolveFunction(m.function, METHOD)
     self.endScope()
   self.endScope()
   self.currentClass = enclosingClass;
@@ -180,7 +183,7 @@ proc resolveLocal(self: var Resolver, expre: Expr, name: Token) =
       self.interpreter.resolve(expre, self.scopes.len - 1 - i)
       return
 
-proc resolveFunction(self: var Resolver, function: FuncStmt, functype: FunctionType) =
+proc resolveFunction(self: var Resolver, function: FuncExpr, functype: FunctionType) =
   let enclosingFunction = self.currentFunction
   self.currentFunction = functype
   self.beginScope()
