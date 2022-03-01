@@ -320,8 +320,8 @@ proc classDeclaration(p: var Parser): Stmt =
   var classMethods: seq[FuncStmt]
   while not p.checkCurrentTok(RightBrace) and not p.isAtEnd():
     let isCM = p.doesMatch(Static)
-    if not isCM: methods.add(FuncStmt(p.function("method")))
-    else: classMethods.add(FuncStmt(p.function("method")))
+    if not isCM: methods.add(p.function("method"))
+    else: classMethods.add(p.function("method"))
   p.expect(RightBrace, "Expected '}' after class body")
   return ClassStmt(name: name, methods: methods, classMethods: classMethods, superclass: superclass)
 
