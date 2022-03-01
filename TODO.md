@@ -1,4 +1,4 @@
- - [x] Basic data types
+ - [ ] Basic Data Types
      - [x] Integer
      - [x] Float
      - [x] String
@@ -6,23 +6,23 @@
      - [x] Null
      - [x] List
      - [ ] Map
- - [x] Basic arithmetics
+ - [x] Basic Arithmetics
  - [x] Variables
- - [x] If statement 
+ - [x] If Statements
      - [x] elif
      - [x] else
- - [x] While loops
- - [x] For loops
+ - [x] While Loops
+ - [x] For Loops
      - [x] Break
      - [ ] Continue
      - [ ] "Enhanced" for loop
  - [x] Functions
      - [ ] Lambdas (anonymous functions)
- - [ ] Standard library
-     - [x] Basic function (e.g., `writeln`, `write`)
+ - [ ] Standard Library
+     - [x] Basic (e.g., `writeln`, `write`)
      - [ ] OS
      - [ ] I/O interfaces
      - [ ] Math
      - [ ] Networking
  - [x] Classes
- - [ ] Module system
+ - [ ] Module System
