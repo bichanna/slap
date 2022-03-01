@@ -5,60 +5,15 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node, token, slaptype, env, exception, interpreterObj
+import error, node, token, slaptype, env, exception, interpreterObj, lib
 import strutils, tables
-
-proc `$`*(obj: BaseType): string
   
 const RuntimeError = "RuntimeError"
 
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment)
 
-proc newListInstance(init: SlapList): ListInstance
-
 proc newInterpreter*(errorObj: Error): Interpreter =
-  var globals = newEnv(errorObj)
-  globals.define("writeln", FuncType(
-    arity: proc(): int = 1,
-    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
-      stdout.write(args[0], "\n")
-      return newNull()
-  ))
-  globals.define("write", FuncType(
-    arity: proc(): int = 1,
-    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
-      stdout.write(args[0])
-      return newNull()
-  ))
-  globals.define("List", FuncType(
-    arity: proc(): int = 1,
-    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
-      return newListInstance(SlapList(args[0]))
-  ))
-  globals.define("append", FuncType(
-    arity: proc(): int = 2,
-    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
-      if not (args[0] of SlapList):
-        error(self.error, -1, RuntimeError, "append function only accepts a list and a value")
-      SlapList(args[0]).values.add(args[1])
-      return newNull()
-  ))
-  globals.define("pop", FuncType(
-    arity: proc(): int = 1,
-    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
-      if not (args[0] of SlapList):
-        error(self.error, -1, RuntimeError, "pop function only accepts a list")
-      return SlapList(args[0]).values.pop()
-  ))
-  globals.define("len", FuncType(
-    arity: proc(): int = 1,
-    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
-      if args[0] of SlapString:
-        return newInt(SlapString(args[0]).value.len)
-      elif args[0] of SlapList:
-        return newInt(SlapList(args[0]).values.len)
-      error(self.error, -1, RuntimeError, "len function only accepts a list or string")
-  ))
+  var globals = loadBuildins(errorObj)
   return Interpreter(error: errorObj, env: globals, globals: globals, locals: initTable[int, int]())
 
 # ----------------------------- FUNCTIONS & CLASSES ----------------------------------
@@ -163,14 +118,6 @@ proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
       error(i.error, name.line, RuntimeError, "Property '" & name.value & "' is not defined")
 
 proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value] = value
-
-# ------------------------------- LIST ---------------------------------
-
-proc newListInstance(init: SlapList): ListInstance =
-  var elements: seq[BaseType]
-  for i in init.values:
-    elements.add(i)
-  return ListInstance(elements: elements)
 
 # ----------------------------------------------------------------------
 
@@ -580,21 +527,3 @@ proc loopUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType =
       return self.env.getAt(distance, name.value)
   if not gotIt:
     return self.globals.get(name)
-
-proc `$`*(obj: BaseType): string =
-  if obj of SlapNull: return "null"
-  elif obj of SlapInt: return $SlapInt(obj).value
-  elif obj of SlapFloat: return $SlapFloat(obj).value
-  elif obj of SlapString: return SlapString(obj).value
-  elif obj of SlapBool: return $SlapBool(obj).value
-  elif obj of SlapList: return $SlapList(obj).values
-  elif obj of Function:
-    if not Function(obj).name.isEmptyOrWhitespace : return "<fn " & Function(obj).name & ">"
-    else: return "<anonymous fn>"
-  elif obj of FuncType: return "<native fn>"
-  elif obj of ClassType: return "<class " & ClassType(obj).name & ">"
-  elif obj of ListInstance: return $ListInstance(obj).elements
-  elif obj of ClassInstance: return "<instance " & ClassInstance(obj).class.name & ">"
-  
-  # hopefully unreachable
-  return "unknown type"

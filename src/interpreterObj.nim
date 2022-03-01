@@ -6,7 +6,7 @@
 #
 
 import env, slaptype, error, node
-import tables
+import tables, strutils
 
 type
   # Interpreter takes in an abstract syntax tree and executes
@@ -39,3 +39,28 @@ type
 
   ListInstance* = ref object of ClassInstance
     elements*: seq[BaseType]
+
+
+proc newListInstance*(init: SlapList): ListInstance =
+  var elements: seq[BaseType]
+  for i in init.values:
+    elements.add(i)
+  return ListInstance(elements: elements)
+
+proc `$`*(obj: BaseType): string =
+  if obj of SlapNull: return "null"
+  elif obj of SlapInt: return $SlapInt(obj).value
+  elif obj of SlapFloat: return $SlapFloat(obj).value
+  elif obj of SlapString: return SlapString(obj).value
+  elif obj of SlapBool: return $SlapBool(obj).value
+  elif obj of SlapList: return $SlapList(obj).values
+  elif obj of Function:
+    if not Function(obj).name.isEmptyOrWhitespace : return "<fn " & Function(obj).name & ">"
+    else: return "<anonymous fn>"
+  elif obj of FuncType: return "<native fn>"
+  elif obj of ClassType: return "<class " & ClassType(obj).name & ">"
+  elif obj of ListInstance: return $ListInstance(obj).elements
+  elif obj of ClassInstance: return "<instance " & ClassInstance(obj).class.name & ">"
+  
+  # hopefully unreachable
+  return "unknown type"
