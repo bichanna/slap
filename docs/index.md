@@ -133,6 +133,16 @@ define outerFunc() {
 
 outerFunc();
 ```
+Here's an anonymous function example:
+```
+define doSomething(func) {
+    func();
+}
+
+doSomething(define() {
+    writeln("Hello World");
+});
+```
 
 ### Classes
 > *Note:* Inheritance is not yet implemented.

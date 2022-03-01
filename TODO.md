@@ -17,7 +17,7 @@
      - [ ] Continue
      - [ ] "Enhanced" for loop
  - [x] Functions
-     - [ ] Lambdas (anonymous functions)
+     - [x] Lambdas (anonymous functions)
  - [ ] Standard Library
      - [x] Basic (e.g., `writeln`, `write`)
      - [ ] OS
