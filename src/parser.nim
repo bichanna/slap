@@ -5,7 +5,8 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 #
 
-import token, error, node
+import token, error, node, lexer, exception
+import tables
 
 type
   # Parser takes in a list of tokens (seq[Token]) and 
@@ -15,14 +16,22 @@ type
     tokens*: seq[Token]
     current*: int
     loopDepth*: int
+    statements*: seq[Stmt]
 
 proc newParser*(tokens: seq[Token], errorObj: Error): Parser =
   return Parser(
     error: errorObj,
     tokens: tokens,
     current: 0,
-    loopDepth: 0
+    loopDepth: 0,
+    statements: @[]
   )
+
+const libstd = staticRead"../lib/std.slap"
+
+let stdlibs: Table[string, string] = {
+    "std": libstd
+  }.toTable
 
 # ----------------------------------------------------------------------
 
@@ -34,6 +43,7 @@ proc whileStatement(p: var Parser): Stmt
 proc forStatement(p: var Parser): Stmt
 proc returnStatement(p: var Parser): Stmt
 proc functionBody(p: var Parser, kind: string): FuncExpr
+proc parse*(p: var Parser): seq[Stmt]
 
 # returns the previous token
 proc previousToken(p: var Parser): Token = return p.tokens[p.current - 1]
@@ -207,6 +217,29 @@ proc breakStatement(p: var Parser): Stmt =
   p.expect(SemiColon, "Expected ';' after 'break'")
   return BreakStmt()
 
+proc importStatement(p: var Parser) =
+  var imports: seq[Token]
+  imports.add(p.expect(Identifier, "Expected an identifier"))
+  while p.doesMatch(Comma):
+    imports.add(p.expect(Identifier, "Expected an identifier after ','"))
+  
+  p.expect(SemiColon, "Expected ';' after import")
+  
+  for i in imports:
+    if stdlibs.hasKey(i.value):
+      var
+        # lexing
+        src = stdlibs[i.value]
+        error = Error(source: src)
+        lexer = newLexer(src, error)
+        tokens = lexer.tokenize()
+        # parsing
+        parser = newParser(tokens, error)
+        nodes = parser.parse()
+      p.statements = nodes & p.statements
+    else: error(p.error, i, "SyntaxError", "Cannot import '" & i.value & "'")
+  raise ImportException()
+
 proc statement(p: var Parser): Stmt =
   if p.doesMatch(LeftBrace): return BlockStmt(statements: p.parseBlock())
   elif p.doesMatch(If): return p.ifStatement()
@@ -214,6 +247,7 @@ proc statement(p: var Parser): Stmt =
   elif p.doesMatch(For): return p.forStatement()
   elif p.doesMatch(Return): return p.returnStatement()
   elif p.doesMatch(Break): return p.breakStatement()
+  elif p.doesMatch(Import): p.importStatement()
   return p.exprStmt()
 
 proc returnStatement(p: var Parser): Stmt =
@@ -342,7 +376,9 @@ proc parseBlock(p: var Parser): seq[Stmt] =
   return statements
 
 proc parse*(p: var Parser): seq[Stmt] =
-  var statements: seq[Stmt] = @[]
   while not p.isAtEnd():
-    statements.add(p.declaration())
-  return statements
+    try:
+      p.statements.add(p.declaration())
+    except ImportException:
+      continue
+  return p.statements
