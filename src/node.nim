@@ -75,6 +75,10 @@ type
   SelfExpr* = ref object of Expr
     keyword*: Token
 
+  FuncExpr* = ref object of Expr
+    parameters*: seq[Token]
+    body*: seq[Stmt]
+
 # ----------------- Statements ---------------------
   Stmt* = ref object of RootObj
 
@@ -105,8 +109,7 @@ type
   
   FuncStmt* = ref object of Stmt
     name*: Token
-    parameters*: seq[Token]
-    body*: seq[Stmt]
+    function*: FuncExpr
   
   ReturnStmt* = ref object of Stmt
     keyword*: Token

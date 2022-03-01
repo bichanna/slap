@@ -22,8 +22,9 @@ type
     arity*: proc (): int
   
   Function* = ref object of FuncType
+    name*: string
     isInitFunc*: bool
-    declaration*: FuncStmt
+    declaration*: FuncExpr
     closure*: Environment
 
   ClassType* = ref object of FuncType
