@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/22/2022
 #
 
-import interpreter, node, token, error
+import interpreter, node, token, error, interpreterObj
 import tables
 
 type

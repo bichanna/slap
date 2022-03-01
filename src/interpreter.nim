@@ -5,42 +5,16 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node, token, slaptype, env, exception
+import error, node, token, slaptype, env, exception, interpreterObj
 import strutils, tables
 
 proc `$`*(obj: BaseType): string
-
-type
-  # Interpreter takes in an abstract syntax tree and executes
-  Interpreter* = object
-    error*: Error
-    env*: Environment
-    globals*: Environment
-    exprSeqForLocals*: seq[Expr]
-    locals*: Table[int, int]
-  
-  FuncType* = ref object of BaseType
-    call*: proc (self: var Interpreter, args: seq[BaseType]): BaseType
-    arity*: proc (): int
-  
-  Function* = ref object of FuncType
-    isInitFunc*: bool
-    declaration*: FuncStmt
-    closure*: Environment
-
-  ClassType* = ref object of FuncType
-    name*: string
-    methods*: Table[string, Function]
-    cinstance*: ClassInstance
-    superclass*: ClassType
-
-  ClassInstance* = ref object of BaseType
-    class*: ClassType
-    fields*: Table[string, BaseType]
   
 const RuntimeError = "RuntimeError"
 
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment)
+
+proc newListInstance(init: SlapList): ListInstance
 
 proc newInterpreter*(errorObj: Error): Interpreter =
   var globals = newEnv(errorObj)
@@ -55,6 +29,11 @@ proc newInterpreter*(errorObj: Error): Interpreter =
     call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
       stdout.write(args[0])
       return newNull()
+  ))
+  globals.define("List", FuncType(
+    arity: proc(): int = 1,
+    call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+      return newListInstance(SlapList(args[0]))
   ))
   globals.define("append", FuncType(
     arity: proc(): int = 2,
@@ -81,6 +60,8 @@ proc newInterpreter*(errorObj: Error): Interpreter =
       error(self.error, -1, RuntimeError, "len function only accepts a list or string")
   ))
   return Interpreter(error: errorObj, env: globals, globals: globals, locals: initTable[int, int]())
+
+# ----------------------------- FUNCTIONS & CLASSES ----------------------------------
 
 proc newFunction(declaration: FuncStmt, closure: Environment, isInitFunc: bool = false): Function =
   var fun = Function()
@@ -131,12 +112,64 @@ proc newClass(metaclass: ClassType, superclass: ClassType, name: string, methods
   return class
 
 proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
-  if ci.fields.hasKey(name.value): return ci.fields[name.value]
-  let m = findMethod(ci.class, name.value)
-  if not m.isNil: return m.`bind`(ci, i)
-  error(i.error, name.line, RuntimeError, "Property '" & name.value & "' is not defined")
+  if not (ci of ListInstance):
+    if ci.fields.hasKey(name.value): return ci.fields[name.value]
+    let m = findMethod(ci.class, name.value)
+    if not m.isNil: return m.`bind`(ci, i)
+    error(i.error, name.line, RuntimeError, "Property '" & name.value & "' is not defined")
+  else:
+    var li = ListInstance(ci)
+    if name.value == "get":
+      return FuncType(
+        arity: proc(): int = 1,
+        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+          if not (args[0] of SlapInt): error(i.error, name.line, RuntimeError, "list indices must be integers")
+          return li.elements[SlapInt(args[0]).value]
+      )
+    elif name.value == "append":
+      return FuncType(
+        arity: proc(): int = 1,
+        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+          li.elements.add(args[0])
+          return newNull()
+      )
+    elif name.value == "pop":
+      return FuncType(
+        arity: proc(): int = 0,
+        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+          return li.elements.pop()
+      )
+    elif name.value == "insert":
+      return FuncType(
+        arity: proc(): int = 2,
+        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+          if not (args[0] of SlapInt): error(i.error, name, RuntimeError, "index must be an integer")
+          li.elements.insert(args[1], SlapInt(args[0]).value)
+          return newNull()
+      )
+    elif name.value == "set":
+      return FuncType(
+        arity: proc(): int = 2,
+        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+          if not (args[0] of SlapInt): error(i.error, name, RuntimeError, "index must be an integer")
+          if SlapInt(args[0]).value >= li.elements.len: error(i.error, name, RuntimeError, "index out of range")
+          li.elements[SlapInt(args[0]).value] = args[1]
+          return newNull()
+      )
+    elif name.value == "len":
+      return newInt(li.elements.len)
+    else:
+      error(i.error, name.line, RuntimeError, "Property '" & name.value & "' is not defined")
 
 proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value] = value
+
+# ------------------------------- LIST ---------------------------------
+
+proc newListInstance(init: SlapList): ListInstance =
+  var elements: seq[BaseType]
+  for i in init.values:
+    elements.add(i)
+  return ListInstance(elements: elements)
 
 # ----------------------------------------------------------------------
 
@@ -188,11 +221,11 @@ method eval(self: var Interpreter, expre: ListVariableExpr): BaseType =
   let index = self.eval(expre.index)
   if not (index of SlapInt):
     error(self.error, expre.name.line, RuntimeError, "List indices must be integers")
-  
+
   let variable = self.loopUpVariable(expre.name, expre)
   if not (variable of SlapList):
     error(self.error, expre.name.line, RuntimeError, "Only lists and dictionaries can be used with '@[]'")
-  
+
   try:
     return SlapList(variable).values[SlapInt(index).value]
   except IndexDefect:
@@ -545,6 +578,7 @@ proc `$`*(obj: BaseType): string =
   elif obj of Function: return "<fn " & Function(obj).declaration.name.value & ">"
   elif obj of FuncType: return "<native fn>"
   elif obj of ClassType: return "<class " & ClassType(obj).name & ">"
+  elif obj of ListInstance: return $ListInstance(obj).elements
   elif obj of ClassInstance: return "<instance " & ClassInstance(obj).class.name & ">"
   
   # hopefully unreachable
