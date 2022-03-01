@@ -1,0 +1,12 @@
+#
+# std.slap
+# SLAP
+#
+# Created by Nobuharu Shimazu on 2/22/2022
+#
+
+# std.slap contains the core standard library for SLAP.
+
+# identity returns its first argument
+define identitiy(x) { return x; }
+
