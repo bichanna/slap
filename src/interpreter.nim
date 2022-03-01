@@ -63,8 +63,9 @@ proc newInterpreter*(errorObj: Error): Interpreter =
 
 # ----------------------------- FUNCTIONS & CLASSES ----------------------------------
 
-proc newFunction(declaration: FuncStmt, closure: Environment, isInitFunc: bool = false): Function =
+proc newFunction(name: string, declaration: FuncExpr, closure: Environment, isInitFunc: bool = false): Function =
   var fun = Function()
+  fun.name = name
   fun.isInitFunc = isInitFunc
   fun.declaration = declaration
   fun.closure = closure
@@ -89,7 +90,7 @@ proc findMethod(ct: ClassType, name: string): Function =
 proc `bind`(self: Function, instance: ClassInstance, i: Interpreter): Function =
   var env = newEnv(i.error, self.closure)
   env.define("self", instance)
-  return newFunction(self.declaration, env, self.isInitFunc)
+  return newFunction(self.name, self.declaration, env, self.isInitFunc)
 
 proc newClassInstance(class: ClassType): ClassInstance = 
   var instance = ClassInstance(class: class, fields: initTable[string, BaseType]())
@@ -456,9 +457,21 @@ method eval(self: var Interpreter, statement: VariableStmt) =
   if not statement.init.isNil: value = self.eval(statement.init)
   self.env.define(statement.name.value, value)
 
+# method eval(self: var Interpreter, statement: FuncStmt) =
+#   let function = newFunction(statement.name.value, statement, self.env)
+  # self.env.define(statement.name.value, function)
+
 method eval(self: var Interpreter, statement: FuncStmt) =
-  let function = newFunction(statement, self.env)
-  self.env.define(statement.name.value, function)
+  let funcName = statement.name.value
+  let function = newFunction(funcName, statement.function, self.env)
+  self.env.define(funcName, function)
+
+method eval(self: var Interpreter, expre: FuncExpr): BaseType =
+  return newFunction("", expre, self.env)
+# @Override
+# public Object visitFunctionExpr(Expr.Function expr) {
+#     return new LoxFunction(null, expr, environment);
+# }
 
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment) =
   let previous = self.env
@@ -512,7 +525,7 @@ method eval(self: var Interpreter, statement: ClassStmt) =
   self.env.define(statement.name.value, newNull())
   var classMethods = initTable[string, Function]()
   for m in statement.classMethods:
-    let fun = newFunction(m, self.env, false)
+    let fun = newFunction(m.name.value, m.function, self.env, false)
     classMethods[m.name.value] = fun
   let metaclass = newClass(nil, nil, statement.name.value & " metaclass", classMethods)
 
@@ -522,7 +535,7 @@ method eval(self: var Interpreter, statement: ClassStmt) =
 
   var methods = initTable[string, Function]()
   for m in statement.methods:
-    let function = newFunction(m, self.env, m.name.value == "new")
+    let function = newFunction(m.name.value, m.function, self.env, m.name.value == "new")
     methods[m.name.value] = function
   let class = newClass(metaclass, ClassType(superclass), statement.name.value, methods)
 
@@ -575,7 +588,9 @@ proc `$`*(obj: BaseType): string =
   elif obj of SlapString: return SlapString(obj).value
   elif obj of SlapBool: return $SlapBool(obj).value
   elif obj of SlapList: return $SlapList(obj).values
-  elif obj of Function: return "<fn " & Function(obj).declaration.name.value & ">"
+  elif obj of Function:
+    if not Function(obj).name.isEmptyOrWhitespace : return "<fn " & Function(obj).name & ">"
+    else: return "<anonymous fn>"
   elif obj of FuncType: return "<native fn>"
   elif obj of ClassType: return "<class " & ClassType(obj).name & ">"
   elif obj of ListInstance: return $ListInstance(obj).elements
