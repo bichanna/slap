@@ -71,7 +71,7 @@ proc doesMatch(p: var Parser, types: varargs[TokenType]): bool =
 proc expect(p: var Parser, ttype: TokenType, message: string): Token {.discardable.} =
   if p.checkCurrentTok(ttype): return p.advance()
   else: 
-    error(p.error, p.previousToken().line, "SyntaxError", message)
+    error(p.error, p.currentToken().line, "SyntaxError", message)
 
 proc primary(p: var Parser): Expr =
   if p.doesMatch(True): return LiteralExpr(kind: True, value: "true")
@@ -328,7 +328,9 @@ proc classDeclaration(p: var Parser): Stmt =
 proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()
   elif p.doesMatch(Const): return p.varDeclaration()
-  elif p.doesMatch(Define) and p.checkNextTok(Identifier): return p.function("function")
+  elif p.checkCurrentTok(Define) and p.checkNextTok(Identifier):
+    p.expect(Define, "")
+    return p.function("function")
   elif p.doesMatch(Class): return p.classDeclaration()
   else: return p.statement()
 
