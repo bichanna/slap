@@ -33,6 +33,7 @@ proc ifStatement(p: var Parser): Stmt
 proc whileStatement(p: var Parser): Stmt
 proc forStatement(p: var Parser): Stmt
 proc returnStatement(p: var Parser): Stmt
+proc functionBody(p: var Parser, kind: string): FuncExpr
 
 # returns the previous token
 proc previousToken(p: var Parser): Token = return p.tokens[p.current - 1]
@@ -47,6 +48,12 @@ proc isAtEnd(p: var Parser): bool = return p.currentToken().kind == EOF
 proc checkCurrentTok(p: var Parser, ttype: TokenType): bool =
   if p.isAtEnd(): return false
   else: return p.currentToken().kind == ttype
+
+# checks if the next token is of the expected type
+proc checkNextTok(p: var Parser, ttype: TokenType): bool =
+  if p.isAtEnd(): return false
+  elif p.tokens[p.current+1].kind == EOF: return false
+  else: return p.tokens[p.current+1].kind == ttype
 
 # returns the current token and moves to the next one
 proc advance(p: var Parser): Token {.discardable.} = 
@@ -76,8 +83,7 @@ proc primary(p: var Parser): Expr =
     p.expect(Dot, "Expected '.' after 'super'")
     let m = p.expect(Identifier, "Expected superclass method name")
     return SuperExpr(keyword: keyword, classMethod: m)
-
-  if p.doesMatch(Int, Float, String): return LiteralExpr(kind: p.previousToken().kind, value: p.previousToken().value)
+  elif p.doesMatch(Int, Float, String): return LiteralExpr(kind: p.previousToken().kind, value: p.previousToken().value)
   elif p.doesMatch(Identifier):
     let name = p.previousToken()
     if p.doesMatch(At):
@@ -100,6 +106,8 @@ proc primary(p: var Parser): Expr =
       values.add(p.expression())
     p.expect(RightBracket, "Expected ']'")
     return ListLiteralExpr(values: values, keyword: keyword)
+  elif p.doesMatch(Define): return p.functionBody("function")
+
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
 
 proc finishCall(p: var Parser, callee: Expr): Expr =
@@ -282,19 +290,23 @@ proc ifStatement(p: var Parser): Stmt =
   
   return IfStmt(condition: condition, thenBranch: thenBranch, elseBranch: elseBranch, elifBranches: elifBranches)
 
-proc function(p: var Parser, kind: string): Stmt =
-  let name = p.expect(Identifier, "Expected " & kind & " name")
-  p.expect(LeftParen, "Expected '(' after " & kind & " name")
+proc functionBody(p: var Parser, kind: string): FuncExpr =
+  p.expect(LeftParen, "Expected '(' after " & kind & "name")
   var parameters: seq[Token]
   if not p.checkCurrentTok(RightParen):
-    parameters.add(p.expect(Identifier, "Expected parameter name"))
-    while p.doesMatch(Comma):
-      if parameters.len >= 256: error(p.error, p.currentToken().line, "SyntaxError", "Cannot have more than 256 parameters")
+    while true:
+      if parameters.len >= 10: error(p.error, p.currentToken(), "SyntaxError", "Cannot have more than 10 parameters")
       parameters.add(p.expect(Identifier, "Expected parameter name"))
+      if not p.doesMatch(Comma): break
   p.expect(RightParen, "Expected ')' after parameters")
+  
   p.expect(LeftBrace, "Expected '{' before " & kind & " body")
   let body = p.parseBlock()
-  return FuncStmt(name: name, parameters: parameters, body: body)
+  return FuncExpr(parameters: parameters, body: body)
+
+proc function(p: var Parser, kind: string): FuncStmt =
+  let name = p.expect(Identifier, "Expected " & kind & " name")
+  return FuncStmt(name: name, function: p.functionBody(kind))
 
 proc classDeclaration(p: var Parser): Stmt =
   let name = p.expect(Identifier, "Expected class name")
@@ -316,7 +328,7 @@ proc classDeclaration(p: var Parser): Stmt =
 proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()
   elif p.doesMatch(Const): return p.varDeclaration()
-  elif p.doesMatch(Define): return p.function("function")
+  elif p.doesMatch(Define) and p.checkNextTok(Identifier): return p.function("function")
   elif p.doesMatch(Class): return p.classDeclaration()
   else: return p.statement()
 
