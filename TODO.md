@@ -18,10 +18,11 @@
      - [ ] "Enhanced" for loop
  - [x] Functions
      - [ ] Lambdas (anonymous functions)
- - [x] Standard library
+ - [ ] Standard library
      - [x] Basic function (e.g., `writeln`, `write`)
      - [ ] OS
      - [ ] I/O interfaces
      - [ ] Math
-     - [ ] Simple networking
+     - [ ] Networking
  - [x] Classes
+ - [ ] Import system
