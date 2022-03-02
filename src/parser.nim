@@ -103,9 +103,9 @@ proc primary(p: var Parser): Expr =
     let name = p.previousToken()
     if p.doesMatch(At):
       p.expect(LeftBracket, "Expected '['")
-      let index = p.expression()
+      let indexOrKey = p.expression()
       p.expect(RightBracket, "Expected ']'")
-      return ListVariableExpr(name: name, index: index)
+      return ListOrMapVariableExpr(name: name, indexOrKey: indexOrKey)
     return VariableExpr(name: name)
 
   elif p.doesMatch(LeftParen):
@@ -147,7 +147,7 @@ proc primary(p: var Parser): Expr =
     p.expect(RightBrace, "Expected '}'")
 
     return MapLiteralExpr(keys: keys, values: values, keyword: keyword)
-  
+
   elif p.doesMatch(Define): return p.functionBody("function")
 
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
@@ -225,10 +225,10 @@ proc assignment(p: var Parser): Expr =
     if expre of VariableExpr:
       let name = VariableExpr(expre).name
       return AssignExpr(name: name, value: value)
-    elif expre of ListVariableExpr:
-      let name = ListVariableExpr(expre).name
-      let index = ListVariableExpr(expre).index
-      return ListAssignExpr(name: name, index: index, value: value)
+    elif expre of ListOrMapVariableExpr:
+      let name = ListOrMapVariableExpr(expre).name
+      let indexOrKey = ListOrMapVariableExpr(expre).indexOrKey
+      return ListOrMapAssignExpr(name: name, indexOrKey: indexOrKey, value: value)
     elif expre of GetExpr:
       let get = GetExpr(expre)
       return SetExpr(instance: get.instance, name: get.name, value: value)
