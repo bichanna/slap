@@ -67,6 +67,7 @@ type
     True                = "true"
     False               = "false"
     Null                = "null"
+    Import              = "import"
 
   Token* = object
     kind*: TokenType

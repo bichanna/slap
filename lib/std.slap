@@ -1,0 +1,29 @@
+#
+# std.slap
+# SLAP
+#
+# Created by Nobuharu Shimazu on 2/22/2022
+#
+
+# std.slap contains the core standard library for SLAP.
+
+# identity returns its first argument
+define identitiy(x) { return x; }
+
+# join joins two list literals and returns the joined list
+# let lst = join([1, 2, 3], [4, 5, 6]);
+define join(x, y) {
+    let newList = [];
+    for ($i = 0; i < len(x); i = i + 1) { append(newList, x@[i]); }
+    for ($j = 0; j < len(y); j = j + 1) { append(newList, y@[j]); }
+    return newList;
+}
+
+# joinList joins two List instances and returns the joined list
+# let lst = joinList(List([1, 2, 3]), List([2, 3, 4, 5]));
+define joinList(x, y) {
+    let newListInst = List();
+    for ($i = 0; i < x.len; i = i + 1) { newListInst.append(x.get(i)); }
+    for ($j = 0; j < y.len; j = j + 1) { newListInst.append(y.get(i)); }
+    return newListInst;
+}

@@ -30,7 +30,8 @@ const
     "break": Break,
     "true": True,
     "false": False,
-    "null": Null
+    "null": Null,
+    "import": Import
   }.toTable
 
   Letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
