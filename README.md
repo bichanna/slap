@@ -15,13 +15,13 @@ Here's an example SLAP program.
 ```py
 for (let i = 1; i <= 100; i = i + 1) {
     if (i % 3 == 0 and i % 5 == 0) {
-        writeln("fizzbuzz");
+        println("fizzbuzz");
     } elif (i % 3 == 0) {
-        writeln("fizz");
+        println("fizz");
     } elif (i % 5 == 0) {
-        writeln("buzz");
+        println("buzz");
     } else {
-        writeln(i);
+        println(i);
     }
 }
 ```
