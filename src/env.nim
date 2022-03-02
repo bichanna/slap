@@ -51,20 +51,34 @@ proc assign*(env: var Environment, name: Token, value: BaseType) =
 
 proc assignAt*(env: var Environment, distance: int, name: Token, value: BaseType) = env.ancestor(distance).values[name.value] = value
 
-proc listAssign*(env: var Environment, name: Token, value: BaseType, index: SlapInt) =
+proc listOrMapAssign*(env: var Environment, name: Token, value: BaseType, indexOrKey: BaseType) =
   if env.values.hasKey(name.value):
-    var list: SlapList
-    try:
-      list = SlapList(env.values[name.value])
-    except:
-      error(env.error, name.line, "RuntimeError", "Only lists and dictionaries can be used with '@[]'")
-    if index.value < list.values.len and index.value > -1:
-      list.values[index.value] = value
-    else:
-      error(env.error, name.line, "RuntimeError", "Index out of range")
+    let listOrMap = env.values[name.value]
+    if listOrMap of SlapList:
+      if not (indexOrKey of SlapInt): error(env.error, name.line, "RuntimeError", "List indices must be integers")
+      if SlapInt(indexOrKey).value < SlapList(listOrMap).values.len and SlapInt(indexOrKey).value > -1:
+        SlapList(listOrMap).values[SlapInt(indexOrKey).value] = value
+      else: 
+        error(env.error, name.line, "RuntimeError", "Index out of range")
+    
+    elif listOrMap of SlapMap:
+      let found = SlapMap(listOrMap).keys.find(value)
+      if found == -1: error(env.error, name, "RuntimeError", "Value with this key does not exist")
+      SlapMap(listOrMap).values[found] = value
+  elif not env.enclosing.isNil:
+    env.enclosing.listOrMapAssign(name, value, indexOrKey)
+  else:
+    error(env.error, name.line, "RuntimeError", "'" & name.value & "' is not defined")
 
-proc listAssignAt*(env: var Environment, distance: int, name: Token, value: BaseType, index: SlapInt) =
-  try:
-    SlapList(env.ancestor(distance).values[name.value]).values[index.value] = value
-  except:
-    error(env.error, name.line, "RuntimeError", "Only lists and dictionaries can be used with '@[]'")
+proc listOrMapAssignAt*(env: var Environment, distance: int, name: Token, value: BaseType, indexOrKey: BaseType) =
+  let listOrMap = env.ancestor(distance).values[name.value]
+  if listOrMap of SlapList:
+    if not (indexOrKey of SlapInt): error(env.error, name.line, "RuntimeError", "List indices must be integers")
+    SlapList(listOrMap).values[SlapInt(indexOrKey).value] = value
+  
+  elif listOrMap of SlapMap:
+    let found = SlapMap(listOrMap).keys.find(value)
+    if found == -1: error(env.error, name, "RuntimeError", "Value with this key does not exist")
+    SlapMap(listOrMap).values[found] = value
+  
+  else: error(env.error, name, "RuntimeError", "Only lists and maps can be used with '@[]'")
