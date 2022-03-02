@@ -217,28 +217,28 @@ proc breakStatement(p: var Parser): Stmt =
   p.expect(SemiColon, "Expected ';' after 'break'")
   return BreakStmt()
 
-proc importStatement(p: var Parser) =
-  var imports: seq[Token]
-  imports.add(p.expect(Identifier, "Expected an identifier"))
-  while p.doesMatch(Comma):
-    imports.add(p.expect(Identifier, "Expected an identifier after ','"))
+# proc importStatement(p: var Parser) =
+#   var imports: seq[Token]
+#   imports.add(p.expect(Identifier, "Expected an identifier"))
+#   while p.doesMatch(Comma):
+#     imports.add(p.expect(Identifier, "Expected an identifier after ','"))
   
-  p.expect(SemiColon, "Expected ';' after import")
+#   p.expect(SemiColon, "Expected ';' after import")
   
-  for i in imports:
-    if stdlibs.hasKey(i.value):
-      var
-        # lexing
-        src = stdlibs[i.value]
-        error = Error(source: src)
-        lexer = newLexer(src, error)
-        tokens = lexer.tokenize()
-        # parsing
-        parser = newParser(tokens, error)
-        nodes = parser.parse()
-      p.statements = nodes & p.statements
-    else: error(p.error, i, "SyntaxError", "Cannot import '" & i.value & "'")
-  raise ImportException()
+#   for i in imports:
+#     if stdlibs.hasKey(i.value):
+#       var
+#         # lexing
+#         src = stdlibs[i.value]
+#         error = Error(source: src)
+#         lexer = newLexer(src, error)
+#         tokens = lexer.tokenize()
+#         # parsing
+#         parser = newParser(tokens, error)
+#         nodes = parser.parse()
+#       p.statements = nodes & p.statements
+#     else: error(p.error, i, "SyntaxError", "Cannot import '" & i.value & "'")
+#   raise ImportException()
 
 proc statement(p: var Parser): Stmt =
   if p.doesMatch(LeftBrace): return BlockStmt(statements: p.parseBlock())
@@ -247,7 +247,7 @@ proc statement(p: var Parser): Stmt =
   elif p.doesMatch(For): return p.forStatement()
   elif p.doesMatch(Return): return p.returnStatement()
   elif p.doesMatch(Break): return p.breakStatement()
-  elif p.doesMatch(Import): p.importStatement()
+  # elif p.doesMatch(Import): p.importStatement()
   return p.exprStmt()
 
 proc returnStatement(p: var Parser): Stmt =
