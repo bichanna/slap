@@ -6,6 +6,7 @@
 # 
 
 import token
+import tables
 
 var isRepl*: bool = false
 
@@ -33,6 +34,11 @@ type
     values*: seq[Expr]
     keyword*: Token
 
+  MapLiteralExpr* = ref object of Expr
+    keys*: seq[Expr]
+    values*: seq[Expr]
+    keyword*: Token
+  
   LogicalExpr* = ref object of Expr
     left*: Expr
     operator*: Token
