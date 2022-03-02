@@ -1,5 +1,5 @@
 #
-# lib.nim
+# builtin.nim
 # SLAP
 #
 # Created by Nobuharu Shimazu on 2/28/2022
