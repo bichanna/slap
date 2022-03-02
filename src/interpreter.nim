@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node, token, slaptype, env, exception, interpreterObj, lib
+import error, node, token, slaptype, env, exception, interpreterObj, builtin
 import strutils, tables
   
 const RuntimeError = "RuntimeError"
