@@ -31,4 +31,4 @@ for (let i = 1; i <= 100; i = i + 1) {
 [TODO list](https://github.com/bichanna/slap/blob/master/TODO.md)
 
 ## Contribution
-Contribution is always welcome :D
+Contributions are always welcome :D
