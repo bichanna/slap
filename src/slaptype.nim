@@ -4,6 +4,9 @@
 #
 # Created by Nobuharu Shimazu on 2/18/2022
 #
+
+import tables
+
 type
   # SLAP types
   BaseType* = ref object of RootObj
@@ -23,6 +26,10 @@ type
   SlapList* = ref object of BaseType
     values*: seq[BaseType]
 
+  SlapMap* = ref object of BaseType
+    keys*: seq[BaseType]
+    values*: seq[BaseType]
+
   SlapNull* = ref object of BaseType
 
 proc newString*(value: string): SlapString = return SlapString(value: value)
@@ -34,5 +41,7 @@ proc newFloat*(value: float64): SlapFloat = return SlapFloat(value: value)
 proc newBool*(value: bool): SlapBool = return SlapBool(value: value)
 
 proc newList*(values: seq[BaseType]): SlapList = return SlapList(values: values)
+
+proc newMap*(keys: seq[BaseType], values: seq[BaseType]): SlapMap = return SlapMap(keys: keys, values: values)
 
 proc newNull*(): SlapNull = return SlapNull()
