@@ -19,7 +19,7 @@
  - [x] Functions
      - [x] Lambdas (anonymous functions)
  - [ ] Standard Library
-     - [x] Basic (e.g., `writeln`, `write`)
+     - [x] Basic (e.g., `println`, `print`)
      - [ ] OS
      - [ ] I/O interfaces
      - [ ] Math
