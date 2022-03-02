@@ -11,14 +11,14 @@ SLAP's slow as you can see the benchmark [here](https://github.com/bichanna/slap
 ### Hello World
 The code for a hello world program in SLAP is as follows:
 ```
-writeln("Hello World!");
+println("Hello World!");
 ```
 
 ### Comments
 Comments in SLAP begin with the hash character.
 ```
 # This is a comment
-writeln("This will be printed"); # Another comment
+println("This will be printed"); # Another comment
 ```
 
 ### Data Types
@@ -44,14 +44,14 @@ list.append("Hello World");
 list.set(0, 2.7);
 let poppedItem = list.pop();
 list.append(list.len);
-writeln(list.get(0));
+println(list.get(0));
 
 let anotherList = [1, 2, "string", 3.1415]; # using list literal (faster)
 append(anotherList, "Hello World");
 list@[0] = 2.7;
 let anotherPoppedItem = pop(list);
 append(anotherList, len(anotherList));
-writeln(list@[0]);
+println(list@[0]);
 ```
 
 ### Variables
@@ -72,23 +72,23 @@ age = age + 1;
 An `if` statement executes one of multiple statements based on some conditions.
 ```
 if (name == "Nobuharu") {
-    writeln("What a cool name!");
+    println("What a cool name!");
 } elif (name == "bichanna") {
-    writeln("How fabulous!");
+    println("How fabulous!");
 } else {
-    writeln("Hi " + name + "!");
+    println("Hi " + name + "!");
 }
 ```
 You can also use just one line for an if statement.
 ```
-if (i < 10) writeln("smaller than 10");
+if (i < 10) println("smaller than 10");
 ```
 
 A `while` loop is just like many other languages.
 ```
 let i = 1;
 while (i < 10) {
-    writeln(i);
+    println(i);
     i = i + 1;
 }
 ```
@@ -96,7 +96,7 @@ while (i < 10) {
 A crude `for` loop looks like this:
 ```
 for ($i = 1; i < 10; i = i + 1) {
-    writeln(i);
+    println(i);
 }
 ```
 
@@ -108,7 +108,7 @@ define greetStr(name) {
     return "Hello, " + name + "!";
 }
 
-writeln(greetStr("bichanna"));
+println(greetStr("bichanna"));
 ```
 SLAP supports closures as well as passing functions.
 ```
@@ -120,13 +120,13 @@ define returnFunc(a) {
     return a;
 }
 
-writeln(returnFunc(add)(1, 4));
+println(returnFunc(add)(1, 4));
 ```
 A function within a function looks like this:
 ```
 define outerFunc() {
     define insideFunc() {
-        writeln("I'm local.");
+        println("I'm local.");
     }
     insideFunc();
 }
@@ -140,7 +140,7 @@ define doSomething(func) {
 }
 
 doSomething(define() {
-    writeln("Hello World");
+    println("Hello World");
 });
 ```
 
@@ -163,10 +163,10 @@ class Car {
 
 $blackMazda = Car("Black", "SUV", "Mazda");
 
-writeln(blackMazda.getColor());
-writeln(blackMazda.style);
+println(blackMazda.getColor());
+println(blackMazda.style);
 blackMazda.color = "black";
-writeln(blackMazda.color);
+println(blackMazda.color);
 ```
 You can also define static methods:
 ```
@@ -176,13 +176,13 @@ class Math {
     }
 }
 
-writeln(Math.square(3));
+println(Math.square(3));
 ```
 Here's how a class inherits another class:
 ```
 class Car {
     drive() {
-        writeln("driving");
+        println("driving");
     }
 }
 
