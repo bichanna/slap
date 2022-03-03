@@ -32,5 +32,5 @@ time slap benchmark/fib/slap.slap     # None
 |     JavaScript    | 0.05s|
 |       Python      | 0.19s|
 |        Julia      | 0.23s|
-| SLAP(list literal)| 3.19s|
+| SLAP(list literal)| 3.20s|
 | SLAP(ListClass)   | 6.44s|
