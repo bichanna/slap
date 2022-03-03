@@ -5,8 +5,6 @@
 # Created by Nobuharu Shimazu on 2/18/2022
 #
 
-import tables
-
 type
   # SLAP types
   BaseType* = ref object of RootObj
