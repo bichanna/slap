@@ -152,8 +152,9 @@ proc primary(p: var Parser): Expr =
 
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
 
-proc finishCall(p: var Parser, callee: Expr): Expr =
+proc finishCall(p: var Parser, callee: Expr, arg: Expr): Expr =
   var arguments: seq[Expr]
+  if not arg.isNil: arguments.add(arg)
   if not p.checkCurrentTok(RightParen):
     arguments.add(p.expression())
     while p.doesMatch(Comma):
@@ -166,14 +167,17 @@ proc finishCall(p: var Parser, callee: Expr): Expr =
     arguments.add(p.expression())
   return CallExpr(callee: callee, paren: paren, arguments: arguments)
 
-proc call(p: var Parser): Expr =
+proc call(p: var Parser, arg: Expr = nil): Expr =
   var expre: Expr = p.primary()
   while true:
     if p.doesMatch(LeftParen):
-      expre = p.finishCall(expre)
+      expre = p.finishCall(expre, arg)
     elif p.doesMatch(Dot):
       let name = p.expect(Identifier, "Expected property name after '.'")
       expre = GetExpr(instance: expre, name: name)
+    elif p.doesMatch(RightArrow):
+      expre = p.call(expre)
+      break
     else:
       break
   return expre
