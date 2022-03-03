@@ -150,7 +150,9 @@ proc tokenize*(l: var Lexer): seq[Token] =
     of ':': l.appendToken(Colon)
     of ';': l.appendToken(SemiColon)
     of '+': l.appendToken(Plus)
-    of '-': l.appendToken(Minus)
+    of '-':
+      if l.doesMatch('>'): l.appendToken(RightArrow)
+      else: l.appendToken(Minus)
     of '~': l.appendToken(Tilde)
     of '*': l.appendToken(Star)
     of '%': l.appendToken(Modulo)
