@@ -197,4 +197,27 @@ class Mazda <- Car {
 }
 ```
 
-### Module System (WIP)
+### Module System (NYI)
+
+## Syntax Sugars
+
+### `<-` Expression
+
+Because I like callbacks, there's special syntax sugar, the `<-` expression. The `<-` syntax sugar de-sugars like this:
+```
+someFunc("abc") <- define(data) {
+    println(data);
+};
+
+someFunc("abc", define(data) {  # de-sugars to this
+    println(data);
+})
+```
+
+### `->` Expression
+I also didn't like this syntax: `append(list, "bichanna");`, I decided to create this special syntax sugar, the `->` expression.
+```
+list -> append("bichanna");
+
+append(list, "bichanna"); # de-sugars to this
+```
