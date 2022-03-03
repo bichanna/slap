@@ -161,6 +161,9 @@ proc finishCall(p: var Parser, callee: Expr): Expr =
         error(p.error, p.currentToken().line, "SyntaxError", "Cannot have more than 256 arguments")
       arguments.add(p.expression())
   let paren = p.expect(RightParen, "Expected ')' after arguments")
+  # check for <-
+  if p.doesMatch(LeftArrow):
+    arguments.add(p.expression())
   return CallExpr(callee: callee, paren: paren, arguments: arguments)
 
 proc call(p: var Parser): Expr =
