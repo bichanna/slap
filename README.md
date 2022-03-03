@@ -1,13 +1,13 @@
 <div align="center">
     <h1>The SLAP Programming Language</h1>
     |
-    <a href="https://bichanna.github.io/slap/#syntax">Doc</a>
+    <a href="https://github.com/bichanna/slap/blob/master/docs/index.md#syntax">Doc</a>
     |
 </div><br>
 
 **WARNING!! THIS LANGUAGE IS IN DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT.**
 
-**SLAP** stands for **Sl**ow **A**nd **P**owerless, and I hope to make it '**P**owerfull' someday.
+**SLAP** stands for **Sl**ow **A**nd **P**owerless, but I hope to make it '**P**owerfull' someday.
 
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language. Its syntax is a member of the C family; it is not meant to be groundbreaking but rather to feel similar with a bit of difference.
 
