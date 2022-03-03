@@ -209,7 +209,8 @@ method eval(self: var Interpreter, expre: ListOrMapAssignExpr): BaseType =
       if $map.keys[i] == $indexOrKey:
         map.values[i] = value
         return
-    error(error, expre.name, RuntimeError, "Value with this key does not exist")
+    map.keys.add(indexOrKey)
+    map.values.add(value)
 
   var gotIt = false
   let i = self.exprSeqForLocals.find(expre)
