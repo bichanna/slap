@@ -1,7 +1,7 @@
 <div align="center">
     <h1>The SLAP Programming Language</h1>
     |
-    <a href="https://bichanna.github.io/slap/#syntax">Doc</a>
+    <a href="https://github.com/bichanna/slap/blob/master/docs/index.md#syntax">Doc</a>
     |
 </div><br>
 
