@@ -32,7 +32,7 @@ proc get*(env: var Environment, name: Token): BaseType =
   else:
     error(env.error, name.line, "RuntimeError", "'" & name.value & "' is not defined")
 
-proc ancestor(env: var Environment, distance: int): Environment =
+proc ancestor*(env: var Environment, distance: int): Environment =
   var environment = env
   for _ in 0 ..< distance: environment = environment.enclosing
   return environment
@@ -62,7 +62,7 @@ proc listOrMapAssign*(env: var Environment, name: Token, value: BaseType, indexO
         error(env.error, name.line, "RuntimeError", "Index out of range")
     
     elif listOrMap of SlapMap:
-      let found = SlapMap(listOrMap).keys.find(value)
+      let found = SlapMap(listOrMap).keys.find(indexOrKey)
       if found == -1: error(env.error, name, "RuntimeError", "Value with this key does not exist")
       SlapMap(listOrMap).values[found] = value
   elif not env.enclosing.isNil:
@@ -77,7 +77,7 @@ proc listOrMapAssignAt*(env: var Environment, distance: int, name: Token, value:
     SlapList(listOrMap).values[SlapInt(indexOrKey).value] = value
   
   elif listOrMap of SlapMap:
-    let found = SlapMap(listOrMap).keys.find(value)
+    let found = SlapMap(listOrMap).keys.find(indexOrKey)
     if found == -1: error(env.error, name, "RuntimeError", "Value with this key does not exist")
     SlapMap(listOrMap).values[found] = value
   
