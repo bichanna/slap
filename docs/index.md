@@ -22,8 +22,8 @@ println("This will be printed"); # Another comment
 ```
 
 ### Data Types
-> *Note:* NYI stands for "Not Yet Implemented"
-
+> *Note:* NYI stands for "Not Yet Implemented"<br>
+> *Note:* For the syntax sugar I used in the examples, see ['Syntax Sugars'](https://github.com/bichanna/slap/blob/master/docs/index.md#syntax-sugars)
  - String
  - Int
  - Float
@@ -47,10 +47,10 @@ list.append(list.len);
 println(list.get(0));
 
 let anotherList = [1, 2, "string", 3.1415]; # using list literal (faster)
-append(anotherList, "Hello World");
+anotherList -> append("Hello World");
 list@[0] = 2.7;
 let anotherPoppedItem = pop(list);
-append(anotherList, len(anotherList));
+anotherList -> append(len(anotherList));
 println(list@[0]);
 
 let map = {"key": "secret value", "another key": 123445}; # map
