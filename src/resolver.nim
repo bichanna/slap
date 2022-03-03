@@ -58,8 +58,8 @@ method resolve(self: var Resolver, expre: VariableExpr) =
     error(self.error, expre.name, "SyntaxError", "Cannot read local variable in its own initializer")
   self.resolveLocal(expre, expre.name)
 
-method resolve(self: var Resolver, expre: ListVariableExpr) =
-  self.resolve(expre.index)
+method resolve(self: var Resolver, expre: ListOrMapVariableExpr) =
+  self.resolve(expre.indexOrKey)
   if not (self.scopes.len == 0) and self.scopes[self.scopes.len-1].getOrDefault(expre.name.value, true) == false:
     error(self.error, expre.name, "SyntaxError", "Cannot read local variable in its own initializer")
   self.resolveLocal(expre, expre.name)
@@ -68,9 +68,9 @@ method resolve(self: var Resolver, expre: AssignExpr) =
   self.resolve(expre.value)
   self.resolveLocal(expre, expre.name)
 
-method resolve(self: var Resolver, expre: ListAssignExpr) =
+method resolve(self: var Resolver, expre: ListOrMapAssignExpr) =
   self.resolve(expre.value)
-  self.resolve(expre.index)
+  self.resolve(expre.indexOrKey)
   self.resolveLocal(expre, expre.name)
 
 method resolve(self: var Resolver, statement: FuncStmt) =
@@ -158,6 +158,12 @@ method resolve(self: var Resolver, expre: SelfExpr) =
 method resolve(self: var Resolver, expre: ListLiteralExpr) =
   for value in expre.values:
     self.resolve(value)
+
+method resolve(self: var Resolver, expre: MapLiteralExpr) =
+  for k in expre.keys:
+    self.resolve(k)
+  for v in expre.values:
+    self.resolve(v)
 
 # ---------------------------- HELPERS ---------------------------------
 

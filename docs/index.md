@@ -30,7 +30,7 @@ println("This will be printed"); # Another comment
  - Bool
  - Null
  - List
- - Map (NYI)
+ - Map
 
 ```
 "A string";   # string
@@ -52,6 +52,10 @@ list@[0] = 2.7;
 let anotherPoppedItem = pop(list);
 append(anotherList, len(anotherList));
 println(list@[0]);
+
+let map = {"key": "secret value", "another key": 123445}; # map
+map@["key"] = "some value";
+println(map);
 ```
 
 ### Variables

@@ -85,37 +85,69 @@ proc expect(p: var Parser, ttype: TokenType, message: string): Token {.discardab
 
 proc primary(p: var Parser): Expr =
   if p.doesMatch(True): return LiteralExpr(kind: True, value: "true")
+
   elif p.doesMatch(False): return LiteralExpr(kind: False, value: "false")
+
   elif p.doesMatch(Null): return LiteralExpr(kind: Null, value: "null")
+
   elif p.doesMatch(Self): return SelfExpr(keyword: p.previousToken())
+
   elif p.doesMatch(Super):
     let keyword = p.previousToken()
     p.expect(Dot, "Expected '.' after 'super'")
     let m = p.expect(Identifier, "Expected superclass method name")
     return SuperExpr(keyword: keyword, classMethod: m)
   elif p.doesMatch(Int, Float, String): return LiteralExpr(kind: p.previousToken().kind, value: p.previousToken().value)
+
   elif p.doesMatch(Identifier):
     let name = p.previousToken()
     if p.doesMatch(At):
       p.expect(LeftBracket, "Expected '['")
-      let index = p.expression()
+      let indexOrKey = p.expression()
       p.expect(RightBracket, "Expected ']'")
-      return ListVariableExpr(name: name, index: index)
+      return ListOrMapVariableExpr(name: name, indexOrKey: indexOrKey)
     return VariableExpr(name: name)
+
   elif p.doesMatch(LeftParen):
     let expre = p.expression()
     p.expect(RightParen, "Expected ')'")
     return GroupingExpr(expression: expre)
-  elif p.doesMatch(LeftBracket):
+
+  elif p.doesMatch(LeftBracket): # list literal
     let keyword = p.previousToken()
+    
     if p.doesMatch(RightBracket):
       return ListLiteralExpr(values: @[], keyword: keyword)
+    
     var values: seq[Expr]
     values.add(p.expression())
+    
     while p.doesMatch(Comma):
       values.add(p.expression())
     p.expect(RightBracket, "Expected ']'")
+    
     return ListLiteralExpr(values: values, keyword: keyword)
+
+  elif p.doesMatch(LeftBrace): # map literal
+    let keyword = p.previousToken()
+    if p.doesMatch(RightBrace):
+      return MapLiteralExpr(keys: @[], values: @[], keyword: keyword)
+
+    var keys: seq[Expr]
+    var values: seq[Expr]
+
+    keys.add(p.expression())
+    p.expect(Colon, "Expected ':' after key")
+    values.add(p.expression())
+
+    while p.doesMatch(Comma):
+      keys.add(p.expression())
+      p.expect(Colon, "Expected ':' after key")
+      values.add(p.expression())
+    p.expect(RightBrace, "Expected '}'")
+
+    return MapLiteralExpr(keys: keys, values: values, keyword: keyword)
+
   elif p.doesMatch(Define): return p.functionBody("function")
 
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
@@ -193,10 +225,10 @@ proc assignment(p: var Parser): Expr =
     if expre of VariableExpr:
       let name = VariableExpr(expre).name
       return AssignExpr(name: name, value: value)
-    elif expre of ListVariableExpr:
-      let name = ListVariableExpr(expre).name
-      let index = ListVariableExpr(expre).index
-      return ListAssignExpr(name: name, index: index, value: value)
+    elif expre of ListOrMapVariableExpr:
+      let name = ListOrMapVariableExpr(expre).name
+      let indexOrKey = ListOrMapVariableExpr(expre).indexOrKey
+      return ListOrMapAssignExpr(name: name, indexOrKey: indexOrKey, value: value)
     elif expre of GetExpr:
       let get = GetExpr(expre)
       return SetExpr(instance: get.instance, name: get.name, value: value)

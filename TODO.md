@@ -1,11 +1,11 @@
- - [ ] Basic Data Types
+ - [x] Basic Data Types
      - [x] Integer
      - [x] Float
      - [x] String
      - [x] Boolean
      - [x] Null
      - [x] List
-     - [ ] Map
+     - [x] Map
  - [x] Basic Arithmetics
  - [x] Variables
  - [x] If Statements

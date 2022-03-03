@@ -87,7 +87,19 @@ proc slapConvertStr(self: var Interpreter, args: seq[BaseType]): BaseType =
   if args[0] of SlapList: return newString($SlapList(args[0]).values)
   if args[0] of SlapString: return SlapString(args[0])
   if args[0] of SlapBool: return newString($SlapBool(args[0]).value)
+  if args[0] of SlapMap: return newString($SlapMap(args[0]))
   error(self.error, -1, RuntimeError, "Cannot convert to a string")
+
+proc slapKeys(self: var Interpreter, args: seq[BaseType]): BaseType =
+  if not (args[0] of SlapMap):
+    error(self.error, -1, RuntimeError, "keys function only accepts a map")
+  return newList(SlapMap(args[0]).keys)
+
+proc slapValues(self: var Interpreter, args: seq[BaseType]): BaseType =
+  if not (args[0] of SlapMap):
+    error(self.error, -1, RuntimeError, "values function only accepts a map")
+  return newList(SlapMap(args[0]).values)
+
 
 proc loadBuildins*(errorObj: Error): Environment =
   var globals = newEnv(errorObj)
@@ -108,5 +120,7 @@ proc loadBuildins*(errorObj: Error): Environment =
   globals.define("isNull", FuncType(arity: proc(): int = 1, call: slapIsNull))
   globals.define("int", FuncType(arity: proc(): int = 1, call: slapConvertInt))
   globals.define("string", FuncType(arity: proc(): int = 1, call: slapConvertStr))
+  globals.define("keys", FuncType(arity: proc(): int = 1, call: slapKeys))
+  globals.define("values", FuncType(arity: proc(): int = 1, call: slapValues))
 
   return globals

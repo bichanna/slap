@@ -164,20 +164,27 @@ method eval(self: var Interpreter, expre: UnaryExpr): BaseType =
 method eval(self: var Interpreter, expre: VariableExpr): BaseType =
   return self.loopUpVariable(expre.name, expre)
 
-# eval ListVariableExpr
-method eval(self: var Interpreter, expre: ListVariableExpr): BaseType =
-  let index = self.eval(expre.index)
-  if not (index of SlapInt):
-    error(self.error, expre.name.line, RuntimeError, "List indices must be integers")
-
+# eval ListOrMapVariableExpr
+method eval(self: var Interpreter, expre: ListOrMapVariableExpr): BaseType =
+  let indexOrKey = self.eval(expre.indexOrKey)
   let variable = self.loopUpVariable(expre.name, expre)
-  if not (variable of SlapList):
-    error(self.error, expre.name.line, RuntimeError, "Only lists and dictionaries can be used with '@[]'")
-
-  try:
-    return SlapList(variable).values[SlapInt(index).value]
-  except IndexDefect:
-    error(self.error, expre.name, RuntimeError, "Index out of range")
+  if variable of SlapList:
+    if not (indexOrKey of SlapInt): error(self.error, expre.name, RuntimeError, "List indices must be integers")
+    try:
+      return SlapList(variable).values[SlapInt(indexOrKey).value]
+    except IndexDefect:
+      error(self.error, expre.name, RuntimeError, "Index out of range")
+  
+  elif variable of SlapMap:
+    let key = self.eval(expre.indexOrKey)
+    for i in 0 ..< SlapMap(variable).keys.len:
+      if $SlapMap(variable).keys[i] == $key:
+        return SlapMap(variable).values[i]
+    
+    error(self.error, expre.name, RuntimeError, "Value with this key does not exist")
+  
+  else:
+    error(self.error, expre.name, RuntimeError, "Only lists and maps can be used with '@[]'")
 
 # eval AssignExpr
 method eval(self: var Interpreter, expre: AssignExpr): BaseType =
@@ -192,20 +199,51 @@ method eval(self: var Interpreter, expre: AssignExpr): BaseType =
   if not gotIt: self.globals.assign(expre.name, value)
   return value
 
-# eval ListAssignExpr
-method eval(self: var Interpreter, expre: ListAssignExpr): BaseType =
+# eval ListOrMapAssignExpr
+method eval(self: var Interpreter, expre: ListOrMapAssignExpr): BaseType =
   let value = self.eval(expre.value)
-  let index = self.eval(expre.index)
-  if not (index of SlapInt):
-    error(self.error, expre.name, RuntimeError, "List indices must be integers")
+  let indexOrKey = self.eval(expre.indexOrKey)
+
+  proc mapAssign(map: SlapMap, error: Error) =
+    for i in 0 ..< map.keys.len:
+      if $map.keys[i] == $indexOrKey:
+        map.values[i] = value
+        return
+    map.keys.add(indexOrKey)
+    map.values.add(value)
+
   var gotIt = false
   let i = self.exprSeqForLocals.find(expre)
   if i != -1:
     let distance = self.locals.getOrDefault(i, -1)
     if distance != -1:
       gotIt = true
-      self.env.listAssignAt(distance, expre.name, value, SlapInt(index))
-  if not gotIt: self.globals.listAssign(expre.name, value, SlapInt(index))
+      if self.env.values.hasKey(expre.name.value):
+        let listOrMap = self.env.ancestor(distance).values[expre.name.value]
+        if listOrMap of SlapList:
+          self.env.listOrMapAssignAt(distance, expre.name, value, indexOrKey)
+
+        elif listOrMap of SlapMap:
+          mapAssign(SlapMap(listOrMap), self.error)
+
+        else: error(self.error, expre.name, RuntimeError, "Only lists and maps can be used with '@[]'")
+  if not gotIt:
+    if self.env.values.hasKey(expre.name.value):
+      let listOrMap = self.env.values[expre.name.value]
+      if listOrMap of SlapList:
+        self.env.listOrMapAssign(expre.name, value, indexOrKey)
+      
+      elif listOrMap of SlapMap:
+        mapAssign(SlapMap(listOrMap), self.error)
+
+    elif not self.env.enclosing.isNil:
+      let currentEnv = self.env
+      self.env = currentEnv.enclosing
+      discard self.eval(expre)
+      self.env = currentEnv
+    
+    else:
+      error(self.error, expre.name.line, RuntimeError, "'" & expre.name.value & "' is not defined")
   return value
 
 # eval LogicalExpr
@@ -263,11 +301,21 @@ method eval(self: var Interpreter, expre: SuperExpr): BaseType =
         error(self.error, expre.classMethod, RuntimeError, "'" & expre.classMethod.value & "' is not defined")
       return m.`bind`(obj, self)
 
+# eval ListLiteralExpr
 method eval(self: var Interpreter, expre: ListLiteralExpr): BaseType =
   var values: seq[BaseType]
   for value in expre.values:
     values.add(self.eval(value))
   return newList(values)
+
+# eval MapLiteralExpr
+method eval(self: var Interpreter, expre: MapLiteralExpr): BaseType =
+  var keys: seq[BaseType]
+  var values: seq[BaseType]
+  for i in 0 ..< expre.keys.len:
+    keys.add(self.eval(expre.keys[i]))
+    values.add(self.eval(expre.values[i]))
+  return newMap(keys, values)
 
 # eval BinaryExpr
 method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
@@ -404,10 +452,6 @@ method eval(self: var Interpreter, statement: VariableStmt) =
   if not statement.init.isNil: value = self.eval(statement.init)
   self.env.define(statement.name.value, value)
 
-# method eval(self: var Interpreter, statement: FuncStmt) =
-#   let function = newFunction(statement.name.value, statement, self.env)
-  # self.env.define(statement.name.value, function)
-
 method eval(self: var Interpreter, statement: FuncStmt) =
   let funcName = statement.name.value
   let function = newFunction(funcName, statement.function, self.env)
@@ -415,10 +459,6 @@ method eval(self: var Interpreter, statement: FuncStmt) =
 
 method eval(self: var Interpreter, expre: FuncExpr): BaseType =
   return newFunction("", expre, self.env)
-# @Override
-# public Object visitFunctionExpr(Expr.Function expr) {
-#     return new LoxFunction(null, expr, environment);
-# }
 
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment) =
   let previous = self.env

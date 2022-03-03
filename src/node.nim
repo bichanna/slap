@@ -33,6 +33,11 @@ type
     values*: seq[Expr]
     keyword*: Token
 
+  MapLiteralExpr* = ref object of Expr
+    keys*: seq[Expr]
+    values*: seq[Expr]
+    keyword*: Token
+  
   LogicalExpr* = ref object of Expr
     left*: Expr
     operator*: Token
@@ -41,17 +46,17 @@ type
   VariableExpr* = ref object of Expr
     name*: Token
   
-  ListVariableExpr* = ref object of Expr
+  ListOrMapVariableExpr* = ref object of Expr
     name*: Token
-    index*: Expr
+    indexOrKey*: Expr
 
   AssignExpr* = ref object of Expr
     name*: Token
     value*: Expr
 
-  ListAssignExpr* = ref object of Expr
+  ListOrMapAssignExpr* = ref object of Expr
     name*: Token
-    index*: Expr
+    indexOrKey*: Expr
     value*: Expr
 
   CallExpr* = ref object of Expr
