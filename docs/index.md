@@ -147,6 +147,17 @@ doSomething(define() {
     println("Hello World");
 });
 ```
+Lastly, because I like callbacks, there's special syntax sugar, the `<-` expression. The `<-` syntax sugar de-sugars like this:
+```
+someFunc("abc") <- define(data) {
+    println(data);
+};
+
+someFunc("abc", define(data) {  # de-sugars to this
+    println(data);
+})
+```
+
 
 ### Classes
 > *Note:* Inheritance is not yet implemented.
