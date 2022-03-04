@@ -1,12 +1,13 @@
 # SLAP
-SLAP stands for **Sl**ow **A**nd **P**owerless. And I hope to make it '**P**owerfull' someday.<br>
+SLAP stands for "**SL**ow **A**nd **P**owerless". And I hope to make it "**P**owerfull" someday.<br>
 SLAP is a dynamically and strongly typed, object-oriented programming language with the syntax of the C family.<br>
 SLAP's syntax is ordinary; it is not meant to be groundbreaking but rather to feel similar with a little bit of difference.
 
-## Benchmark
-SLAP's slow as you can see the benchmark [here](https://github.com/bichanna/slap/tree/master/benchmark#readme).
+## How slow is SLAP?
+You can see the benchmarks [here](https://github.com/bichanna/slap/tree/master/benchmark#readme).
 
 ## Syntax
+> *Note:* NYI stands for "Not Yet Implemented"<br>
 
 ### Hello World
 The code for a hello world program in SLAP is as follows:
@@ -22,9 +23,9 @@ println("This will be printed"); # Another comment
 ```
 
 ### Data Types
-> *Note:* NYI stands for "Not Yet Implemented"<br>
-> *Note:* For the syntax sugar I used in the examples, see ['Syntax Sugars'](https://github.com/bichanna/slap/blob/master/docs/index.md#syntax-sugars)
-> *Note:* SLAP list uses @[] instead of [] like other languages. (e.g., `list@[0]`, not `list[0]`)
+> *Note:* For the syntax sugar I used in the examples, see ['Syntax Sugars'](https://github.com/bichanna/slap/blob/master/docs/index.md#syntax-sugars)<br>
+> *Note:* SLAP list uses @[] instead of [] unlike many languages. (e.g., `list@[0]`, not `list[0]`)
+
  - String
  - Int
  - Float
@@ -47,7 +48,7 @@ let anotherPoppedItem = pop(anotherList);
 anotherList -> append(len(anotherList));
 println(anotherList@[0]);
 
-let list = List([1, 2, "string", 3.1415]); # using List class (slower)
+let list = List([1, 2, "string", 3.1415]); # using List class (this is a LOT slower and discouraged since the advent of the syntax sugars)
 list.append("Hello World");
 list.set(0, 2.7);
 let poppedItem = list.pop();
@@ -74,7 +75,7 @@ age = age + 1;
 
 ### Control Flow
 
-An `if` statement executes one of multiple statements based on some conditions.
+An `if` statement executes one of multiple statements based on some conditions. However, SLAP does not use an `else if` construct like many languages; it uses a more condensed `elif`.
 ```
 if (name == "Nobuharu") {
     println("What a cool name!");
@@ -84,7 +85,7 @@ if (name == "Nobuharu") {
     println("Hi " + name + "!");
 }
 ```
-You can also use just one line for an if statement.
+You can also use just one line for an if statement (you can use this for many other things in SLAP).
 ```
 if (i < 10) println("smaller than 10");
 ```
@@ -98,7 +99,7 @@ while (i < 10) {
 }
 ```
 
-A crude `for` loop looks like this:
+A `for` loop looks like this:
 ```
 for ($i = 1; i < 10; i = i + 1) {
     println(i);
@@ -106,8 +107,8 @@ for ($i = 1; i < 10; i = i + 1) {
 ```
 
 ### Functions
-SLAP supports first class functions.<br>
-A normal function looks like this:
+
+Functions in SLAP are declared using `define` and do not require their parameters and return types be annotated.
 ```
 define greetStr(name) {
     return "Hello, " + name + "!";
@@ -150,12 +151,12 @@ doSomething(define() {
 ```
 
 ### Classes
-> *Note:* Inheritance is not yet implemented.
 
-A class looks like this:
+To create your own custom object in SLAP, you first need to define a class, using the keyword `class` just like many languages.
+You can create your initializer using `new`.
 ```
 class Car {
-    new(color, style, brand) {
+    new(color, style, brand) { # <-- Initializer
         self.color = color;
         self.brand = brand;
         &style = style; # alternatively, you can use `&` instead of `self.`
@@ -173,7 +174,7 @@ println(blackMazda.style);
 blackMazda.color = "black";
 println(blackMazda.color);
 ```
-You can also define static methods:
+You can define static methods using `static` just before the method name.
 ```
 class Math {
     static square(n) {
@@ -183,7 +184,7 @@ class Math {
 
 println(Math.square(3));
 ```
-Here's how a class inherits another class:
+You can create a subclass by using the same `class` keyword but with the base class name annotated with `<-` keyword. (You see, I love arrows.)
 ```
 class Car {
     drive() {
@@ -203,7 +204,6 @@ class Mazda <- Car {
 ## Syntax Sugars
 
 ### `<-` Expression
-
 Because I like callbacks, there's special syntax sugar, the `<-` expression. The `<-` syntax sugar de-sugars like this:
 ```
 someFunc("abc") <- define(data) {
@@ -216,7 +216,7 @@ someFunc("abc", define(data) {  # de-sugars to this
 ```
 
 ### `->` Expression
-I also didn't like this syntax: `append(list, "bichanna");`, I decided to create this special syntax sugar, the `->` expression.
+I don't like this syntax: `append(list, "bichanna");`, so I decided to create this special syntax sugar, the `->` expression.
 ```
 list -> append("bichanna");
 
