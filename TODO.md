@@ -1,4 +1,6 @@
- - [x] Basic Data Types
+
+## Main
+- [x] Basic Data Types
      - [x] Integer
      - [x] Float
      - [x] String
@@ -16,8 +18,10 @@
      - [x] Break
      - [ ] Continue
      - [ ] "Enhanced" for loop
+ - [ ] Try-except Blocks
  - [x] Functions
      - [x] Lambdas (anonymous functions)
+     - [ ] Default Arguments
  - [ ] Standard Library
      - [x] Basic (e.g., `println`, `print`)
      - [ ] OS
@@ -26,3 +30,6 @@
      - [ ] Networking
  - [x] Classes
  - [ ] Import
+
+## Others
+ - [ ] String Interpolation
