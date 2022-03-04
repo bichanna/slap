@@ -24,6 +24,7 @@ println("This will be printed"); # Another comment
 ### Data Types
 > *Note:* NYI stands for "Not Yet Implemented"<br>
 > *Note:* For the syntax sugar I used in the examples, see ['Syntax Sugars'](https://github.com/bichanna/slap/blob/master/docs/index.md#syntax-sugars)
+> *Note:* SLAP list uses @[] instead of [] like other languages. (e.g., `list@[0]`, not `list[0]`)
  - String
  - Int
  - Float
