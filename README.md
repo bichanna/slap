@@ -39,5 +39,9 @@ println(result);
 ## TODO
 [TODO list](https://github.com/bichanna/slap/blob/master/TODO.md)
 
+## Installation
+1. Download the source code from the releases page.
+2. `cd` to the `src` directory and run the shell script (maybe need to do`chmod +x ./build.sh`).
+
 ## Contribution
 Contributions are always welcome :D
