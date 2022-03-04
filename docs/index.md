@@ -216,7 +216,8 @@ someFunc("abc", define(data) {  # de-sugars to this
 ```
 
 ### `->` Expression
-I don't like this syntax: `append(list, "bichanna");`, so I decided to create this special syntax sugar, the `->` expression.
+I don't like this syntax: `append(list, "bichanna");`, so I decided to create this special syntax sugar, the `->` expression.<br>
+(⚠️ It's not like C's `->`!)
 ```
 list -> append("bichanna");
 
