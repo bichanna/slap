@@ -63,8 +63,11 @@ proc listOrMapAssign*(env: var Environment, name: Token, value: BaseType, indexO
     
     elif listOrMap of SlapMap:
       let found = SlapMap(listOrMap).keys.find(indexOrKey)
-      if found == -1: error(env.error, name, "RuntimeError", "Value with this key does not exist")
-      SlapMap(listOrMap).values[found] = value
+      if found == -1:
+        SlapMap(listOrMap).keys.add(indexOrKey)
+        SlapMap(listOrMap).values.add(value)
+      else:
+        SlapMap(listOrMap).values[found] = value
   elif not env.enclosing.isNil:
     env.enclosing.listOrMapAssign(name, value, indexOrKey)
   else:
