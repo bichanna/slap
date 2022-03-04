@@ -33,3 +33,4 @@
 
 ## Others
  - [ ] String Interpolation
+ - [ ] Optional Type Annotations
