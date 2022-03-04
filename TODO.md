@@ -1,3 +1,4 @@
+>*Note:* If have a feature request, please open an issue.
 
 ## Main
 - [x] Basic Data Types
@@ -30,6 +31,7 @@
      - [ ] Networking
  - [x] Classes
  - [ ] Import
+ - [ ] Concurrency
 
 ## Others
  - [ ] String Interpolation
