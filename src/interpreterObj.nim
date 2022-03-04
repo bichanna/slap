@@ -14,8 +14,7 @@ type
     error*: Error
     env*: Environment
     globals*: Environment
-    exprSeqForLocals*: seq[Expr]
-    locals*: Table[int, int]
+    locals*: Table[Expr, int]
   
   FuncType* = ref object of BaseType
     call*: proc (self: var Interpreter, args: seq[BaseType]): BaseType

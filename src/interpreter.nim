@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node, token, slaptype, env, exception, interpreterObj, builtin
+import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash
 import strutils, tables
   
 const RuntimeError = "RuntimeError"
@@ -14,7 +14,7 @@ proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Env
 
 proc newInterpreter*(errorObj: Error): Interpreter =
   var globals = loadBuildins(errorObj)
-  return Interpreter(error: errorObj, env: globals, globals: globals, locals: initTable[int, int]())
+  return Interpreter(error: errorObj, env: globals, globals: globals, locals: initTable[Expr, int]())
 
 # ----------------------------- FUNCTIONS & CLASSES ----------------------------------
 
@@ -124,7 +124,7 @@ proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value
 # forward declarations for helper functions
 proc isTruthy(self: var Interpreter, obj: BaseType): bool
 proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool
-proc loopUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType
+proc lookUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType
 
 # --------------------------- EXPRESSIONS ------------------------------
 
@@ -162,12 +162,12 @@ method eval(self: var Interpreter, expre: UnaryExpr): BaseType =
 
 # eval VariableExpr
 method eval(self: var Interpreter, expre: VariableExpr): BaseType =
-  return self.loopUpVariable(expre.name, expre)
+  return self.lookUpVariable(expre.name, expre)
 
 # eval ListOrMapVariableExpr
 method eval(self: var Interpreter, expre: ListOrMapVariableExpr): BaseType =
   let indexOrKey = self.eval(expre.indexOrKey)
-  let variable = self.loopUpVariable(expre.name, expre)
+  let variable = self.lookUpVariable(expre.name, expre)
   if variable of SlapList:
     if not (indexOrKey of SlapInt): error(self.error, expre.name, RuntimeError, "List indices must be integers")
     try:
@@ -189,14 +189,11 @@ method eval(self: var Interpreter, expre: ListOrMapVariableExpr): BaseType =
 # eval AssignExpr
 method eval(self: var Interpreter, expre: AssignExpr): BaseType =
   let value = self.eval(expre.value)
-  var gotIt = false
-  let i = self.exprSeqForLocals.find(expre)
-  if i != -1:
-    let distance = self.locals.getOrDefault(i, -1)
-    if distance != -1:
-      gotIt = true
-      self.env.assignAt(distance, expre.name, value)
-  if not gotIt: self.globals.assign(expre.name, value)
+  if self.locals.contains(expre):
+    let distance = self.locals[expre]
+    self.env.assignAt(distance, expre.name, value)
+  else:
+    self.globals.assign(expre.name, value)
   return value
 
 # eval ListOrMapAssignExpr
@@ -204,46 +201,12 @@ method eval(self: var Interpreter, expre: ListOrMapAssignExpr): BaseType =
   let value = self.eval(expre.value)
   let indexOrKey = self.eval(expre.indexOrKey)
 
-  proc mapAssign(map: SlapMap, error: Error) =
-    for i in 0 ..< map.keys.len:
-      if $map.keys[i] == $indexOrKey:
-        map.values[i] = value
-        return
-    map.keys.add(indexOrKey)
-    map.values.add(value)
-
-  var gotIt = false
-  let i = self.exprSeqForLocals.find(expre)
-  if i != -1:
-    let distance = self.locals.getOrDefault(i, -1)
-    if distance != -1:
-      gotIt = true
-      if self.env.values.hasKey(expre.name.value):
-        let listOrMap = self.env.ancestor(distance).values[expre.name.value]
-        if listOrMap of SlapList:
-          self.env.listOrMapAssignAt(distance, expre.name, value, indexOrKey)
-
-        elif listOrMap of SlapMap:
-          mapAssign(SlapMap(listOrMap), self.error)
-
-        else: error(self.error, expre.name, RuntimeError, "Only lists and maps can be used with '@[]'")
-  if not gotIt:
-    if self.env.values.hasKey(expre.name.value):
-      let listOrMap = self.env.values[expre.name.value]
-      if listOrMap of SlapList:
-        self.env.listOrMapAssign(expre.name, value, indexOrKey)
-      
-      elif listOrMap of SlapMap:
-        mapAssign(SlapMap(listOrMap), self.error)
-
-    elif not self.env.enclosing.isNil:
-      let currentEnv = self.env
-      self.env = currentEnv.enclosing
-      discard self.eval(expre)
-      self.env = currentEnv
-    
-    else:
-      error(self.error, expre.name.line, RuntimeError, "'" & expre.name.value & "' is not defined")
+  if self.locals.hasKey(expre):
+    var distance = self.locals[expre]
+    self.env.listOrMapAssignAt(distance, expre.name, value, indexOrKey)
+  else:
+    self.globals.listOrMapAssign(expre.name, value, indexOrKey)
+  
   return value
 
 # eval LogicalExpr
@@ -286,20 +249,18 @@ method eval(self: var Interpreter, expre: SetExpr): BaseType =
   return value
 
 # eval SelfExpr
-method eval(self: var Interpreter, expre: SelfExpr): BaseType = return self.loopUpVariable(expre.keyword, expre)
+method eval(self: var Interpreter, expre: SelfExpr): BaseType = return self.lookUpVariable(expre.keyword, expre)
 
 # eval SuperExpr
 method eval(self: var Interpreter, expre: SuperExpr): BaseType =
-  let i = self.exprSeqForLocals.find(expre)
-  if i != -1:
-    let distance = self.locals.getOrDefault(i, -1)
-    if distance != -1:
-      let superclass = ClassType(self.env.getAt(distance, "super"))
-      let obj = ClassInstance(self.env.getAt(distance-1, "self"))
-      let m = superclass.findMethod(expre.classMethod.value)
-      if m.isNil:
-        error(self.error, expre.classMethod, RuntimeError, "'" & expre.classMethod.value & "' is not defined")
-      return m.`bind`(obj, self)
+  let distance = self.locals[expre]
+  let superclass = ClassType(self.env.getAt(distance, "super"))
+  let obj = ClassInstance(self.env.getAt(distance-1, "self"))
+  let m = superclass.findMethod(expre.classMethod.value)
+  
+  if m.isNil:
+    error(self.error, expre.classMethod, RuntimeError, "'" & expre.classMethod.value & "' is not defined")
+  return m.`bind`(obj, self)
 
 # eval ListLiteralExpr
 method eval(self: var Interpreter, expre: ListLiteralExpr): BaseType =
@@ -533,8 +494,7 @@ method eval(self: var Interpreter, statement: ClassStmt) =
 # ----------------------------------------------------------------------
 
 proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
-  self.exprSeqForLocals.add(expre)
-  self.locals[self.exprSeqForLocals.len-1] = depth
+  self.locals[expre] = depth
 
 proc interpret*(self: var Interpreter, statements: seq[Stmt]) =
   for s in statements:
@@ -557,13 +517,9 @@ proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool =
   elif left of SlapString and right of SlapString: return SlapString(left).value == SlapString(right).value
   else: return false
 
-proc loopUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType = 
-  var gotIt = false
-  let i = self.exprSeqForLocals.find(expre)
-  if i != -1:
-    let distance = self.locals.getOrDefault(i, -1)
-    if distance != -1:
-      gotIt = true
-      return self.env.getAt(distance, name.value)
-  if not gotIt:
+proc lookUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType = 
+  if self.locals.hasKey(expre):
+    let distance = self.locals[expre]
+    return self.env.getAt(distance, name.value)
+  else:
     return self.globals.get(name)
