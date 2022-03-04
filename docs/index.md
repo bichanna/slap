@@ -48,10 +48,10 @@ println(list.get(0));
 
 let anotherList = [1, 2, "string", 3.1415]; # using list literal (faster)
 anotherList -> append("Hello World");
-list@[0] = 2.7;
-let anotherPoppedItem = pop(list);
+anotherList@[0] = 2.7;
+let anotherPoppedItem = pop(anotherList);
 anotherList -> append(len(anotherList));
-println(list@[0]);
+println(anotherList@[0]);
 
 let map = {"key": "secret value", "another key": 123445}; # map
 map@["key"] = "some value";
