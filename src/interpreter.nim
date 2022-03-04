@@ -25,7 +25,7 @@ proc newFunction(name: string, declaration: FuncExpr, closure: Environment, isIn
   fun.declaration = declaration
   fun.closure = closure
   fun.arity = proc(): int = fun.declaration.parameters.len
-  fun.call = proc(self: var Interpreter, args: seq[BaseType]): BaseType = 
+  fun.call = proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
     var environment = newEnv(self.error, closure)
     for i in 0 ..< fun.declaration.parameters.len:
       environment.define(fun.declaration.parameters[i].value, args[i])
@@ -51,16 +51,16 @@ proc newClassInstance(class: ClassType): ClassInstance =
   var instance = ClassInstance(class: class, fields: initTable[string, BaseType]())
   return instance
 
-proc newClass(metaclass: ClassType, superclass: ClassType, name: string, methods: Table[string, Function]): ClassType =
+proc newClass(metaclass: ClassType, superclass: ClassType, name: string, methods: Table[string, Function], token: Token): ClassType =
   var class = ClassType(name: name)
   class.arity = proc(): int = 
     let init = class.findMethod("new")
     if init.isNil: return 0
     else: return init.arity()
-  class.call = proc(self: var Interpreter, args: seq[BaseType]): BaseType = 
+  class.call = proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
     var instance = newClassInstance(class)
     var init = class.methods.getOrDefault("new", nil)
-    if not init.isNil: discard `bind`(init, instance, self).call(self, args)
+    if not init.isNil: discard `bind`(init, instance, self).call(self, args, token)
     return instance
   class.methods = methods
   class.cinstance = newClassInstance(metaclass)
@@ -78,27 +78,27 @@ proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
     if name.value == "get":
       return FuncType(
         arity: proc(): int = 1,
-        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+        call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
           if not (args[0] of SlapInt): error(i.error, name.line, RuntimeError, "list indices must be integers")
           return li.elements[SlapInt(args[0]).value]
       )
     elif name.value == "append":
       return FuncType(
         arity: proc(): int = 1,
-        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+        call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
           li.elements.add(args[0])
           return newNull()
       )
     elif name.value == "pop":
       return FuncType(
         arity: proc(): int = 0,
-        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+        call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
           return li.elements.pop()
       )
     elif name.value == "insert":
       return FuncType(
         arity: proc(): int = 2,
-        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+        call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
           if not (args[0] of SlapInt): error(i.error, name, RuntimeError, "index must be an integer")
           li.elements.insert(args[1], SlapInt(args[0]).value)
           return newNull()
@@ -106,7 +106,7 @@ proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
     elif name.value == "set":
       return FuncType(
         arity: proc(): int = 2,
-        call: proc(self: var Interpreter, args: seq[BaseType]): BaseType =
+        call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
           if not (args[0] of SlapInt): error(i.error, name, RuntimeError, "index must be an integer")
           if SlapInt(args[0]).value >= li.elements.len: error(i.error, name, RuntimeError, "index out of range")
           li.elements[SlapInt(args[0]).value] = args[1]
@@ -228,7 +228,7 @@ method eval(self: var Interpreter, expre: CallExpr): BaseType =
   let function = FuncType(callee)
   if arguments.len != function.arity():
     error(self.error, expre.paren, RuntimeError, "Expected " & $function.arity() & " arguments but got " & $arguments.len)
-  return function.call(self, arguments)
+  return function.call(self, arguments, expre.paren)
 
 # eval GetExpr
 method eval(self: var Interpreter, expre: GetExpr): BaseType =
@@ -475,7 +475,7 @@ method eval(self: var Interpreter, statement: ClassStmt) =
   for m in statement.classMethods:
     let fun = newFunction(m.name.value, m.function, self.env, false)
     classMethods[m.name.value] = fun
-  let metaclass = newClass(nil, nil, statement.name.value & " metaclass", classMethods)
+  let metaclass = newClass(nil, nil, statement.name.value & " metaclass", classMethods, statement.name)
 
   if not statement.superclass.isNil:
     self.env = newEnv(self.error, self.env)
@@ -485,7 +485,7 @@ method eval(self: var Interpreter, statement: ClassStmt) =
   for m in statement.methods:
     let function = newFunction(m.name.value, m.function, self.env, m.name.value == "new")
     methods[m.name.value] = function
-  let class = newClass(metaclass, ClassType(superclass), statement.name.value, methods)
+  let class = newClass(metaclass, ClassType(superclass), statement.name.value, methods, statement.name)
 
   if not superclass.isNil: self.env = self.env.enclosing
 

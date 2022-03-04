@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/28/2022
 #
 
-import env, slaptype, error, node
+import env, slaptype, error, node, token
 import tables, strutils
 
 type
@@ -17,7 +17,7 @@ type
     locals*: Table[Expr, int]
   
   FuncType* = ref object of BaseType
-    call*: proc (self: var Interpreter, args: seq[BaseType]): BaseType
+    call*: proc (self: var Interpreter, args: seq[BaseType], token: Token): BaseType
     arity*: proc (): int
   
   Function* = ref object of FuncType

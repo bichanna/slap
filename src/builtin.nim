@@ -5,41 +5,41 @@
 # Created by Nobuharu Shimazu on 2/28/2022
 #
 
-import slaptype, interpreterObj, error, env
+import slaptype, interpreterObj, error, env, token
 import strutils
 
 const RuntimeError = "RuntimeError"
 
-proc slapPrintln(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapPrintln(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   stdout.write(args[0], "\n")
   return newNull()
 
-proc slapPrint(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapPrint(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   stdout.write(args[0])
   return newNull()
 
-proc slapList(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapList(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   return newListInstance(SlapList(args[0]))
 
-proc slapAppend(self: var Interpreter, args: seq[BaseType]): BaseType = 
+proc slapAppend(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
   if not (args[0] of SlapList):
-    error(self.error, -1, RuntimeError, "append function only accepts a list and a value")
+    error(self.error, token, RuntimeError, "append function only accepts a list and a value")
   SlapList(args[0]).values.add(args[1])
   return newNull()
 
-proc slapPop(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapPop(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if not (args[0] of SlapList):
-    error(self.error, -1, RuntimeError, "pop function only accepts a list")
+    error(self.error, token, RuntimeError, "pop function only accepts a list")
   return SlapList(args[0]).values.pop()
 
-proc slapLen(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapLen(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if args[0] of SlapString:
     return newInt(SlapString(args[0]).value.len)
   elif args[0] of SlapList:
     return newInt(SlapList(args[0]).values.len)
-  error(self.error, -1, RuntimeError, "len function only accepts a list or string")
+  error(self.error, token, RuntimeError, "len function only accepts a list or string")
 
-proc slapTypeof(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapTypeof(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if args[0] of SlapNull: return newString("null")
   if args[0] of SlapInt: return newString("int")
   if args[0] of SlapList: return newString("list")
@@ -50,37 +50,37 @@ proc slapTypeof(self: var Interpreter, args: seq[BaseType]): BaseType =
   if args[0] of ListInstance or args[0] of ClassInstance: return newString("instance")
   else: return newString("unknown")
 
-proc slapInput(self: var Interpreter, args: seq[BaseType]): BaseType =
-  if not (args[0] of SlapString): error(self.error, -1, RuntimeError, "input function only accepts a string")
+proc slapInput(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
+  if not (args[0] of SlapString): error(self.error, token, RuntimeError, "input function only accepts a string")
   stdout.write(SlapString(args[0]).value)
   return newString(readLine(stdin))
 
-proc slapGetStrAt(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapGetStrAt(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if not (args[1] of SlapInt) or not (args[0] of SlapString):
-    error(self.error, -1, RuntimeError, "at function only accepts an int and a string")
+    error(self.error, token, RuntimeError, "at function only accepts an int and a string")
   return newString($SlapString(args[0]).value[SlapInt(args[1]).value])
 
-proc slapIsInt(self: var Interpreter, args: seq[BaseType]): BaseType = return newBool(args[0] of SlapInt)
+proc slapIsInt(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapInt)
 
-proc slapIsFloat(self: var Interpreter, args: seq[BaseType]): BaseType = return newBool(args[0] of SlapFloat)
+proc slapIsFloat(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapFloat)
 
-proc slapIsBool(self: var Interpreter, args: seq[BaseType]): BaseType = return newBool(args[0] of SlapBool)
+proc slapIsBool(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapBool)
 
-proc slapIsString(self: var Interpreter, args: seq[BaseType]): BaseType = return newBool(args[0] of SlapString)
+proc slapIsString(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapString)
 
-proc slapIsList(self: var Interpreter, args: seq[BaseType]): BaseType = return newBool(args[0] of SlapList)
+proc slapIsList(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapList)
 
-proc slapIsNull(self: var Interpreter, args: seq[BaseType]): BaseType = return newBool(args[0] of SlapNull)
+proc slapIsNull(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapNull)
 
-proc slapConvertInt(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapConvertInt(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if args[0] of SlapInt: return SlapInt(args[0])
   if args[0] of SlapFloat: return newInt(SlapFloat(args[0]).value.toInt)
   if args[0] of SlapString:
     try: return newInt(parseInt(SlapString(args[0]).value))
-    except: error(self.error, -1, RuntimeError, "Cannot convert to an integer")
-  error(self.error, -1, RuntimeError, "Cannot convert to an integer")
+    except: error(self.error, token, RuntimeError, "Cannot convert to an integer")
+  error(self.error, token, RuntimeError, "Cannot convert to an integer")
 
-proc slapConvertStr(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapConvertStr(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if args[0] of SlapInt: return newString($SlapInt(args[0]).value)
   if args[0] of SlapFloat: return newString($SlapFloat(args[0]).value)
   if args[0] of SlapNull: return newString($SlapNull(args[0]))
@@ -88,16 +88,16 @@ proc slapConvertStr(self: var Interpreter, args: seq[BaseType]): BaseType =
   if args[0] of SlapString: return SlapString(args[0])
   if args[0] of SlapBool: return newString($SlapBool(args[0]).value)
   if args[0] of SlapMap: return newString($SlapMap(args[0]))
-  error(self.error, -1, RuntimeError, "Cannot convert to a string")
+  error(self.error, token, RuntimeError, "Cannot convert to a string")
 
-proc slapKeys(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapKeys(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if not (args[0] of SlapMap):
-    error(self.error, -1, RuntimeError, "keys function only accepts a map")
+    error(self.error, token, RuntimeError, "keys function only accepts a map")
   return newList(SlapMap(args[0]).keys)
 
-proc slapValues(self: var Interpreter, args: seq[BaseType]): BaseType =
+proc slapValues(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if not (args[0] of SlapMap):
-    error(self.error, -1, RuntimeError, "values function only accepts a map")
+    error(self.error, token, RuntimeError, "values function only accepts a map")
   return newList(SlapMap(args[0]).values)
 
 
