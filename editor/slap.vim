@@ -3,7 +3,7 @@
 
 " Usage Instructions
 " Put this file to ~/.vim/syntax directory:
-"	cp editor/gen.vim ~/.vim/syntax/
+"	cp editor/slap.vim ~/.vim/syntax/
 " And add the following line to your ~/.vimrc: 
 " autocmd BufRead,BufNewFile *.slap set filetype=slap
 
