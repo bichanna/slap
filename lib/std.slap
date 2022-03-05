@@ -10,20 +10,21 @@
 # identity returns its first argument
 define identitiy(x) { return x; }
 
-# join joins two list literals and returns the joined list
-# let lst = join([1, 2, 3], [4, 5, 6]);
+# join concatenates two lists and returns the
+# joined list (does not mutate the original lists).
+# signature: join(x: @[any], y: @[any]): @[any]
 define join(x, y) {
     let newList = [];
-    for ($i = 0; i < len(x); i = i + 1) { append(newList, x@[i]); }
-    for ($j = 0; j < len(y); j = j + 1) { append(newList, y@[j]); }
+    for ($i = 0; i < len(x); i = i + 1) newList->append(x@[i]);
+    for ($j = 0; j < len(y); j = j + 1) newList->append(y@[j]);
     return newList;
 }
 
-# joinList joins two List instances and returns the joined list
-# let lst = joinList(List([1, 2, 3]), List([2, 3, 4, 5]));
-define joinList(x, y) {
-    let newListInst = List();
-    for ($i = 0; i < x.len; i = i + 1) { newListInst.append(x.get(i)); }
-    for ($j = 0; j < y.len; j = j + 1) { newListInst.append(y.get(i)); }
-    return newListInst;
+# slice takes a list, and returns a copied "slice" of the
+# original list from the range [x, y)
+# signature: slice(list: @[any], x: int, y: int): @[any]
+define slice(list, x, y) {
+    let newList = [];
+    for ($i = x; i < y; i = i + 1) newList->append(list@[i]);
+    return newList;
 }
