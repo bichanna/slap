@@ -49,7 +49,7 @@ type
   ListOrMapVariableExpr* = ref object of Expr
     variable*: Expr
     indexOrKey*: Expr
-    token: Token
+    token*: Token
 
   AssignExpr* = ref object of Expr
     name*: Token
@@ -59,7 +59,7 @@ type
     variable*: Expr
     indexOrKey*: Expr
     value*: Expr
-    token: Token
+    token*: Token
 
   CallExpr* = ref object of Expr
     callee*: Expr
