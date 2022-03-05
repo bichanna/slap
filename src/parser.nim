@@ -97,15 +97,11 @@ proc primary(p: var Parser): Expr =
     p.expect(Dot, "Expected '.' after 'super'")
     let m = p.expect(Identifier, "Expected superclass method name")
     return SuperExpr(keyword: keyword, classMethod: m)
+
   elif p.doesMatch(Int, Float, String): return LiteralExpr(kind: p.previousToken().kind, value: p.previousToken().value)
 
   elif p.doesMatch(Identifier):
     let name = p.previousToken()
-    if p.doesMatch(At):
-      p.expect(LeftBracket, "Expected '['")
-      let indexOrKey = p.expression()
-      p.expect(RightBracket, "Expected ']'")
-      return ListOrMapVariableExpr(name: name, indexOrKey: indexOrKey)
     return VariableExpr(name: name)
 
   elif p.doesMatch(LeftParen):
@@ -149,7 +145,8 @@ proc primary(p: var Parser): Expr =
     return MapLiteralExpr(keys: keys, values: values, keyword: keyword)
 
   elif p.doesMatch(Define): return p.functionBody("function")
-
+  echo p.currentToken()
+  raise newException(IndexDefect, "Error")
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
 
 proc finishCall(p: var Parser, callee: Expr, arg: Expr): Expr =
@@ -178,6 +175,12 @@ proc call(p: var Parser, arg: Expr = nil): Expr =
     elif p.doesMatch(RightArrow):
       expre = p.call(expre)
       break
+    elif p.doesMatch(At):
+      let token = p.previousToken()
+      p.expect(LeftBracket, "Expected '['")
+      let indexOrKey = p.expression()
+      p.expect(RightBracket, "Expected ']'")
+      expre = ListOrMapVariableExpr(variable: expre, indexOrKey: indexOrKey, token: token)
     else:
       break
   return expre
@@ -233,9 +236,11 @@ proc assignment(p: var Parser): Expr =
       let name = VariableExpr(expre).name
       return AssignExpr(name: name, value: value)
     elif expre of ListOrMapVariableExpr:
-      let name = ListOrMapVariableExpr(expre).name
-      let indexOrKey = ListOrMapVariableExpr(expre).indexOrKey
-      return ListOrMapAssignExpr(name: name, indexOrKey: indexOrKey, value: value)
+      let listOrMap = ListOrMapVariableExpr(expre)
+      let variable = listOrMap.variable
+      let indexOrKey = listOrMap.indexOrKey
+      let token = listOrMap.token
+      return ListOrMapAssignExpr(variable: variable, indexOrKey: indexOrKey, value: value, token: token)
     elif expre of GetExpr:
       let get = GetExpr(expre)
       return SetExpr(instance: get.instance, name: get.name, value: value)

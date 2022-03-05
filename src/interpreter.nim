@@ -167,13 +167,13 @@ method eval(self: var Interpreter, expre: VariableExpr): BaseType =
 # eval ListOrMapVariableExpr
 method eval(self: var Interpreter, expre: ListOrMapVariableExpr): BaseType =
   let indexOrKey = self.eval(expre.indexOrKey)
-  let variable = self.lookUpVariable(expre.name, expre)
+  let variable = self.eval(expre.variable)
   if variable of SlapList:
-    if not (indexOrKey of SlapInt): error(self.error, expre.name, RuntimeError, "List indices must be integers")
+    if not (indexOrKey of SlapInt): error(self.error, expre.token, RuntimeError, "List indices must be integers")
     try:
       return SlapList(variable).values[SlapInt(indexOrKey).value]
     except IndexDefect:
-      error(self.error, expre.name, RuntimeError, "Index out of range")
+      error(self.error, expre.token, RuntimeError, "Index out of range")
   
   elif variable of SlapMap:
     let key = self.eval(expre.indexOrKey)
@@ -181,17 +181,17 @@ method eval(self: var Interpreter, expre: ListOrMapVariableExpr): BaseType =
       if $SlapMap(variable).keys[i] == $key:
         return SlapMap(variable).values[i]
     
-    error(self.error, expre.name, RuntimeError, "Value with this key does not exist")
+    error(self.error, expre.token, RuntimeError, "Value with this key does not exist")
 
   elif variable of SlapString:
-    if not (indexOrKey of SlapInt): error(self.error, expre.name, RuntimeError, "String indices must be integers")
+    if not (indexOrKey of SlapInt): error(self.error, expre.token, RuntimeError, "String indices must be integers")
     let chars = toSeq(SlapString(variable).value.items)
     try:
       return newString($chars[SlapInt(indexOrKey).value])
     except IndexDefect:
-      error(self.error, expre.name, RuntimeError, "Index out of range")
+      error(self.error, expre.token, RuntimeError, "Index out of range")
   else:
-    error(self.error, expre.name, RuntimeError, "Only lists and maps can be used with '@[]'")
+    error(self.error, expre.token, RuntimeError, "Only lists and maps can be used with '@[]'")
 
 # eval AssignExpr
 method eval(self: var Interpreter, expre: AssignExpr): BaseType =
@@ -210,9 +210,9 @@ method eval(self: var Interpreter, expre: ListOrMapAssignExpr): BaseType =
 
   if self.locals.hasKey(expre):
     var distance = self.locals[expre]
-    self.env.listOrMapAssignAt(distance, expre.name, value, indexOrKey)
+    self.env.listOrMapAssignAt(distance, expre.token, value, indexOrKey)
   else:
-    self.globals.listOrMapAssign(expre.name, value, indexOrKey)
+    self.globals.listOrMapAssign(expre.token, value, indexOrKey)
   
   return value
 

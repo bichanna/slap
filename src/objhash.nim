@@ -22,7 +22,7 @@ method hash*(x: VariableExpr): Hash =
   result = !$result
 
 method hash*(x: ListOrMapVariableExpr): Hash =
-  result = x.name.hash !& x.indexOrKey.hash
+  result = x.variable.hash !& x.indexOrKey.hash
   result = !$result
 
 method hash*(x: AssignExpr): Hash =
@@ -30,7 +30,7 @@ method hash*(x: AssignExpr): Hash =
   result = !$result
 
 method hash*(x: ListOrMapAssignExpr): Hash =
-  result = x.name.hash !& x.indexOrKey.hash !& x.value.hash
+  result = x.variable.hash !& x.indexOrKey.hash !& x.value.hash
   result = !$result
 
 method hash*(x: SelfExpr): Hash =

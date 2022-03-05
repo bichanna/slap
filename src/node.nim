@@ -47,17 +47,19 @@ type
     name*: Token
   
   ListOrMapVariableExpr* = ref object of Expr
-    name*: Token
+    variable*: Expr
     indexOrKey*: Expr
+    token*: Token
 
   AssignExpr* = ref object of Expr
     name*: Token
     value*: Expr
 
   ListOrMapAssignExpr* = ref object of Expr
-    name*: Token
+    variable*: Expr
     indexOrKey*: Expr
     value*: Expr
+    token*: Token
 
   CallExpr* = ref object of Expr
     callee*: Expr
