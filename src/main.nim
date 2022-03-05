@@ -15,7 +15,7 @@ usage: slap [option] <filename>.slap
 --showTokens:[on/off]  : show tokens generated from the source file
 """
 
-const CURRENT_VERSION = "0.0.1"
+const CURRENT_VERSION = "0.0.2"
 
 # actually executes a source code
 proc execute(source: string, showTokens: bool = false) = 

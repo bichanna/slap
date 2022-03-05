@@ -106,6 +106,25 @@ proc makeString(l: var Lexer) =
   l.advance()
   l.appendToken(String, strValue)
 
+# skips the rest of a block comment
+proc skipBlockComment(l: var Lexer) =
+  var nesting = 1
+  while nesting > 0:
+    if l.currentChar() == '\0': error(l.error, l.line, "SyntaxError", "Unterminated block comment")
+    if l.currentChar() == '#' and l.nextChar() == '{':
+      l.advance()
+      l.advance()
+      nesting += 1
+      continue
+
+    if l.currentChar() == '}' and l.nextChar() == '#':
+      l.advance()
+      l.advance()
+      nesting -= 1
+      continue
+
+    l.advance()
+
 # makes a SLAP number (either an integer or a float) and appends it to the list
 proc makeNumber(l: var Lexer) =
   var
@@ -182,8 +201,10 @@ proc tokenize*(l: var Lexer): seq[Token] =
       if l.doesMatch('.'): l.appendToken(DoubleDot)
       else: l.appendToken(Dot)
     of '#':
-      while l.currentChar() != '\n' and not l.isAtEnd():
-        l.advance()
+      if l.doesMatch('{'): l.skipBlockComment()
+      else:
+        while l.currentChar() != '\n' and not l.isAtEnd():
+          l.advance()
     of '\n':
       # l.appendToken(NewLine)
       l.line += 1
