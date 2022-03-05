@@ -12,7 +12,7 @@
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language. Its syntax is a member of the C family; it is not meant to be groundbreaking but rather to feel similar with a bit of difference.
 
 Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/lib))
-```py
+```js
 define binarySearch(list, target, low, high) {
   if (high >= low) {
     let mid = low + int((high - low) / 2);
@@ -33,6 +33,12 @@ let list = [1002, 1007, 1012, 1021, 1031, 1038, 1060, 1061, 1063, 1065, 1074, 10
 let target = 1088;
 let result = binarySearch(list, target, 0, len(list)-1);
 println(result);
+```
+Here's another example using [`<-` and `->` expressions](https://github.com/bichanna/slap/blob/master/docs/index.md#--expression).
+```rust
+let num = 10;
+
+(num -> abs() -> pow() <- num -> abs() -> sqrt()) -> println();
 ```
 
 
