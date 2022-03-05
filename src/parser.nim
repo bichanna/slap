@@ -27,12 +27,6 @@ proc newParser*(tokens: seq[Token], errorObj: Error): Parser =
     statements: @[]
   )
 
-const libstd = staticRead"../lib/std.slap"
-
-let stdlibs: Table[string, string] = {
-    "std": libstd
-  }.toTable
-
 # ----------------------------------------------------------------------
 
 # forward declaration

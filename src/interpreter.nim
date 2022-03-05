@@ -8,7 +8,19 @@
 import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash
 import strutils, tables, sequtils
   
-const RuntimeError = "RuntimeError"
+const
+  RuntimeError = "RuntimeError"
+  
+  libstd = staticRead"../lib/stdlib.slap"
+  libstr = staticRead"../lib/strlib.slap"
+  libmath = staticRead"../lib/mathlib.slap"
+
+let stdlibs: Table[string, string] = {
+    "std": libstd,
+    "str": libstr,
+    "math": libmath,
+  }.toTable
+
 
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment)
 
