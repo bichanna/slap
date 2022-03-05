@@ -11,7 +11,7 @@
 
 # substring returns the substring beginning at index 'f' and ending at index 't-1' [f, t)
 # signature: substring(x: str, f: int, t: int): str
-define substring(x) {
+define substring(x, f, t) {
     let result = "";
     for ($i = f; i < t; i = i + 1) result = result + x@[i];
     return result;
@@ -51,7 +51,16 @@ define replaceChar(x, target, repl) {
 define endsWith(x, suffix) {
     let strLen = len(x);
     let n = len(suffix);
-    let nMinN = len(suffix) - n;
+    let nMinN = len(x) - n;
     if (n <= strLen and x->substring(nMinN, strLen) == suffix) return true;
+    return false;
+}
+
+# startsWith reports whether a string starts with the substring 'prefix'.
+# signature: startsWith(x: str, prefix: str): bool
+define startsWith(x, prefix) {
+    let strLen = len(x);
+    let n = len(prefix);
+    if (n <= strLen and x->substring(0, n) == prefix) return true;
     return false;
 }
