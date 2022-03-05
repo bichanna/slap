@@ -58,20 +58,14 @@ method resolve(self: var Resolver, expre: VariableExpr) =
     error(self.error, expre.name, "SyntaxError", "Cannot read local variable in its own initializer")
   self.resolveLocal(expre, expre.name)
 
-method resolve(self: var Resolver, expre: ListOrMapVariableExpr) =
-  self.resolve(expre.indexOrKey)
-  if not (self.scopes.len == 0) and self.scopes[self.scopes.len-1].getOrDefault(expre.name.value, true) == false:
-    error(self.error, expre.name, "SyntaxError", "Cannot read local variable in its own initializer")
-  self.resolveLocal(expre, expre.name)
-
 method resolve(self: var Resolver, expre: AssignExpr) =
   self.resolve(expre.value)
   self.resolveLocal(expre, expre.name)
 
 method resolve(self: var Resolver, expre: ListOrMapAssignExpr) =
+  self.resolve(expre.variable)
   self.resolve(expre.value)
   self.resolve(expre.indexOrKey)
-  self.resolveLocal(expre, expre.name)
 
 method resolve(self: var Resolver, statement: FuncStmt) =
   self.declare(statement.name)
@@ -113,6 +107,10 @@ method resolve(self: var Resolver, expre: BinaryExpr) =
 method resolve(self: var Resolver, expre: CallExpr) =
   self.resolve(expre.callee)
   for argument in expre.arguments: self.resolve(argument)
+
+method resolve(self: var Resolver, expre: ListOrMapVariableExpr) =
+  self.resolve(expre.variable)
+  self.resolve(expre.indexOrKey)
 
 method resolve(self: var Resolver, expre: GroupingExpr) = self.resolve(expre.expression)
 
