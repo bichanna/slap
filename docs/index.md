@@ -225,6 +225,6 @@ append(list, "bichanna"); # de-sugars to this
 ```
 Here's an example using both `<-` and `->` expressions.
 ```
-println(num -> abs() -> pow() <- num -> abs() -> sqrt());
+(num -> abs() -> pow() <- num -> abs() -> sqrt()) -> println();
 println(pow(abs(num), sqrt(abs(num)))); # de-sugars to this
 ```
