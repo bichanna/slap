@@ -47,14 +47,14 @@ proc runFile(path: string, showTokens: bool) =
     quit("Cannot open '" & path & "'. No such file or directory")
 
 # starts a new REPL session
-proc repl() =
-  node.isRepl = true
-  try:
-    while true:
-      stdout.write(">> ")
-      execute(readline(stdin))
-  except EOFError:
-    quit("\nBye!")
+# proc repl() =
+#   node.isRepl = true
+#   try:
+#     while true:
+#       stdout.write(">> ")
+#       execute(readline(stdin))
+#   except EOFError:
+#     quit("\nBye!")
 
 # show how to use SLAP CLI
 proc showHelp() =
