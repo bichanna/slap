@@ -12,7 +12,7 @@ if exists("b:current_syntax")
 endif
 
 " Language keywords
-syntax keyword SLAPKeywords define and let const or if elif else for super while self return continue break class static  & $
+syntax keyword SLAPKeywords define and let const or if elif else for super while self return continue break class static  & $ -> <-
 
 " Type keywords
 syntax keyword SLAPType int float string null
