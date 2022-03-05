@@ -9,9 +9,10 @@ import lexer, error, parser, interpreter, node, resolver
 import os, parseopt
 
 const HELP_MESSAGE = """
-usage: slap [--version] [--help] <filename>.slap
--h, --help    : show this message and exit
--v, --version : show current SLAP version and exit
+usage: slap [option] <filename>.slap
+-h, --help             : show this message and exit
+-v, --version          : show current SLAP version and exit
+--showTokens:[on/off]  : show tokens generated from the source file
 """
 
 const CURRENT_VERSION = "0.0.1"
