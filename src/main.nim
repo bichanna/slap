@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import lexer, error, parser, interpreter, node, resolver
+import lexer, error, parser, interpreter, resolver
 import os, parseopt
 
 const HELP_MESSAGE = """

@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 #
 
-import token, error, node, lexer, exception
+import token, error, node
 import tables
 
 type
@@ -146,7 +146,6 @@ proc primary(p: var Parser): Expr =
 
   elif p.doesMatch(Define): return p.functionBody("function")
   echo p.currentToken()
-  raise newException(IndexDefect, "Error")
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
 
 proc finishCall(p: var Parser, callee: Expr, arg: Expr): Expr =
