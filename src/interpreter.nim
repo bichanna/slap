@@ -6,7 +6,7 @@
 #
 
 import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash
-import strutils, tables
+import strutils, tables, sequtils
   
 const RuntimeError = "RuntimeError"
 
@@ -182,7 +182,14 @@ method eval(self: var Interpreter, expre: ListOrMapVariableExpr): BaseType =
         return SlapMap(variable).values[i]
     
     error(self.error, expre.name, RuntimeError, "Value with this key does not exist")
-  
+
+  elif variable of SlapString:
+    if not (indexOrKey of SlapInt): error(self.error, expre.name, RuntimeError, "String indices must be integers")
+    let chars = toSeq(SlapString(variable).value.items)
+    try:
+      return newString($chars[SlapInt(indexOrKey).value])
+    except IndexDefect:
+      error(self.error, expre.name, RuntimeError, "Index out of range")
   else:
     error(self.error, expre.name, RuntimeError, "Only lists and maps can be used with '@[]'")
 
