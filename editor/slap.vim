@@ -3,7 +3,7 @@
 
 " Usage Instructions
 " Put this file to ~/.vim/syntax directory:
-"	cp editor/gen.vim ~/.vim/syntax/
+"	cp editor/slap.vim ~/.vim/syntax/
 " And add the following line to your ~/.vimrc: 
 " autocmd BufRead,BufNewFile *.slap set filetype=slap
 
@@ -12,7 +12,7 @@ if exists("b:current_syntax")
 endif
 
 " Language keywords
-syntax keyword SLAPKeywords define and let const or if elif else for super while self return continue break class static  & $
+syntax keyword SLAPKeywords define and let const or if elif else for super while self return continue break class static  & $ -> <-
 
 " Type keywords
 syntax keyword SLAPType int float string null
