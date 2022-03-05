@@ -28,3 +28,47 @@ define slice(list, x, y) {
     for ($i = x; i < y; i = i + 1) newList->append(list@[i]);
     return newList;
 }
+
+# areUnique takes a list and reports whether no element of
+# the list appears twice in a row. Elements may occur twice
+# in the list if they are separated by other elements.
+# signature: areUnique(list: @[any]): bool
+define areUnique(list) {
+    if (len(list) == 0) {
+        return false;
+    } elif (len(list) == 1) {
+        return true;
+    }
+    
+    let previous = list@[0];
+    for ($i = 1; i < len(list); i = i + 1) {
+        if (previous == list@[i]) return false;
+        previous = list@[i];
+    }
+    return true;
+}
+
+# uniqueList takes a list and returns a copied list where no element 
+# of the original list appears twice in a row. Elements may occur twice
+# in the list if they are separated by other elements.
+# signature: uniqueList(list: @[any]): @[any]
+define uniqueList(list) {
+    if (len(list) == 0 or len(list) == 1) return list;
+     
+    let newList = [];
+    let previous = list@[0];
+    for ($i = 1; i < len(list); i = i + 1) {
+        if (previous != list@[i]) newList->append(list@[i]);
+        previous = list@[i];
+    }
+    return newList;
+}
+
+# contains reports whether a list contains an item equal to 'y'.
+# signature: contains(x: @[any] | str, y: any): bool
+define contains(x, y) {
+    for ($i = 0; i < len(x); i = i + 1) {
+        if (x@[i] == y) return true;
+    }
+    return false;
+}
