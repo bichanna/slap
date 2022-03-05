@@ -11,7 +11,7 @@
 
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language. Its syntax is a member of the C family; it is not meant to be groundbreaking but rather to feel similar with a bit of difference.
 
-Here's an example SLAP program.
+Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/lib))
 ```py
 define binarySearch(list, target, low, high) {
   if (high >= low) {
