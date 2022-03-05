@@ -25,9 +25,11 @@
      - [ ] Default Arguments
  - [ ] Standard Library
      - [x] Basic (e.g., `println`, `print`)
+     - [x] Std
+     - [x] Str
      - [ ] OS
      - [ ] I/O interfaces
-     - [ ] Math
+     - [x] Math
      - [ ] Networking
  - [x] Classes
  - [ ] Import
