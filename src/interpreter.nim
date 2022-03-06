@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash
+import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash, lexer, parser
 import strutils, tables, sequtils
   
 const
@@ -137,6 +137,12 @@ proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value
 proc isTruthy(self: var Interpreter, obj: BaseType): bool
 proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool
 proc lookUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType
+
+proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
+  self.locals[expre] = depth
+
+# this awkward import is for recursive import; DO NOT REMOVE THIS!!
+import resolver
 
 # --------------------------- EXPRESSIONS ------------------------------
 
@@ -482,6 +488,9 @@ method eval(self: var Interpreter, statement: IfStmt) =
 
 method eval(self: var Interpreter, statement: BreakStmt) = raise BreakException()
 
+method eval(self: var Interpreter, statement: ImportStmt) =
+  discard
+
 method eval(self: var Interpreter, statement: ClassStmt) =
   var superclass: BaseType
   if not statement.superclass.isNil:
@@ -511,9 +520,6 @@ method eval(self: var Interpreter, statement: ClassStmt) =
   self.env.assign(statement.name, class)
 
 # ----------------------------------------------------------------------
-
-proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
-  self.locals[expre] = depth
 
 proc interpret*(self: var Interpreter, statements: seq[Stmt]) =
   for s in statements:
