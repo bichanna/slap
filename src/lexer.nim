@@ -110,6 +110,7 @@ proc makeString(l: var Lexer) =
 proc skipBlockComment(l: var Lexer) =
   var nesting = 1
   while nesting > 0:
+    if l.currentChar() == '\n': l.line += 1
     if l.currentChar() == '\0': error(l.error, l.line, "SyntaxError", "Unterminated block comment")
     if l.currentChar() == '#' and l.nextChar() == '{':
       l.advance()
