@@ -220,7 +220,7 @@ You can import like so:
 import A;
 A.greet("bichanna");
 ```
-Alternatively, you can use `->` keyword, which is the Python equivalent of `as`.
+Also, you can use `->` keyword, which is the Python equivalent of `as`.
 ```
 import A -> a;
 a.greet("bichanna");
