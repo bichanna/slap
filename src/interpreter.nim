@@ -137,6 +137,7 @@ proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value
 proc isTruthy(self: var Interpreter, obj: BaseType): bool
 proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool
 proc lookUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType
+proc interpret*(self: var Interpreter, statements: seq[Stmt])
 
 proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
   self.locals[expre] = depth
@@ -262,15 +263,31 @@ method eval(self: var Interpreter, expre: GetExpr): BaseType =
     return ClassInstance(obj).get(expre.name, self)
   elif obj of ClassType:
     return ClassType(obj).cinstance.get(expre.name, self)
+  elif obj of ModuleClass:
+    var module = ModuleClass(obj)
+    for i in 0 ..< module.keys.len:
+      if module.keys[i] == expre.name.value:
+        return module.values[i]
+    error(self.error, expre.name.line, RuntimeError, "'" & expre.name.value & "' is not defined in module " & module.name)
+
   error(self.error, expre.name.line, RuntimeError, "Only instances have properties")
 
 # eval SetExpr
 method eval(self: var Interpreter, expre: SetExpr): BaseType =
   let instance = self.eval(expre.instance)
-  if not (instance of ClassInstance):
-    error(self.error, expre.name.line, RuntimeError, "Only instances have fields")
   let value = self.eval(expre.value)
-  ClassInstance(instance).set(expre.name, value)
+  if instance of ClassInstance:
+    ClassInstance(instance).set(expre.name, value)
+  elif instance of ModuleClass:
+    var module = ModuleClass(instance)
+    var setIt = false
+    for i in 0 ..< module.keys.len():
+      if module.keys[i] == expre.name.value:
+        module.values[i] = value
+        setIt = true
+    if not setIt: error(self.error, expre.name.line, RuntimeError, "'" & $expre.name.value & "' is not defined in module " & module.name)
+  else:
+    error(self.error, expre.name.line, RuntimeError, "Only instances have fields")
   return value
 
 # eval SelfExpr
@@ -489,7 +506,36 @@ method eval(self: var Interpreter, statement: IfStmt) =
 method eval(self: var Interpreter, statement: BreakStmt) = raise BreakException()
 
 method eval(self: var Interpreter, statement: ImportStmt) =
-  discard
+  if not stdlibs.hasKey(statement.name.value):
+    discard
+  var
+    source = stdlibs[statement.name.value]
+    error = Error(source: source)
+    lexer = newLexer(source, error)
+    tokens = lexer.tokenize()
+    parser = newParser(tokens, error)
+    nodes = parser.parse()
+    interpreter = newInterpreter(error)
+    resolver = newResolver(interpreter, error)
+  resolver.resolve(nodes)
+  interpreter = resolver.interpreter
+  interpreter.interpret(nodes)
+  
+  var
+    keys: seq[string]
+    values: seq[BaseType]
+    asName: string = statement.name.value
+  
+  # case of `import std -> abc;`
+  if not statement.asName.isNil:
+    asName = statement.asName.value
+
+  for key, value in interpreter.globals.values:
+    keys.add(key)
+    values.add(value)
+  
+  self.env.define(asName, newModuleClass(asName, keys, values))
+  for key, value in interpreter.locals: self.locals[key] = value
 
 method eval(self: var Interpreter, statement: ClassStmt) =
   var superclass: BaseType

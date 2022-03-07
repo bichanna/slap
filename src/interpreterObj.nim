@@ -38,13 +38,20 @@ type
 
   ListInstance* = ref object of ClassInstance
     elements*: seq[BaseType]
-
+  
+  ModuleClass* = ref object of BaseType
+    name*: string
+    keys*: seq[string]
+    values*: seq[BaseType]
 
 proc newListInstance*(init: SlapList): ListInstance =
   var elements: seq[BaseType]
   for i in init.values:
     elements.add(i)
   return ListInstance(elements: elements)
+
+proc newModuleClass*(name: string, keys: seq[string], values: seq[BaseType]): ModuleClass =
+  return ModuleClass(name: name, keys: keys, values: values)
 
 proc `$`*(obj: BaseType): string =
   if obj of SlapNull: return "null"
@@ -66,6 +73,7 @@ proc `$`*(obj: BaseType): string =
   elif obj of ClassType: return "<class " & ClassType(obj).name & ">"
   elif obj of ListInstance: return $ListInstance(obj).elements
   elif obj of ClassInstance: return "<instance " & ClassInstance(obj).class.name & ">"
+  elif obj of ModuleClass: return "<module class>"
   
   # hopefully unreachable
   return "unknown type"
