@@ -69,7 +69,7 @@ type
     Null                = "null"
     Import              = "import"
 
-  Token* = object
+  Token* = ref object of RootObj
     kind*: TokenType
     value*: string
     line*: int
