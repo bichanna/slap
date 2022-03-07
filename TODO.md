@@ -38,4 +38,4 @@
 ## Others
  - [ ] String Interpolation
  - [ ] Optional Type Annotations
- - [ ] Multi-line Comments
+ - [x] Multi-line Comments
