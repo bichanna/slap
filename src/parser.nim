@@ -6,21 +6,18 @@
 #
 
 import token, error, node
-import tables
 
 type
   # Parser takes in a list of tokens (seq[Token]) and 
   # generates an abstract syntax tree
   Parser* = object
-    error*: Error
     tokens*: seq[Token]
     current*: int
     loopDepth*: int
     statements*: seq[Stmt]
 
-proc newParser*(tokens: seq[Token], errorObj: Error): Parser =
+proc newParser*(tokens: seq[Token]): Parser =
   return Parser(
-    error: errorObj,
     tokens: tokens,
     current: 0,
     loopDepth: 0,
@@ -75,7 +72,7 @@ proc doesMatch(p: var Parser, types: varargs[TokenType]): bool =
 proc expect(p: var Parser, ttype: TokenType, message: string): Token {.discardable.} =
   if p.checkCurrentTok(ttype): return p.advance()
   else: 
-    error(p.error, p.currentToken().line, "SyntaxError", message)
+    error(p.currentToken(), "SyntaxError", message)
 
 proc primary(p: var Parser): Expr =
   if p.doesMatch(True): return LiteralExpr(kind: True, value: "true")
@@ -139,8 +136,7 @@ proc primary(p: var Parser): Expr =
     return MapLiteralExpr(keys: keys, values: values, keyword: keyword)
 
   elif p.doesMatch(Define): return p.functionBody("function")
-  echo p.currentToken()
-  error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
+  error(p.currentToken(), "SyntaxError", "Expected an expression")
 
 proc finishCall(p: var Parser, callee: Expr, arg: Expr): Expr =
   var arguments: seq[Expr]
@@ -149,7 +145,7 @@ proc finishCall(p: var Parser, callee: Expr, arg: Expr): Expr =
     arguments.add(p.expression())
     while p.doesMatch(Comma):
       if arguments.len >= 256:
-        error(p.error, p.currentToken().line, "SyntaxError", "Cannot have more than 256 arguments")
+        error(p.currentToken(), "SyntaxError", "Cannot have more than 256 arguments")
       arguments.add(p.expression())
   let paren = p.expect(RightParen, "Expected ')' after arguments")
   # check for <-
@@ -238,7 +234,7 @@ proc assignment(p: var Parser): Expr =
       let get = GetExpr(expre)
       return SetExpr(instance: get.instance, name: get.name, value: value)
     else:
-      error(p.error, equals.line, "SyntaxError", "Invalid assignment target")
+      error(equals, "SyntaxError", "Invalid assignment target")
   return expre
 
 proc expression(p: var Parser): Expr = return p.assignment()
@@ -250,9 +246,16 @@ proc exprStmt(p: var Parser): Stmt =
 
 proc breakStatement(p: var Parser): Stmt =
   if p.loopDepth == 0:
-    error(p.error, p.previousToken(), "SyntaxError", "'break' can only be used inside a loop")
+    error(p.previousToken(), "SyntaxError", "'break' can only be used inside a loop")
   p.expect(SemiColon, "Expected ';' after 'break'")
   return BreakStmt()
+
+proc importStatement(p: var Parser): Stmt =
+  let name = p.expect(Identifier, "Expected an identifier")
+  var asName: Token
+  if p.doesMatch(RightArrow): asName = p.expect(Identifier, "Expected an identifier")
+  p.expect(SemiColon, "Expected ';' after import statement")
+  return ImportStmt(name: name, asName: asName)
 
 proc statement(p: var Parser): Stmt =
   if p.doesMatch(LeftBrace): return BlockStmt(statements: p.parseBlock())
@@ -261,6 +264,7 @@ proc statement(p: var Parser): Stmt =
   elif p.doesMatch(For): return p.forStatement()
   elif p.doesMatch(Return): return p.returnStatement()
   elif p.doesMatch(Break): return p.breakStatement()
+  elif p.doesMatch(Import): return p.importStatement()
   return p.exprStmt()
 
 proc returnStatement(p: var Parser): Stmt =
@@ -342,7 +346,7 @@ proc functionBody(p: var Parser, kind: string): FuncExpr =
   var parameters: seq[Token]
   if not p.checkCurrentTok(RightParen):
     while true:
-      if parameters.len >= 10: error(p.error, p.currentToken(), "SyntaxError", "Cannot have more than 10 parameters")
+      if parameters.len >= 10: error(p.currentToken(), "SyntaxError", "Cannot have more than 10 parameters")
       parameters.add(p.expect(Identifier, "Expected parameter name"))
       if not p.doesMatch(Comma): break
   p.expect(RightParen, "Expected ')' after parameters")
@@ -376,7 +380,7 @@ proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()
   elif p.doesMatch(Const): return p.varDeclaration()
   elif p.checkCurrentTok(Define) and p.checkNextTok(Identifier):
-    p.expect(Define, "")
+    p.expect(Define, "") # This does not throw error because it's already checked
     return p.function("function")
   elif p.doesMatch(Class): return p.classDeclaration()
   else: return p.statement()

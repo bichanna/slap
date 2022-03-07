@@ -7,6 +7,8 @@
 
 import std/strformat, strutils
 
+var sourceId*: int8 = 0;
+
 type
   TokenType* = enum
     Int                 = "INT"
@@ -69,10 +71,14 @@ type
     Null                = "null"
     Import              = "import"
 
-  Token* = object
+  Token* = ref object of RootObj
     kind*: TokenType
     value*: string
     line*: int
+    sId*: int8
+
+proc newToken*(kind: TokenType, value: string, line: int): Token =
+  return Token(kind: kind, value: value, line: line, sId: sourceId)
 
 proc `$`*(token: Token): string =
   return fmt"{token.kind}:{token.value}:{token.line}"

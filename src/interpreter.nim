@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash
+import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash, lexer, parser
 import strutils, tables, sequtils
   
 const
@@ -24,9 +24,9 @@ let stdlibs: Table[string, string] = {
 
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment)
 
-proc newInterpreter*(errorObj: Error): Interpreter =
-  var globals = loadBuildins(errorObj)
-  return Interpreter(error: errorObj, env: globals, globals: globals, locals: initTable[Expr, int]())
+proc newInterpreter*(): Interpreter =
+  var globals = loadBuildins()
+  return Interpreter(env: globals, globals: globals, locals: initTable[Expr, int]())
 
 # ----------------------------- FUNCTIONS & CLASSES ----------------------------------
 
@@ -38,7 +38,7 @@ proc newFunction(name: string, declaration: FuncExpr, closure: Environment, isIn
   fun.closure = closure
   fun.arity = proc(): int = fun.declaration.parameters.len
   fun.call = proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
-    var environment = newEnv(self.error, closure)
+    var environment = newEnv(closure)
     for i in 0 ..< fun.declaration.parameters.len:
       environment.define(fun.declaration.parameters[i].value, args[i])
     try:
@@ -54,8 +54,8 @@ proc findMethod(ct: ClassType, name: string): Function =
   if not ct.superclass.isNil: return ct.superclass.findMethod(name)
   return nil
 
-proc `bind`(self: Function, instance: ClassInstance, i: Interpreter): Function =
-  var env = newEnv(i.error, self.closure)
+proc `bind`(self: Function, instance: ClassInstance): Function =
+  var env = newEnv(self.closure)
   env.define("self", instance)
   return newFunction(self.name, self.declaration, env, self.isInitFunc)
 
@@ -72,26 +72,26 @@ proc newClass(metaclass: ClassType, superclass: ClassType, name: string, methods
   class.call = proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
     var instance = newClassInstance(class)
     var init = class.methods.getOrDefault("new", nil)
-    if not init.isNil: discard `bind`(init, instance, self).call(self, args, token)
+    if not init.isNil: discard `bind`(init, instance).call(self, args, token)
     return instance
   class.methods = methods
   class.cinstance = newClassInstance(metaclass)
   class.superclass = superclass
   return class
 
-proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
+proc get(ci: ClassInstance, name: Token): BaseType =
   if not (ci of ListInstance):
     if ci.fields.hasKey(name.value): return ci.fields[name.value]
     let m = findMethod(ci.class, name.value)
-    if not m.isNil: return m.`bind`(ci, i)
-    error(i.error, name.line, RuntimeError, "Property '" & name.value & "' is not defined")
+    if not m.isNil: return m.`bind`(ci)
+    error(name, RuntimeError, "Property '" & name.value & "' is not defined")
   else:
     var li = ListInstance(ci)
     if name.value == "get":
       return FuncType(
         arity: proc(): int = 1,
         call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-          if not (args[0] of SlapInt): error(i.error, name.line, RuntimeError, "list indices must be integers")
+          if not (args[0] of SlapInt): error(name, RuntimeError, "list indices must be integers")
           return li.elements[SlapInt(args[0]).value]
       )
     elif name.value == "append":
@@ -111,7 +111,7 @@ proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
       return FuncType(
         arity: proc(): int = 2,
         call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-          if not (args[0] of SlapInt): error(i.error, name, RuntimeError, "index must be an integer")
+          if not (args[0] of SlapInt): error(name, RuntimeError, "index must be an integer")
           li.elements.insert(args[1], SlapInt(args[0]).value)
           return newNull()
       )
@@ -119,15 +119,15 @@ proc get(ci: ClassInstance, name: Token, i: Interpreter): BaseType =
       return FuncType(
         arity: proc(): int = 2,
         call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-          if not (args[0] of SlapInt): error(i.error, name, RuntimeError, "index must be an integer")
-          if SlapInt(args[0]).value >= li.elements.len: error(i.error, name, RuntimeError, "index out of range")
+          if not (args[0] of SlapInt): error(name, RuntimeError, "index must be an integer")
+          if SlapInt(args[0]).value >= li.elements.len: error(name, RuntimeError, "index out of range")
           li.elements[SlapInt(args[0]).value] = args[1]
           return newNull()
       )
     elif name.value == "len":
       return newInt(li.elements.len)
     else:
-      error(i.error, name.line, RuntimeError, "Property '" & name.value & "' is not defined")
+      error(name, RuntimeError, "Property '" & name.value & "' is not defined")
 
 proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value] = value
 
@@ -137,6 +137,13 @@ proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value
 proc isTruthy(self: var Interpreter, obj: BaseType): bool
 proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool
 proc lookUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType
+proc interpret*(self: var Interpreter, statements: seq[Stmt])
+
+proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
+  self.locals[expre] = depth
+
+# this awkward import is for recursive import; DO NOT REMOVE THIS!!
+import resolver
 
 # --------------------------- EXPRESSIONS ------------------------------
 
@@ -166,7 +173,7 @@ method eval(self: var Interpreter, expre: UnaryExpr): BaseType =
       if right of SlapInt: return newInt(-SlapInt(right).value)
       elif right of SlapFloat: return newFloat(-SlapFloat(right).value)
     else:
-      error(self.error, expre.operator.line, RuntimeError, "All operands must be either string or int and float")
+      error(expre.operator, RuntimeError, "All operands must be either string or int and float")
   of Bang:
     return newBool(self.isTruthy(right))
   else:
@@ -181,11 +188,11 @@ method eval(self: var Interpreter, expre: ListOrMapVariableExpr): BaseType =
   let indexOrKey = self.eval(expre.indexOrKey)
   let variable = self.eval(expre.variable)
   if variable of SlapList:
-    if not (indexOrKey of SlapInt): error(self.error, expre.token, RuntimeError, "List indices must be integers")
+    if not (indexOrKey of SlapInt): error(expre.token, RuntimeError, "List indices must be integers")
     try:
       return SlapList(variable).values[SlapInt(indexOrKey).value]
     except IndexDefect:
-      error(self.error, expre.token, RuntimeError, "Index out of range")
+      error(expre.token, RuntimeError, "Index out of range")
   
   elif variable of SlapMap:
     let key = self.eval(expre.indexOrKey)
@@ -193,17 +200,17 @@ method eval(self: var Interpreter, expre: ListOrMapVariableExpr): BaseType =
       if $SlapMap(variable).keys[i] == $key:
         return SlapMap(variable).values[i]
     
-    error(self.error, expre.token, RuntimeError, "Value with this key does not exist")
+    error(expre.token, RuntimeError, "Value with this key does not exist")
 
   elif variable of SlapString:
-    if not (indexOrKey of SlapInt): error(self.error, expre.token, RuntimeError, "String indices must be integers")
+    if not (indexOrKey of SlapInt): error(expre.token, RuntimeError, "String indices must be integers")
     let chars = toSeq(SlapString(variable).value.items)
     try:
       return newString($chars[SlapInt(indexOrKey).value])
     except IndexDefect:
-      error(self.error, expre.token, RuntimeError, "Index out of range")
+      error(expre.token, RuntimeError, "Index out of range")
   else:
-    error(self.error, expre.token, RuntimeError, "Only lists and maps can be used with '@[]'")
+    error(expre.token, RuntimeError, "Only lists and maps can be used with '@[]'")
 
 # eval AssignExpr
 method eval(self: var Interpreter, expre: AssignExpr): BaseType =
@@ -243,28 +250,44 @@ method eval(self: var Interpreter, expre: CallExpr): BaseType =
   var arguments: seq[BaseType]
   for arg in expre.arguments: arguments.add(self.eval(arg))
   if not (callee of FuncType):
-    error(self.error, expre.paren, RuntimeError, "Can only call classes and functions")
+    error(expre.paren, RuntimeError, "Can only call classes and functions")
   let function = FuncType(callee)
   if arguments.len != function.arity():
-    error(self.error, expre.paren, RuntimeError, "Expected " & $function.arity() & " arguments but got " & $arguments.len)
+    error(expre.paren, RuntimeError, "Expected " & $function.arity() & " arguments but got " & $arguments.len)
   return function.call(self, arguments, expre.paren)
 
 # eval GetExpr
 method eval(self: var Interpreter, expre: GetExpr): BaseType =
   let obj = self.eval(expre.instance)
   if obj of ClassInstance:
-    return ClassInstance(obj).get(expre.name, self)
+    return ClassInstance(obj).get(expre.name)
   elif obj of ClassType:
-    return ClassType(obj).cinstance.get(expre.name, self)
-  error(self.error, expre.name.line, RuntimeError, "Only instances have properties")
+    return ClassType(obj).cinstance.get(expre.name)
+  elif obj of ModuleClass:
+    var module = ModuleClass(obj)
+    for i in 0 ..< module.keys.len:
+      if module.keys[i] == expre.name.value:
+        return module.values[i]
+    error(expre.name, RuntimeError, "'" & expre.name.value & "' is not defined in module " & module.name)
+
+  error(expre.name, RuntimeError, "Only instances have properties")
 
 # eval SetExpr
 method eval(self: var Interpreter, expre: SetExpr): BaseType =
   let instance = self.eval(expre.instance)
-  if not (instance of ClassInstance):
-    error(self.error, expre.name.line, RuntimeError, "Only instances have fields")
   let value = self.eval(expre.value)
-  ClassInstance(instance).set(expre.name, value)
+  if instance of ClassInstance:
+    ClassInstance(instance).set(expre.name, value)
+  elif instance of ModuleClass:
+    var module = ModuleClass(instance)
+    var setIt = false
+    for i in 0 ..< module.keys.len():
+      if module.keys[i] == expre.name.value:
+        module.values[i] = value
+        setIt = true
+    if not setIt: error(expre.name, RuntimeError, "'" & $expre.name.value & "' is not defined in module " & module.name)
+  else:
+    error(expre.name, RuntimeError, "Only instances have fields")
   return value
 
 # eval SelfExpr
@@ -278,8 +301,8 @@ method eval(self: var Interpreter, expre: SuperExpr): BaseType =
   let m = superclass.findMethod(expre.classMethod.value)
   
   if m.isNil:
-    error(self.error, expre.classMethod, RuntimeError, "'" & expre.classMethod.value & "' is not defined")
-  return m.`bind`(obj, self)
+    error(expre.classMethod, RuntimeError, "'" & expre.classMethod.value & "' is not defined")
+  return m.`bind`(obj)
 
 # eval ListLiteralExpr
 method eval(self: var Interpreter, expre: ListLiteralExpr): BaseType =
@@ -315,7 +338,7 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
       elif left of SlapString and right of SlapString:
         return newString(SlapString(left).value & SlapString(right).value)
       else:
-        error(self.error, expre.operator.line, RuntimeError, "All operands must be either string or int and float")
+        error(expre.operator, RuntimeError, "All operands must be either string or int and float")
     of Minus:
       if left of SlapFloat and right of SlapFloat:
         return newFloat(SlapFloat(left).value - SlapFloat(right).value)
@@ -326,30 +349,30 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
       elif left of SlapInt and right of SlapInt:
         return newInt(SlapInt(left).value - SlapInt(right).value)
       else:
-        error(self.error, expre.operator.line, RuntimeError, "All operands must be either string or int and float")
+        error(expre.operator, RuntimeError, "All operands must be either string or int and float")
     of Slash: # division always returns a flost
       if left of SlapFloat and right of SlapFloat:
         if SlapFloat(right).value == 0:
-          error(self.error, expre.operator.line, RuntimeError, "Cannot divide by 0")
+          error(expre.operator, RuntimeError, "Cannot divide by 0")
         else:
           return newFloat(SlapFloat(left).value / SlapFloat(right).value)
       elif left of SlapFloat and right of SlapInt:
         if SlapInt(right).value == 0:
-          error(self.error, expre.operator.line, RuntimeError, "Cannot divide by 0")
+          error(expre.operator, RuntimeError, "Cannot divide by 0")
         else:
           return newFloat(SlapFloat(left).value / float(SlapInt(right).value))
       elif left of SlapInt and right of SlapFloat:
         if SlapFloat(right).value == 0:
-          error(self.error, expre.operator.line, RuntimeError, "Cannot divide by 0")
+          error(expre.operator, RuntimeError, "Cannot divide by 0")
         else:
           return newFloat(float(SlapInt(left).value) / SlapFloat(right).value)
       elif left of SlapInt and right of SlapInt:
         if SlapInt(right).value == 0:
-          error(self.error, expre.operator.line, RuntimeError, "Cannot divide by 0")
+          error(expre.operator, RuntimeError, "Cannot divide by 0")
         else:
           return newFloat(float(SlapInt(left).value) / float(SlapInt(right).value))
       else:
-        error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
+        error(expre.operator, RuntimeError, "All operands must be either int or float")
     of Star:
       if left of SlapFloat and right of SlapFloat:
         return newFloat(SlapFloat(left).value * SlapFloat(right).value)
@@ -364,12 +387,12 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
         for i in 0 ..< SlapInt(right).value: str &= SlapString(left).value
         return newString(str)
       else:
-        error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
+        error(expre.operator, RuntimeError, "All operands must be either int or float")
     of Modulo:
       if left of SlapInt and right of SlapInt:
         return newInt(SlapInt(left).value mod SlapInt(right).value)
       else:
-        error(self.error, expre.operator.line, RuntimeError, "All operands must be int")
+        error(expre.operator, RuntimeError, "All operands must be int")
     # Comparison Operators
     of Greater:
       if left of SlapFloat and right of SlapFloat:
@@ -381,7 +404,7 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
       elif left of SlapInt and right of SlapInt:
         return newBool(SlapInt(left).value > SlapInt(right).value)
       else:
-        error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
+        error(expre.operator, RuntimeError, "All operands must be either int or float")
     of GreaterEqual:
       if left of SlapFloat and right of SlapFloat:
         return newBool(SlapFloat(left).value >= SlapFloat(right).value)
@@ -392,7 +415,7 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
       elif left of SlapInt and right of SlapInt:
         return newBool(SlapInt(left).value >= SlapInt(right).value)
       else:
-        error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
+        error(expre.operator, RuntimeError, "All operands must be either int or float")
     of Less:
       if left of SlapFloat and right of SlapFloat:
         return newBool(SlapFloat(left).value < SlapFloat(right).value)
@@ -403,7 +426,7 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
       elif left of SlapInt and right of SlapInt:
         return newBool(SlapInt(left).value < SlapInt(right).value)
       else:
-        error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
+        error(expre.operator, RuntimeError, "All operands must be either int or float")
     of LessEqual:
       if left of SlapFloat and right of SlapFloat:
         return newBool(SlapFloat(left).value <= SlapFloat(right).value)
@@ -414,7 +437,7 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
       elif left of SlapInt and right of SlapInt:
         return newBool(SlapInt(left).value <= SlapInt(right).value)
       else:
-        error(self.error, expre.operator.line, RuntimeError, "All operands must be either int or float")
+        error(expre.operator, RuntimeError, "All operands must be either int or float")
     of BangEqual: return newBool(not self.doesEqual(left, right))
     of EqualEqual: return newBool(self.doesEqual(left, right))
     else:
@@ -450,7 +473,7 @@ proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Env
     self.env = previous
 
 method eval(self: var Interpreter, statement: BlockStmt) =
-  self.executeBlock(statement.statements, newEnv(self.error, self.env))
+  self.executeBlock(statement.statements, newEnv(self.env))
 
 method eval(self: var Interpreter, statement: ReturnStmt) =
   var value: BaseType
@@ -462,7 +485,7 @@ method eval(self: var Interpreter, statement: WhileStmt) =
     while self.isTruthy(self.eval(statement.condition)):
       self.eval(statement.body)
   except OverflowDefect:
-    error(self.error, statement.keyword, RuntimeError, "Over- or underflow")
+    error(statement.keyword, RuntimeError, "Over- or underflow")
   # just ignore
   except BreakException: return
 
@@ -482,12 +505,50 @@ method eval(self: var Interpreter, statement: IfStmt) =
 
 method eval(self: var Interpreter, statement: BreakStmt) = raise BreakException()
 
+method eval(self: var Interpreter, statement: ImportStmt) =
+  var source: string = ""
+  # this is for tracking source files
+  token.sourceId += 1
+  if not stdlibs.hasKey(statement.name.value):
+    try:
+      source = readFile(statement.name.value & ".slap")
+    except IOError:
+      error(statement.name, RuntimeError, "Cannot open '" & statement.name.value & ".slap'. No such file or directory")
+  else:
+    source = stdlibs[statement.name.value]
+  var
+    lexer = newLexer(source)
+    tokens = lexer.tokenize()
+    parser = newParser(tokens)
+    nodes = parser.parse()
+    interpreter = newInterpreter()
+    resolver = newResolver(interpreter)
+  resolver.resolve(nodes)
+  interpreter = resolver.interpreter
+  interpreter.interpret(nodes)
+  
+  var
+    keys: seq[string]
+    values: seq[BaseType]
+    asName: string = statement.name.value
+  
+  # case of `import std -> abc;`
+  if not statement.asName.isNil:
+    asName = statement.asName.value
+
+  for key, value in interpreter.globals.values:
+    keys.add(key)
+    values.add(value)
+  
+  self.env.define(asName, newModuleClass(asName, keys, values))
+  for key, value in interpreter.locals: self.locals[key] = value
+
 method eval(self: var Interpreter, statement: ClassStmt) =
   var superclass: BaseType
   if not statement.superclass.isNil:
     superclass = self.eval(statement.superclass)
     if not (superclass of ClassType):
-      error(self.error, statement.superclass.name, RuntimeError, "Superclass must be a class")
+      error(statement.superclass.name, RuntimeError, "Superclass must be a class")
     
   self.env.define(statement.name.value, newNull())
   var classMethods = initTable[string, Function]()
@@ -497,7 +558,7 @@ method eval(self: var Interpreter, statement: ClassStmt) =
   let metaclass = newClass(nil, nil, statement.name.value & " metaclass", classMethods, statement.name)
 
   if not statement.superclass.isNil:
-    self.env = newEnv(self.error, self.env)
+    self.env = newEnv(self.env)
     self.env.define("super", superclass)
 
   var methods = initTable[string, Function]()
@@ -511,9 +572,6 @@ method eval(self: var Interpreter, statement: ClassStmt) =
   self.env.assign(statement.name, class)
 
 # ----------------------------------------------------------------------
-
-proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
-  self.locals[expre] = depth
 
 proc interpret*(self: var Interpreter, statements: seq[Stmt]) =
   for s in statements:

@@ -37,19 +37,20 @@ const
   Letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
   Digits = "0123456789"
 
+
+var source: string
+
 type
   # Lexer takes in raw source code as a list of characters
   # and groups it into a list of tokens (seq[Token]).
   Lexer* = object
-    source*: string
-    error*: Error
     tokens*: seq[Token]
     current*, line*: int
 
-proc newLexer*(source: string, errorObj: Error): Lexer = 
+proc newLexer*(src: string): Lexer = 
+  error.sources[token.sourceId] = src
+  source = src
   return Lexer(
-    source: source,
-    error: errorObj,
     tokens: @[],
     current: 0,
     line: 0
@@ -60,39 +61,35 @@ proc newLexer*(source: string, errorObj: Error): Lexer =
 # returns the current character and moves to the next one
 proc advance(l: var Lexer): char {.discardable.} = 
   l.current += 1
-  return l.source[l.current-1]
+  return source[l.current-1]
 
 # returns the previous character and moves back to the previous one
 proc reverse(l: var Lexer): char {.discardable.} =
   l.current -= 1
-  return l.source[l.current]
+  return source[l.current]
 
 # checks if EOF is reached
-proc isAtEnd(l: var Lexer): bool = return l.current >= l.source.len
+proc isAtEnd(l: var Lexer): bool = return l.current >= source.len
 
 # appends a token to the list with a value or without a value
 proc appendToken(l: var Lexer, ttype: TokenType, tvalue: string="") = 
-  l.tokens.add(Token(
-    kind: ttype,
-    value: tvalue,
-    line: l.line
-  ))
+  l.tokens.add(newToken(ttype, tvalue, l.line))
 
 # returns the current character
 proc currentChar(l: var Lexer): char =
   if l.isAtEnd(): return '\0'
-  else: return l.source[l.current]
+  else: return source[l.current]
 
 # returns the current + 1 character without moving from the current position
 proc nextChar(l: var Lexer): char =
-  if l.current+1 >= l.source.len: return '\0'
-  else: return l.source[l.current+1]
+  if l.current+1 >= source.len: return '\0'
+  else: return source[l.current+1]
 
 # checks if the current character matches the expected char
 proc doesMatch(l: var Lexer, c: char): bool =
   result = true
   if l.isAtEnd(): result = false
-  elif l.source[l.current] != c: result = false
+  elif source[l.current] != c: result = false
   else: l.current += 1
 
 # makes a SLAP string token and appends it to the list
@@ -102,7 +99,7 @@ proc makeString(l: var Lexer) =
     if l.currentChar() == '\n': l.line += 1
     strValue.add(l.currentChar())
     l.advance()
-  if l.currentChar() != '"': error(l.error, l.line, "SyntaxError", "Unterminated string, expected '\"'")
+  if l.currentChar() != '"': error(token.sourceId, l.line, "SyntaxError", "Unterminated string, expected '\"'")
   l.advance()
   l.appendToken(String, strValue)
 
@@ -110,7 +107,8 @@ proc makeString(l: var Lexer) =
 proc skipBlockComment(l: var Lexer) =
   var nesting = 1
   while nesting > 0:
-    if l.currentChar() == '\0': error(l.error, l.line, "SyntaxError", "Unterminated block comment")
+    if l.currentChar() == '\n': l.line += 1
+    if l.currentChar() == '\0': error(token.sourceId, l.line, "SyntaxError", "Unterminated block comment")
     if l.currentChar() == '#' and l.nextChar() == '{':
       l.advance()
       l.advance()
@@ -216,6 +214,6 @@ proc tokenize*(l: var Lexer): seq[Token] =
         l.reverse()
         l.makeIdentifier()
       elif c in " \t": discard
-      else: error(l.error, l.line, "SyntaxError", fmt"Unrecognized character '{c}'")
+      else: error(token.sourceId, l.line, "SyntaxError", fmt"Unrecognized character '{c}'")
   l.appendToken(EOF)
   return l.tokens

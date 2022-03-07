@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import lexer, error, parser, interpreter, resolver
+import lexer, parser, interpreter, resolver
 import os, parseopt
 
 const HELP_MESSAGE = """
@@ -18,31 +18,28 @@ usage: slap [option] <filename>.slap
 const CURRENT_VERSION = "0.0.2"
 
 # actually executes a source code
-proc execute(source: string, showTokens: bool = false) = 
+proc execute(source: string) = 
   # lexing
-  let error = Error(source: source)
-  var lexer = newLexer(source, error)
+  var lexer = newLexer(source)
   let tokens = lexer.tokenize()
-  if showTokens:
-    echo("---------------TOKENS----------------\n" & $tokens & "\n---------------TOKENS----------------")
   
   # parsing
-  var parser = newParser(tokens, error)
+  var parser = newParser(tokens)
   let nodes = parser.parse()
 
   # interpreting
   var
-    interpreter = newInterpreter(error)
-    resolver = newResolver(interpreter, error)
+    interpreter = newInterpreter()
+    resolver = newResolver(interpreter)
   resolver.resolve(nodes)
   interpreter = resolver.interpreter
   interpreter.interpret(nodes)
 
 # reads a file and pass it to the execute func
-proc runFile(path: string, showTokens: bool) =
+proc runFile(path: string) =
   try:
     let source = readFile(path)
-    execute(source, showTokens)
+    execute(source)
   except IOError:
     quit("Cannot open '" & path & "'. No such file or directory")
 
@@ -76,7 +73,6 @@ when isMainModule:
 
   # handle command line arguments and options
   var p = initOptParser(commandLineParams())
-  var showTokens = false
   while true:
     p.next()
     case p.kind:
@@ -86,9 +82,6 @@ when isMainModule:
         showHelp()
       elif p.key == "version" or p.key == "v":
         showVersion()
-      elif p.key == "showTokens":
-        if p.val == "on": showTokens = true
-        else: showTokens = false
     of cmdArgument:
-      runFile(p.key, showTokens)
+      runFile(p.key)
       break
