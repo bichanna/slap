@@ -55,13 +55,6 @@ let anotherPoppedItem = pop(anotherList);
 anotherList -> append(len(anotherList));
 println(anotherList@[0]);
 
-let list = List([1, 2, "string", 3.1415]); # using List class (this is a LOT slower and discouraged since the advent of the syntax sugars)
-list.append("Hello World");
-list.set(0, 2.7);
-let poppedItem = list.pop();
-list.append(list.len);
-println(list.get(0));
-
 let map = {"key": "secret value", "another key": 123445}; # map
 map@["key"] = "some value";
 println(map);

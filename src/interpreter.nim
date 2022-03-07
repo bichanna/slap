@@ -85,49 +85,6 @@ proc get(ci: ClassInstance, name: Token): BaseType =
     let m = findMethod(ci.class, name.value)
     if not m.isNil: return m.`bind`(ci)
     error(name, RuntimeError, "Property '" & name.value & "' is not defined")
-  else:
-    var li = ListInstance(ci)
-    if name.value == "get":
-      return FuncType(
-        arity: proc(): int = 1,
-        call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-          if not (args[0] of SlapInt): error(name, RuntimeError, "list indices must be integers")
-          return li.elements[SlapInt(args[0]).value]
-      )
-    elif name.value == "append":
-      return FuncType(
-        arity: proc(): int = 1,
-        call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-          li.elements.add(args[0])
-          return newNull()
-      )
-    elif name.value == "pop":
-      return FuncType(
-        arity: proc(): int = 0,
-        call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-          return li.elements.pop()
-      )
-    elif name.value == "insert":
-      return FuncType(
-        arity: proc(): int = 2,
-        call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-          if not (args[0] of SlapInt): error(name, RuntimeError, "index must be an integer")
-          li.elements.insert(args[1], SlapInt(args[0]).value)
-          return newNull()
-      )
-    elif name.value == "set":
-      return FuncType(
-        arity: proc(): int = 2,
-        call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-          if not (args[0] of SlapInt): error(name, RuntimeError, "index must be an integer")
-          if SlapInt(args[0]).value >= li.elements.len: error(name, RuntimeError, "index out of range")
-          li.elements[SlapInt(args[0]).value] = args[1]
-          return newNull()
-      )
-    elif name.value == "len":
-      return newInt(li.elements.len)
-    else:
-      error(name, RuntimeError, "Property '" & name.value & "' is not defined")
 
 proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value] = value
 
