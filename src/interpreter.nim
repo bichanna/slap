@@ -506,10 +506,15 @@ method eval(self: var Interpreter, statement: IfStmt) =
 method eval(self: var Interpreter, statement: BreakStmt) = raise BreakException()
 
 method eval(self: var Interpreter, statement: ImportStmt) =
+  var source: string = ""
   if not stdlibs.hasKey(statement.name.value):
-    discard
-  var
+    try:
+      source = readFile(statement.name.value & ".slap")
+    except IOError:
+      error(self.error, statement.name, RuntimeError, "Cannot open '" & statement.name.value & ".slap'. No such file or directory")
+  else:
     source = stdlibs[statement.name.value]
+  var
     error = Error(source: source)
     lexer = newLexer(source, error)
     tokens = lexer.tokenize()
