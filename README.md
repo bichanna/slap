@@ -35,7 +35,7 @@ let result = binarySearch(list, target, 0, len(list)-1);
 println(result);
 ```
 Here's another example using [`<-` and `->` expressions](https://github.com/bichanna/slap/blob/master/docs/index.md#--expression).
-```rust
+```js
 import math;
 
 let num = 10;
