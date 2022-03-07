@@ -6,7 +6,6 @@
 #
 
 import token, error, node
-import tables
 
 type
   # Parser takes in a list of tokens (seq[Token]) and 
@@ -139,7 +138,6 @@ proc primary(p: var Parser): Expr =
     return MapLiteralExpr(keys: keys, values: values, keyword: keyword)
 
   elif p.doesMatch(Define): return p.functionBody("function")
-  echo p.currentToken()
   error(p.error, p.currentToken().line, "SyntaxError", "Expected an expression")
 
 proc finishCall(p: var Parser, callee: Expr, arg: Expr): Expr =
@@ -254,6 +252,13 @@ proc breakStatement(p: var Parser): Stmt =
   p.expect(SemiColon, "Expected ';' after 'break'")
   return BreakStmt()
 
+proc importStatement(p: var Parser): Stmt =
+  let name = p.expect(Identifier, "Expected an identifier")
+  var asName: Token
+  if p.doesMatch(RightArrow): asName = p.expect(Identifier, "Expected an identifier")
+  p.expect(SemiColon, "Expected ';' after import statement")
+  return ImportStmt(name: name, asName: asName)
+
 proc statement(p: var Parser): Stmt =
   if p.doesMatch(LeftBrace): return BlockStmt(statements: p.parseBlock())
   elif p.doesMatch(If): return p.ifStatement()
@@ -261,6 +266,7 @@ proc statement(p: var Parser): Stmt =
   elif p.doesMatch(For): return p.forStatement()
   elif p.doesMatch(Return): return p.returnStatement()
   elif p.doesMatch(Break): return p.breakStatement()
+  elif p.doesMatch(Import): return p.importStatement()
   return p.exprStmt()
 
 proc returnStatement(p: var Parser): Stmt =
@@ -376,7 +382,7 @@ proc declaration(p: var Parser): Stmt =
   if p.doesMatch(Let): return p.varDeclaration()
   elif p.doesMatch(Const): return p.varDeclaration()
   elif p.checkCurrentTok(Define) and p.checkNextTok(Identifier):
-    p.expect(Define, "")
+    p.expect(Define, "") # This does not throw error because it's already checked
     return p.function("function")
   elif p.doesMatch(Class): return p.classDeclaration()
   else: return p.statement()
