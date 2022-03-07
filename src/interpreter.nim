@@ -527,20 +527,9 @@ method eval(self: var Interpreter, statement: ImportStmt) =
   interpreter = resolver.interpreter
   interpreter.interpret(nodes)
   
-  var
-    keys: seq[string]
-    values: seq[BaseType]
-    asName: string = statement.name.value
-  
-  # case of `import std -> abc;`
-  if not statement.asName.isNil:
-    asName = statement.asName.value
-
   for key, value in interpreter.globals.values:
-    keys.add(key)
-    values.add(value)
+    self.env.define(key, value)
   
-  self.env.define(asName, newModuleClass(asName, keys, values))
   for key, value in interpreter.locals: self.locals[key] = value
 
 method eval(self: var Interpreter, statement: ClassStmt) =
