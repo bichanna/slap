@@ -18,9 +18,6 @@ proc slapPrint(self: var Interpreter, args: seq[BaseType], token: Token): BaseTy
   stdout.write(args[0])
   return newNull()
 
-proc slapList(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-  return newListInstance(SlapList(args[0]))
-
 proc slapAppend(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
   if not (args[0] of SlapList):
     error(token, RuntimeError, "append function only accepts a list and a value")
@@ -47,7 +44,6 @@ proc slapTypeof(self: var Interpreter, args: seq[BaseType], token: Token): BaseT
   if args[0] of SlapBool: return newString("bool")
   if args[0] of Function or args[0] of FuncType: return newString("function")
   if args[0] of ClassType: return newString("class")
-  if args[0] of ListInstance or args[0] of ClassInstance: return newString("instance")
   else: return newString("unknown")
 
 proc slapInput(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
@@ -105,7 +101,6 @@ proc loadBuildins*(): Environment =
   var globals = newEnv()
   globals.define("println", FuncType(arity: proc(): int = 1, call: slapPrintln))
   globals.define("print", FuncType(arity: proc(): int = 1, call: slapPrint))
-  globals.define("List", FuncType(arity: proc(): int = 1, call: slapList))
   globals.define("append", FuncType(arity: proc(): int = 2, call: slapAppend))
   globals.define("pop", FuncType(arity: proc(): int = 1, call: slapPop))
   globals.define("len", FuncType(arity: proc(): int = 1, call: slapLen))

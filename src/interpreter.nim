@@ -80,11 +80,10 @@ proc newClass(metaclass: ClassType, superclass: ClassType, name: string, methods
   return class
 
 proc get(ci: ClassInstance, name: Token): BaseType =
-  if not (ci of ListInstance):
-    if ci.fields.hasKey(name.value): return ci.fields[name.value]
-    let m = findMethod(ci.class, name.value)
-    if not m.isNil: return m.`bind`(ci)
-    error(name, RuntimeError, "Property '" & name.value & "' is not defined")
+  if ci.fields.hasKey(name.value): return ci.fields[name.value]
+  let m = findMethod(ci.class, name.value)
+  if not m.isNil: return m.`bind`(ci)
+  error(name, RuntimeError, "Property '" & name.value & "' is not defined")
 
 proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value] = value
 
