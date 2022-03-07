@@ -23,7 +23,7 @@
  - [x] Functions
      - [x] Lambdas (anonymous functions)
      - [ ] Default Arguments
- - [ ] Standard Library
+ - [x] Standard Library
      - [x] Basic (e.g., `println`, `print`)
      - [x] Std
      - [x] Str
@@ -32,7 +32,7 @@
      - [x] Math
      - [ ] Networking
  - [x] Classes
- - [ ] Import
+ - [x] Import
  - [ ] Concurrency
 
 ## Others
