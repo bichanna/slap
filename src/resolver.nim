@@ -116,6 +116,8 @@ method resolve(self: var Resolver, expre: GroupingExpr) = self.resolve(expre.exp
 
 method resolve(self: var Resolver, expre: LiteralExpr) = discard
 
+method resolve(self: var Resolver, expre: ImportStmt) = discard
+
 method resolve(self: var Resolver, expre: LogicalExpr) =
   self.resolve(expre.left)
   self.resolve(expre.right)
