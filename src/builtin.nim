@@ -23,13 +23,13 @@ proc slapList(self: var Interpreter, args: seq[BaseType], token: Token): BaseTyp
 
 proc slapAppend(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
   if not (args[0] of SlapList):
-    error(self.error, token, RuntimeError, "append function only accepts a list and a value")
+    error(token, RuntimeError, "append function only accepts a list and a value")
   SlapList(args[0]).values.add(args[1])
   return newNull()
 
 proc slapPop(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if not (args[0] of SlapList):
-    error(self.error, token, RuntimeError, "pop function only accepts a list")
+    error(token, RuntimeError, "pop function only accepts a list")
   return SlapList(args[0]).values.pop()
 
 proc slapLen(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
@@ -37,7 +37,7 @@ proc slapLen(self: var Interpreter, args: seq[BaseType], token: Token): BaseType
     return newInt(SlapString(args[0]).value.len)
   elif args[0] of SlapList:
     return newInt(SlapList(args[0]).values.len)
-  error(self.error, token, RuntimeError, "len function only accepts a list or string")
+  error(token, RuntimeError, "len function only accepts a list or string")
 
 proc slapTypeof(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if args[0] of SlapNull: return newString("null")
@@ -51,13 +51,13 @@ proc slapTypeof(self: var Interpreter, args: seq[BaseType], token: Token): BaseT
   else: return newString("unknown")
 
 proc slapInput(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-  if not (args[0] of SlapString): error(self.error, token, RuntimeError, "input function only accepts a string")
+  if not (args[0] of SlapString): error(token, RuntimeError, "input function only accepts a string")
   stdout.write(SlapString(args[0]).value)
   return newString(readLine(stdin))
 
 proc slapGetStrAt(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if not (args[1] of SlapInt) or not (args[0] of SlapString):
-    error(self.error, token, RuntimeError, "at function only accepts an int and a string")
+    error(token, RuntimeError, "at function only accepts an int and a string")
   return newString($SlapString(args[0]).value[SlapInt(args[1]).value])
 
 proc slapIsInt(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapInt)
@@ -77,8 +77,8 @@ proc slapConvertInt(self: var Interpreter, args: seq[BaseType], token: Token): B
   if args[0] of SlapFloat: return newInt(SlapFloat(args[0]).value.toInt)
   if args[0] of SlapString:
     try: return newInt(parseInt(SlapString(args[0]).value))
-    except: error(self.error, token, RuntimeError, "Cannot convert to an integer")
-  error(self.error, token, RuntimeError, "Cannot convert to an integer")
+    except: error(token, RuntimeError, "Cannot convert to an integer")
+  error(token, RuntimeError, "Cannot convert to an integer")
 
 proc slapConvertStr(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if args[0] of SlapInt: return newString($SlapInt(args[0]).value)
@@ -88,21 +88,21 @@ proc slapConvertStr(self: var Interpreter, args: seq[BaseType], token: Token): B
   if args[0] of SlapString: return SlapString(args[0])
   if args[0] of SlapBool: return newString($SlapBool(args[0]).value)
   if args[0] of SlapMap: return newString($SlapMap(args[0]))
-  error(self.error, token, RuntimeError, "Cannot convert to a string")
+  error(token, RuntimeError, "Cannot convert to a string")
 
 proc slapKeys(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if not (args[0] of SlapMap):
-    error(self.error, token, RuntimeError, "keys function only accepts a map")
+    error(token, RuntimeError, "keys function only accepts a map")
   return newList(SlapMap(args[0]).keys)
 
 proc slapValues(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if not (args[0] of SlapMap):
-    error(self.error, token, RuntimeError, "values function only accepts a map")
+    error(token, RuntimeError, "values function only accepts a map")
   return newList(SlapMap(args[0]).values)
 
 
-proc loadBuildins*(errorObj: Error): Environment =
-  var globals = newEnv(errorObj)
+proc loadBuildins*(): Environment =
+  var globals = newEnv()
   globals.define("println", FuncType(arity: proc(): int = 1, call: slapPrintln))
   globals.define("print", FuncType(arity: proc(): int = 1, call: slapPrint))
   globals.define("List", FuncType(arity: proc(): int = 1, call: slapList))

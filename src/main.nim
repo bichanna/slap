@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import lexer, error, parser, interpreter, resolver
+import lexer, parser, interpreter, resolver
 import os, parseopt
 
 const HELP_MESSAGE = """
@@ -20,18 +20,17 @@ const CURRENT_VERSION = "0.0.2"
 # actually executes a source code
 proc execute(source: string) = 
   # lexing
-  let error = Error(source: source)
-  var lexer = newLexer(source, error)
+  var lexer = newLexer(source)
   let tokens = lexer.tokenize()
   
   # parsing
-  var parser = newParser(tokens, error)
+  var parser = newParser(tokens)
   let nodes = parser.parse()
 
   # interpreting
   var
-    interpreter = newInterpreter(error)
-    resolver = newResolver(interpreter, error)
+    interpreter = newInterpreter()
+    resolver = newResolver(interpreter)
   resolver.resolve(nodes)
   interpreter = resolver.interpreter
   interpreter.interpret(nodes)

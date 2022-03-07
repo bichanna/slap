@@ -5,13 +5,12 @@
 # Created by Nobuharu Shimazu on 2/28/2022
 #
 
-import env, slaptype, error, node, token
+import env, slaptype, node, token
 import tables, strutils
 
 type
   # Interpreter takes in an abstract syntax tree and executes
   Interpreter* = object
-    error*: Error
     env*: Environment
     globals*: Environment
     locals*: Table[Expr, int]

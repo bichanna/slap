@@ -11,7 +11,6 @@ import tables
 type
   Resolver* = ref object of RootObj
     interpreter*: Interpreter
-    error*: Error
     scopes: seq[Table[string, bool]]
     currentFunction: FunctionType
     currentClass: ClassType
@@ -22,8 +21,8 @@ type
   ClassType = enum
     CNONE, CLASS
 
-proc newResolver*(interpreter: Interpreter, errorObj: Error): Resolver =
-  return Resolver(interpreter: interpreter, error: errorObj, currentFunction: NONE, currentClass: CNONE)
+proc newResolver*(interpreter: Interpreter): Resolver =
+  return Resolver(interpreter: interpreter, currentFunction: NONE, currentClass: CNONE)
 
 # ----------------------------------------------------------------------
 
@@ -55,7 +54,7 @@ method resolve(self: var Resolver, statement: VariableStmt) =
 
 method resolve(self: var Resolver, expre: VariableExpr) =
   if not (self.scopes.len == 0) and self.scopes[self.scopes.len-1].getOrDefault(expre.name.value, true) == false:
-    error(self.error, expre.name, "SyntaxError", "Cannot read local variable in its own initializer")
+    error(expre.name, "SyntaxError", "Cannot read local variable in its own initializer")
   self.resolveLocal(expre, expre.name)
 
 method resolve(self: var Resolver, expre: AssignExpr) =
@@ -90,10 +89,10 @@ method resolve(self: var Resolver, statement: IfStmt) =
   if not statement.elseBranch.isNil: self.resolve(statement.elseBranch)
 
 method resolve(self: var Resolver, statement: ReturnStmt) =
-  if self.currentFunction == NONE: error(self.error, statement.keyword, "SyntaxError", "Cannot return from top-level code")
+  if self.currentFunction == NONE: error(statement.keyword, "SyntaxError", "Cannot return from top-level code")
   if not statement.value.isNil:
     if self.currentFunction == INITIALIZER:
-      error(self.error, statement.keyword, "SyntaxError", "Cannot return a value from an initializer")
+      error(statement.keyword, "SyntaxError", "Cannot return a value from an initializer")
     self.resolve(statement.value)
 
 method resolve(self: var Resolver, statement: WhileStmt) =
@@ -152,7 +151,7 @@ method resolve(self: var Resolver, expre: SetExpr) =
 
 method resolve(self: var Resolver, expre: SelfExpr) =
   if self.currentClass == CNONE:
-    error(self.error, expre.keyword, "SyntaxError", "Cannot use 'self' or '&' outside of a class")
+    error(expre.keyword, "SyntaxError", "Cannot use 'self' or '&' outside of a class")
   self.resolveLocal(expre, expre.keyword)
 
 method resolve(self: var Resolver, expre: ListLiteralExpr) =
@@ -174,7 +173,7 @@ proc endScope(self: var Resolver) = discard self.scopes.pop()
 proc declare(self: var Resolver, name: Token) =
   if self.scopes.len == 0: return
   elif self.scopes[self.scopes.len-1].contains(name.value):
-    error(self.error, name, "SyntaxError", "Variable with this name is already declared in this scope")
+    error(name, "SyntaxError", "Variable with this name is already declared in this scope")
   else: self.scopes[self.scopes.len-1][name.value] = false
 
 proc define(self: var Resolver, name: Token) =
