@@ -41,7 +41,7 @@ define fuse(x) {
 define replaceChar(x, target, repl) {
     let charList = expand(x);
     for ($i = 0; i < len(charList); i = i + 1) {
-        if (charList@[i] == target) charList@[i] == repl;
+        if (charList@[i] == target) charList@[i] = repl;
     }
     return fuse(charList);
 }

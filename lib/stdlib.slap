@@ -72,3 +72,9 @@ define contains(x, y) {
     }
     return false;
 }
+
+# forEach executes a provided function once for each list element.
+# signature: forEach(list: @[any], func: define(x: any))
+define forEach(list, func) {
+    for ($i = 0; i < len(list); i = i + 1) func(list@[i]);
+}
