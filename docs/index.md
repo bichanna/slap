@@ -1,7 +1,7 @@
 # SLAP
-SLAP stands for "**SL**ow **A**nd **P**owerless". And I hope to make it "**P**owerfull" someday.<br>
-SLAP is a dynamically and strongly typed, object-oriented programming language with the syntax of the C family.<br>
-SLAP's syntax is ordinary; it is not meant to be groundbreaking but rather to feel similar with a little bit of difference.
+SLAP stands for "**SL**ow **A**nd **P**owerless". And I hope to make it "**P**owerfull" someday.
+
+SLAP is a dynamically- and strongly-typed, object-oriented programming language. Its syntax is a member of the C family with a bit of difference.
 
 ## How slow is SLAP?
 You can see the benchmarks [here](https://github.com/bichanna/slap/tree/master/benchmark#readme).
@@ -54,13 +54,6 @@ anotherList@[0] = 2.7;
 let anotherPoppedItem = pop(anotherList);
 anotherList -> append(len(anotherList));
 println(anotherList@[0]);
-
-let list = List([1, 2, "string", 3.1415]); # using List class (this is a LOT slower and discouraged since the advent of the syntax sugars)
-list.append("Hello World");
-list.set(0, 2.7);
-let poppedItem = list.pop();
-list.append(list.len);
-println(list.get(0));
 
 let map = {"key": "secret value", "another key": 123445}; # map
 map@["key"] = "some value";
@@ -218,6 +211,7 @@ You can import like so:
 ```
 # B.slap
 import A;
+
 greet("bichanna");
 ```
 

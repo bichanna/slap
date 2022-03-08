@@ -5,11 +5,11 @@
     |
 </div><br>
 
-**WARNING!! THIS LANGUAGE IS IN DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT.**
+**WARNING!! THIS LANGUAGE IS IN DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT. AND EVERTHING IS VERY FRAGILE**
 
 **SLAP** stands for **SL**ow **A**nd **P**owerless, but I hope to make it '**P**owerfull' someday.
 
-**SLAP** is a dynamically- and strongly-typed, object-oriented programming language. Its syntax is a member of the C family; it is not meant to be groundbreaking but rather to feel similar with a bit of difference.
+**SLAP** is a dynamically- and strongly-typed, object-oriented programming language. Its syntax is a member of the C family with a bit of difference.
 
 Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/lib))
 ```js
@@ -35,13 +35,13 @@ let result = binarySearch(list, target, 0, len(list)-1);
 println(result);
 ```
 Here's another example using [`<-` and `->` expressions](https://github.com/bichanna/slap/blob/master/docs/index.md#--expression).
-```rust
+
+```js
 import math;
 
 let num = 10;
 (num -> abs() -> pow() <- num -> abs() -> sqrt()) -> println();
 ```
-
 
 ## TODO
 [TODO list](https://github.com/bichanna/slap/blob/master/TODO.md)
