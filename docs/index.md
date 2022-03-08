@@ -218,12 +218,7 @@ You can import like so:
 ```
 # B.slap
 import A;
-A.greet("bichanna");
-```
-Alternatively, you can use `->` keyword, which is the Python equivalent of `as`.
-```
-import A -> a;
-a.greet("bichanna");
+greet("bichanna");
 ```
 
 ## Syntax Sugars

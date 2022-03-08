@@ -36,8 +36,9 @@ println(result);
 ```
 Here's another example using [`<-` and `->` expressions](https://github.com/bichanna/slap/blob/master/docs/index.md#--expression).
 ```rust
-let num = 10;
+import math;
 
+let num = 10;
 (num -> abs() -> pow() <- num -> abs() -> sqrt()) -> println();
 ```
 
