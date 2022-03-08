@@ -6,7 +6,7 @@
 #
 
 import std/tables
-import slaptype, token, error
+import slaptype, token, error, objhash
 
 type
   # Environment holds all the variables and values
@@ -60,12 +60,7 @@ proc listOrMapAssign*(env: var Environment, name: Token, value: BaseType, indexO
         error(name, "RuntimeError", "Index out of range")
     
     elif listOrMap of SlapMap:
-      let found = SlapMap(listOrMap).keys.find(indexOrKey)
-      if found == -1:
-        SlapMap(listOrMap).keys.add(indexOrKey)
-        SlapMap(listOrMap).values.add(value)
-      else:
-        SlapMap(listOrMap).values[found] = value
+      SlapMap(listOrMap).map[indexOrKey] = value
   elif not env.enclosing.isNil:
     env.enclosing.listOrMapAssign(name, value, indexOrKey)
   else:
@@ -78,8 +73,6 @@ proc listOrMapAssignAt*(env: var Environment, distance: int, name: Token, value:
     SlapList(listOrMap).values[SlapInt(indexOrKey).value] = value
   
   elif listOrMap of SlapMap:
-    let found = SlapMap(listOrMap).keys.find(indexOrKey)
-    if found == -1: error(name, "RuntimeError", "Value with this key does not exist")
-    SlapMap(listOrMap).values[found] = value
+    SlapMap(listOrMap).map[indexOrKey] = value
   
   else: error(name, "RuntimeError", "Only lists and maps can be used with '@[]'")

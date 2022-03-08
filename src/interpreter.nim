@@ -152,9 +152,8 @@ method eval(self: var Interpreter, expre: ListOrMapVariableExpr): BaseType =
   
   elif variable of SlapMap:
     let key = self.eval(expre.indexOrKey)
-    for i in 0 ..< SlapMap(variable).keys.len:
-      if $SlapMap(variable).keys[i] == $key:
-        return SlapMap(variable).values[i]
+    if SlapMap(variable).map.hasKey(key):
+      return SlapMap(variable).map[key]
     
     error(expre.token, RuntimeError, "Value with this key does not exist")
 
@@ -179,15 +178,23 @@ method eval(self: var Interpreter, expre: AssignExpr): BaseType =
   return value
 
 # eval ListOrMapAssignExpr
-method eval(self: var Interpreter, expre: ListOrMapAssignExpr): BaseType =
-  let value = self.eval(expre.value)
-  let indexOrKey = self.eval(expre.indexOrKey)
-
-  if self.locals.hasKey(expre):
-    var distance = self.locals[expre]
-    self.env.listOrMapAssignAt(distance, expre.token, value, indexOrKey)
+method eval(self: var Interpreter, expre: ListOrMapAssignExpr): BaseType = 
+  var indexOrKey = self.eval(expre.indexOrKey)
+  var value = self.eval(expre.value)
+  if not (expre.variable of VariableExpr):
+    var listOrMap = self.eval(expre.variable)
+    if listOrMap of SlapList:
+      if not (indexOrKey of SlapInt): error(expre.token, RuntimeError, "List indices must be integers")
+      else: SlapList(listOrMap).values[SlapInt(indexOrKey).value] = value
+    # elif listOrMap of SlapMap:
+    #   var map = SlapMap(listOrMap)
   else:
-    self.globals.listOrMapAssign(expre.token, value, indexOrKey)
+    var name = VariableExpr(expre.variable).name
+    if self.locals.hasKey(expre):
+      var distance = self.locals[expre]
+      self.env.listOrMapAssignAt(distance, name, value, indexOrKey)
+    else:
+      self.globals.listOrMapAssign(name, value, indexOrKey)
   
   return value
 
@@ -269,12 +276,10 @@ method eval(self: var Interpreter, expre: ListLiteralExpr): BaseType =
 
 # eval MapLiteralExpr
 method eval(self: var Interpreter, expre: MapLiteralExpr): BaseType =
-  var keys: seq[BaseType]
-  var values: seq[BaseType]
+  var map: Table[BaseType, BaseType]
   for i in 0 ..< expre.keys.len:
-    keys.add(self.eval(expre.keys[i]))
-    values.add(self.eval(expre.values[i]))
-  return newMap(keys, values)
+    map[self.eval(expre.keys[i])] = self.eval(expre.values[i])
+  return newMap(map)
 
 # eval BinaryExpr
 method eval(self: var Interpreter, expre: BinaryExpr): BaseType =

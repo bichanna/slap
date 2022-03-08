@@ -51,10 +51,9 @@ proc `$`*(obj: BaseType): string =
   elif obj of SlapBool: return $SlapBool(obj).value
   elif obj of SlapList: return $SlapList(obj).values
   elif obj of SlapMap:
-    var str = "@{"
-    for i in 0 ..< SlapMap(obj).keys.len:
-      str &= $SlapMap(obj).keys[i] & ": " & $SlapMap(obj).values[i]
-      if i != SlapMap(obj).keys.len - 1: str &= ", "
+    var str = "@{ "
+    for key, value in SlapMap(obj).map:
+      str &= $key & ":" & $value & " "
     return str & "}"
   elif obj of Function:
     if not Function(obj).name.isEmptyOrWhitespace : return "<fn " & Function(obj).name & ">"
