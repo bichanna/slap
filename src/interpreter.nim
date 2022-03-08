@@ -6,7 +6,7 @@
 #
 
 import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash, lexer, parser
-import strutils, tables, sequtils
+import strutils, tables, sequtils, hashes
   
 const
   RuntimeError = "RuntimeError"
@@ -151,11 +151,12 @@ method eval(self: var Interpreter, expre: ListOrMapVariableExpr): BaseType =
       error(expre.token, RuntimeError, "Index out of range")
   
   elif variable of SlapMap:
-    let key = self.eval(expre.indexOrKey)
-    if SlapMap(variable).map.hasKey(key):
-      return SlapMap(variable).map[key]
-    
-    error(expre.token, RuntimeError, "Value with this key does not exist")
+    var map = SlapMap(variable).map
+    var key = self.eval(expre.indexOrKey)
+    for i in map.keys():
+      if hash(i) == hash(key):
+        return map[i]
+    error(expre.token, RuntimeError, "Value with key '" & $key & "' does not exist")
 
   elif variable of SlapString:
     if not (indexOrKey of SlapInt): error(expre.token, RuntimeError, "String indices must be integers")
