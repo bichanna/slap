@@ -1,0 +1,12 @@
+define isEven(x) {
+	if (x == 0) return true;
+	return isOdd(x - 1);
+}
+
+define isOdd(x) {
+	if (x == 0) return false;
+	return isEven(x - 1);
+}
+
+println(isEven(4)); # true
+println(isOdd(3)); # true

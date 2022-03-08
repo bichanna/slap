@@ -1,0 +1,34 @@
+define funcA() {
+	let a = "a";
+	define funcB() {
+		let b = "b";
+		define funcC() {
+			let c = "c";
+			define funcD() {
+				let d = "d";
+				define funcE() {
+					let e = "e";
+					define funcF() {
+						println(a);
+						println(b);
+						println(c);
+						println(d);
+						println(e);
+					}
+					funcF();
+				}
+				funcE();
+			}
+			funcD();
+		}
+		funcC();
+	}
+	funcB();
+}
+
+funcA();
+# a
+# b
+# c
+# d
+# e

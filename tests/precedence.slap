@@ -1,0 +1,11 @@
+println(1 + 6 * 4); # 25
+println(4 - 2 * 3); # -2
+println(8 + 4 / 2); # 10
+println(9 - 9 / 3); # 6
+
+println(false == 2 < 1);  # true
+println(false == 1 > 2);  # true
+println(false == 2 <= 1): # true
+println(false == 1 >= 2): # true
+
+println(3 * (8 + ((3 - 1) / 1))); # 30

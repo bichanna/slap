@@ -1,0 +1,3 @@
+define func(x) {
+	let x = "abc"; # SyntaxError: Variable with this name is already declared in this scope
+}
