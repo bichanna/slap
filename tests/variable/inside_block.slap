@@ -1,0 +1,10 @@
+{
+  let a = "a";
+  println(a); # a
+  let b = a + " b";
+  println(b); # a b
+  let c = a + " c";
+  println(c); # a c
+  let d = b + " d";
+  println(d); # a b d
+}
