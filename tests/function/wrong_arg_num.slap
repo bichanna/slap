@@ -1,0 +1,3 @@
+define func(a, b, c) {}
+
+func(1, 2); # RuntimeError: Expected 3 arguments but got 2
