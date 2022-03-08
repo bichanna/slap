@@ -35,13 +35,13 @@ let result = binarySearch(list, target, 0, len(list)-1);
 println(result);
 ```
 Here's another example using [`<-` and `->` expressions](https://github.com/bichanna/slap/blob/master/docs/index.md#--expression).
+
 ```js
 import math;
 
 let num = 10;
-(num -> math.abs() -> math.pow() <- num -> math.abs() -> math.sqrt()) -> println();
+(num -> abs() -> pow() <- num -> abs() -> sqrt()) -> println();
 ```
-
 
 ## TODO
 [TODO list](https://github.com/bichanna/slap/blob/master/TODO.md)
