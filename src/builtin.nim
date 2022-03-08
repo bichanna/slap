@@ -6,7 +6,7 @@
 #
 
 import slaptype, interpreterObj, error, env, token
-import strutils
+import strutils, tables
 
 const RuntimeError = "RuntimeError"
 
@@ -89,12 +89,16 @@ proc slapConvertStr(self: var Interpreter, args: seq[BaseType], token: Token): B
 proc slapKeys(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if not (args[0] of SlapMap):
     error(token, RuntimeError, "keys function only accepts a map")
-  return newList(SlapMap(args[0]).keys)
+  var keys: seq[BaseType]
+  for key, _ in SlapMap(args[0]).map: keys.add(key)
+  return newList(keys)
 
 proc slapValues(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if not (args[0] of SlapMap):
     error(token, RuntimeError, "values function only accepts a map")
-  return newList(SlapMap(args[0]).values)
+  var values: seq[BaseType]
+  for _, value in SlapMap(args[0]).map: values.add(value)
+  return newList(values)
 
 
 proc loadBuildins*(): Environment =

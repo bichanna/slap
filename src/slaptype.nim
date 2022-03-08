@@ -5,6 +5,8 @@
 # Created by Nobuharu Shimazu on 2/18/2022
 #
 
+import tables
+
 type
   # SLAP types
   BaseType* = ref object of RootObj
@@ -25,8 +27,7 @@ type
     values*: seq[BaseType]
 
   SlapMap* = ref object of BaseType
-    keys*: seq[BaseType]
-    values*: seq[BaseType]
+    map*: Table[BaseType, BaseType]
 
   SlapNull* = ref object of BaseType
 
@@ -40,6 +41,6 @@ proc newBool*(value: bool): SlapBool = return SlapBool(value: value)
 
 proc newList*(values: seq[BaseType]): SlapList = return SlapList(values: values)
 
-proc newMap*(keys: seq[BaseType], values: seq[BaseType]): SlapMap = return SlapMap(keys: keys, values: values)
+proc newMap*(map: Table[BaseType, BaseType]): SlapMap = return SlapMap(map: map)
 
 proc newNull*(): SlapNull = return SlapNull()
