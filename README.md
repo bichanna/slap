@@ -5,6 +5,13 @@
     |
 </div><br>
 
+<div align="center">
+	
+[![Ubuntu](https://github.com/bichanna/slap/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/bichanna/slap/actions/workflows/ubuntu.yml)
+[![macOS](https://github.com/bichanna/slap/actions/workflows/mac.yml/badge.svg)](https://github.com/bichanna/slap/actions/workflows/mac.yml)
+	
+</div>
+
 **WARNING!! THIS LANGUAGE IS IN ACTIVE DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT. AND EVERTHING IS VERY FRAGILE & UNSTABLE.**
 
 **SLAP** stands for **SL**ow **A**nd **P**owerless, but I hope to make it '**P**owerfull' someday.
