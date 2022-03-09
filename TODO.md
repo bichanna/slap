@@ -18,7 +18,7 @@
  - [x] For Loops
      - [x] Break
      - [ ] Continue
-     - [ ] "Enhanced" for loop
+     - [x] "Enhanced" for loop (as in the form of `forEach`)
  - [ ] Try-except Blocks
  - [x] Functions
      - [x] Lambdas (anonymous functions)
