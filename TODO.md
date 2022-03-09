@@ -23,6 +23,7 @@
  - [x] Functions
      - [x] Lambdas (anonymous functions)
      - [ ] Default Arguments
+     - [ ] Rest Parameters
  - [x] Standard Library
      - [x] Basic (e.g., `println`, `print`)
      - [x] Std
