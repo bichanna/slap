@@ -226,7 +226,7 @@ someFunc("abc") <- define(data) {
 
 someFunc("abc", define(data) {  # de-sugars to this
     println(data);
-})
+});
 ```
 
 ### `->` Expression
