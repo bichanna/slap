@@ -11,7 +11,10 @@ import strutils, tables
 const RuntimeError = "RuntimeError"
 
 proc slapPrintln(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-  stdout.write(args[0], "\n")
+  if args.len < 1:
+    stdout.write("\n")
+  else:
+    stdout.write(args[0], "\n")
   return newNull()
 
 proc slapPrint(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
@@ -47,14 +50,10 @@ proc slapTypeof(self: var Interpreter, args: seq[BaseType], token: Token): BaseT
   else: return newString("unknown")
 
 proc slapInput(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-  if not (args[0] of SlapString): error(token, RuntimeError, "input function only accepts a string")
-  stdout.write(SlapString(args[0]).value)
+  if args.len == 1:
+    if not (args[0] of SlapString): error(token, RuntimeError, "input function only accepts a string")
+    stdout.write(SlapString(args[0]).value)
   return newString(readLine(stdin))
-
-proc slapGetStrAt(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-  if not (args[1] of SlapInt) or not (args[0] of SlapString):
-    error(token, RuntimeError, "at function only accepts an int and a string")
-  return newString($SlapString(args[0]).value[SlapInt(args[1]).value])
 
 proc slapIsInt(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapInt)
 
@@ -103,23 +102,22 @@ proc slapValues(self: var Interpreter, args: seq[BaseType], token: Token): BaseT
 
 proc loadBuildins*(): Environment =
   var globals = newEnv()
-  globals.define("println", FuncType(arity: proc(): int = 1, call: slapPrintln))
-  globals.define("print", FuncType(arity: proc(): int = 1, call: slapPrint))
-  globals.define("append", FuncType(arity: proc(): int = 2, call: slapAppend))
-  globals.define("pop", FuncType(arity: proc(): int = 1, call: slapPop))
-  globals.define("len", FuncType(arity: proc(): int = 1, call: slapLen))
-  globals.define("type", FuncType(arity: proc(): int = 1, call: slapTypeof))
-  globals.define("input", FuncType(arity: proc(): int = 1, call: slapInput))
-  globals.define("at", FuncType(arity: proc(): int = 2, call: slapGetStrAt))
-  globals.define("isInt", FuncType(arity: proc(): int = 1, call: slapIsInt))
-  globals.define("isFloat", FuncType(arity: proc(): int = 1, call: slapIsFloat))
-  globals.define("isBool", FuncType(arity: proc(): int = 1, call: slapIsBool))
-  globals.define("isString", FuncType(arity: proc(): int = 1, call: slapIsString))
-  globals.define("isList", FuncType(arity: proc(): int = 1, call: slapIsList))
-  globals.define("isNull", FuncType(arity: proc(): int = 1, call: slapIsNull))
-  globals.define("int", FuncType(arity: proc(): int = 1, call: slapConvertInt))
-  globals.define("string", FuncType(arity: proc(): int = 1, call: slapConvertStr))
-  globals.define("keys", FuncType(arity: proc(): int = 1, call: slapKeys))
-  globals.define("values", FuncType(arity: proc(): int = 1, call: slapValues))
+  globals.define("println", FuncType(arity: proc(): (int, int) = (0, 1), call: slapPrintln))
+  globals.define("print", FuncType(arity: proc(): (int, int) = (1, 1), call: slapPrint))
+  globals.define("append", FuncType(arity: proc(): (int, int) = (2, 2), call: slapAppend))
+  globals.define("pop", FuncType(arity: proc(): (int, int) = (1, 1), call: slapPop))
+  globals.define("len", FuncType(arity: proc(): (int, int) = (1, 1), call: slapLen))
+  globals.define("type", FuncType(arity: proc(): (int, int) = (1, 1), call: slapTypeof))
+  globals.define("input", FuncType(arity: proc(): (int, int) = (0, 1), call: slapInput))
+  globals.define("isInt", FuncType(arity: proc(): (int, int) = (1, 1), call: slapIsInt))
+  globals.define("isFloat", FuncType(arity: proc(): (int, int) = (1, 1), call: slapIsFloat))
+  globals.define("isBool", FuncType(arity: proc(): (int, int) = (1, 1), call: slapIsBool))
+  globals.define("isString", FuncType(arity: proc(): (int, int) = (1, 1), call: slapIsString))
+  globals.define("isList", FuncType(arity: proc(): (int, int) = (1, 1), call: slapIsList))
+  globals.define("isNull", FuncType(arity: proc(): (int, int) = (1, 1), call: slapIsNull))
+  globals.define("int", FuncType(arity: proc(): (int, int) = (1, 1), call: slapConvertInt))
+  globals.define("string", FuncType(arity: proc(): (int, int) = (1, 1), call: slapConvertStr))
+  globals.define("keys", FuncType(arity: proc(): (int, int) = (1, 1), call: slapKeys))
+  globals.define("values", FuncType(arity: proc(): (int, int) = (1, 1), call: slapValues))
 
   return globals
