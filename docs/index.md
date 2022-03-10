@@ -116,6 +116,15 @@ define greetStr(name) {
 
 println(greetStr("bichanna"));
 ```
+Function arguments can have default values in SLAP.<br>
+You can provide a default value to an argument by using `=`.
+```
+define greet(name="somebody") {
+    println("Hello, " + name + "!");
+}
+greet();
+# output: 'Hello, somebody!'
+```
 SLAP supports closures as well as passing functions.
 ```
 define add(a, b) {
