@@ -234,7 +234,7 @@ method eval(self: var Interpreter, expre: CallExpr): BaseType =
   let function = FuncType(callee)
   let (atLeast, atMost) = function.arity()
   if arguments.len > atMost or arguments.len < atLeast:
-    error(expre.paren, RuntimeError, "Expected at least " & $atLeast & " arguments but got " & $arguments.len)
+    error(expre.paren, RuntimeError, "Expected at least " & $atLeast & " argument(s) but got " & $arguments.len)
   return function.call(self, arguments, expre.paren)
 
 # eval GetExpr
