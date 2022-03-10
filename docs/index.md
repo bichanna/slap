@@ -1,21 +1,21 @@
-# SLAP
+# About SLAP
 SLAP stands for "**SL**ow **A**nd **P**owerless". And I hope to make it "**P**owerfull" someday.
 
 SLAP is a dynamically- and strongly-typed, object-oriented programming language. Its syntax is a member of the C family with a bit of difference.
 
-## How slow is SLAP?
+# How slow is SLAP?
 You can see the benchmarks [here](https://github.com/bichanna/slap/tree/master/benchmark#readme).
 
-## Syntax
+# Syntax
 > *Note:* NYI stands for "Not Yet Implemented"<br>
 
-### Hello World
+## Hello World
 The code for a hello world program in SLAP is as follows:
 ```
 println("Hello World!");
 ```
 
-### Comments
+## Comments
 Comments in SLAP begin with the hash character.
 ```
 # This is a comment
@@ -29,7 +29,7 @@ Multi-line or block comments begin with the hash and curly bracket, `#{`, and ar
 }#
 ```
 
-### Data Types
+## Data Types
 > *Note:* For the syntax sugar I used in the examples, see ['Syntax Sugars'](https://github.com/bichanna/slap/blob/master/docs/index.md#syntax-sugars)<br>
 > *Note:* SLAP list uses @[] instead of [] unlike many languages. (e.g., `list@[0]`, not `list[0]`)
 
@@ -60,7 +60,7 @@ map@["key"] = "some value";
 println(map);
 ```
 
-### Variables
+## Variables
 
 Currently, SLAP only supports one variable type: `let`, which is mutable. Alternatively, you can use `$`.
 > *Note:* `const` type will be added in the future.
@@ -73,7 +73,7 @@ $age = 15;
 age = age + 1;
 ```
 
-### Control Flow
+## Control Flow
 
 An `if` statement executes one of multiple statements based on some conditions. However, SLAP does not use an `else if` construct like many languages; it uses a more condensed `elif`.
 ```
@@ -106,7 +106,7 @@ for ($i = 1; i < 10; i = i + 1) {
 }
 ```
 
-### Functions
+## Functions
 
 Functions in SLAP are declared using `define` and do not require their parameters and return types be annotated.
 ```
@@ -150,7 +150,7 @@ doSomething(define() {
 });
 ```
 
-### Classes
+## Classes
 
 To create your own custom object in SLAP, you first need to define a class, using the keyword `class` just like many languages.
 You can create your initializer using `new`.
@@ -199,7 +199,7 @@ class Mazda <- Car {
 }
 ```
 
-### Import Statement
+## Import Statement
 A module is a file containing SLAP definitions and statements. The file name is the module name with the suffix `.slap` appended.
 ```
 # A.slap
@@ -215,9 +215,9 @@ import A;
 greet("bichanna");
 ```
 
-## Syntax Sugars
+# Syntax Sugars
 
-### `<-` Expression
+## `<-` Expression
 Because I like callbacks, there's special syntax sugar, the `<-` expression. The `<-` syntax sugar de-sugars like this:
 ```
 someFunc("abc") <- define(data) {
@@ -229,7 +229,7 @@ someFunc("abc", define(data) {  # de-sugars to this
 });
 ```
 
-### `->` Expression
+## `->` Expression
 I don't like this syntax: `append(list, "bichanna");`, so I decided to create this special syntax sugar, the `->` expression.<br>
 (⚠️ It's not like C's `->`!)
 ```

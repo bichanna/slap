@@ -60,11 +60,11 @@ let num = 10;
  - [x] For Loops
      - [x] Break
      - [ ] Continue
-     - [x] "Enhanced" for loop (as in the form of `forEach`)
+     - [x] "Enhanced" for loop (in the form of `forEach`)
  - [ ] Try-except Blocks
  - [x] Functions
      - [x] Lambdas (anonymous functions)
-     - [ ] Default Arguments
+     - [x] Default Arguments
      - [ ] Rest Parameters
  - [x] Standard Library
      - [x] Basic (e.g., `println`, `print`)
