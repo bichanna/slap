@@ -48,12 +48,12 @@ Multi-line or block comments begin with the hash and curly bracket, `#{`, and ar
 true; false;  # bool
 null;         # null
 
-let anotherList = [1, 2, "string", 3.1415]; # using list literal (faster)
-anotherList -> append("Hello World");
-anotherList@[0] = 2.7;
-let anotherPoppedItem = pop(anotherList);
-anotherList -> append(len(anotherList));
-println(anotherList@[0]);
+let list = [1, 2, "string", 3.1415]; # list
+list -> append("Hello World");
+list@[0] = 2.7;
+let poppedItem = pop(list);
+list -> append(len(list));
+println(list@[0]);
 
 let map = {"key": "secret value", "another key": 123445}; # map
 map@["key"] = "some value";
