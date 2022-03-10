@@ -235,6 +235,14 @@ proc assignment(p: var Parser): Expr =
       return SetExpr(instance: get.instance, name: get.name, value: value)
     else:
       error(equals, "SyntaxError", "Invalid assignment target")
+  
+  elif p.doesMatch(PlusEqual) or p.doesMatch(MinusEqual) or p.doesMatch(StarEqual) or p.doesMatch(SlashEqual):
+    let value = p.assignment()
+    return BinaryExpr(left: expre, operator: p.previousToken(), right: value)
+
+  elif p.doesMatch(PlusPlus) or p.doesMatch(MinusMinus):
+    return BinaryExpr(left: expre, operator: p.previousToken(), right: nil)
+  
   return expre
 
 proc expression(p: var Parser): Expr = return p.assignment()
