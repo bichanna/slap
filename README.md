@@ -42,7 +42,7 @@ let num = 10;
 ## TODO
 >*Note:* If have a feature request, please open an issue.
 
-## Main
+### Main
 - [x] Basic Data Types
      - [x] Integer
      - [x] Float
@@ -77,8 +77,7 @@ let num = 10;
  - [x] Classes
  - [x] Import
  - [ ] Concurrency
-
-## Others
+### Others
  - [ ] String Interpolation
  - [ ] Optional Type Annotations
  - [x] Multi-line Comments
