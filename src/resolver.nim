@@ -193,8 +193,18 @@ proc resolveFunction(self: var Resolver, function: FuncExpr, functype: FunctionT
   self.currentFunction = functype
   self.beginScope()
   for param in function.parameters:
-    self.declare(param)
-    self.define(param)
+    var paramName: Token
+    var defaultValue: Expr
+    if param of RequiredArg:
+      paramName = RequiredArg(param).paramName
+    elif param of DefaultValued:
+      paramName = DefaultValued(param).paramName
+      defaultValue = DefaultValued(param).default
+    self.declare(paramName)
+    self.define(paramName)
+    
+    if not defaultValue.isNil: self.resolve(defaultValue)
+    
   self.resolve(function.body)
   self.endScope()
   self.currentFunction = enclosingFunction

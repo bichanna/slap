@@ -24,6 +24,8 @@ let stdlibs: Table[string, string] = {
 
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment)
 
+method eval(self: var Interpreter, expre: Expr): BaseType {.base, locks: "unknown".}
+
 proc newInterpreter*(): Interpreter =
   var globals = loadBuildins()
   return Interpreter(env: globals, globals: globals, locals: initTable[Expr, int]())
@@ -36,11 +38,24 @@ proc newFunction(name: string, declaration: FuncExpr, closure: Environment, isIn
   fun.isInitFunc = isInitFunc
   fun.declaration = declaration
   fun.closure = closure
-  fun.arity = proc(): int = fun.declaration.parameters.len
+  fun.arity = proc(): (int, int) =
+    var atLeast: int = 0
+    var atMost: int = 0
+    for i in fun.declaration.parameters:
+      if i of RequiredArg: atLeast += 1; atMost += 1
+      if i of DefaultValued: atMost += 1
+    return (atLeast, atMost)
   fun.call = proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
     var environment = newEnv(closure)
-    for i in 0 ..< fun.declaration.parameters.len:
-      environment.define(fun.declaration.parameters[i].value, args[i])
+    var parameters = fun.declaration.parameters
+    for i in 0 ..< parameters.len:
+      if parameters[i] of DefaultValued:
+        if args.len-1 < i:
+          environment.define(DefaultValued(parameters[i]).paramName.value, self.eval(DefaultValued(parameters[i]).default))
+        else:
+          environment.define(DefaultValued(parameters[i]).paramName.value, args[i])
+      else:
+        environment.define(RequiredArg(parameters[i]).paramName.value, args[i])
     try:
       self.executeBlock(declaration.body, environment)
     except ReturnException as rx:
@@ -65,9 +80,9 @@ proc newClassInstance(class: ClassType): ClassInstance =
 
 proc newClass(metaclass: ClassType, superclass: ClassType, name: string, methods: Table[string, Function], token: Token): ClassType =
   var class = ClassType(name: name)
-  class.arity = proc(): int = 
+  class.arity = proc(): (int, int) = 
     let init = class.findMethod("new")
-    if init.isNil: return 0
+    if init.isNil: return (0, 0)
     else: return init.arity()
   class.call = proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
     var instance = newClassInstance(class)
@@ -209,6 +224,7 @@ method eval(self: var Interpreter, expre: LogicalExpr): BaseType =
   return self.eval(expre.right)
 
 # eval CallExpr
+# TODO: Update this to allow default arguments
 method eval(self: var Interpreter, expre: CallExpr): BaseType =
   let callee = self.eval(expre.callee)
   var arguments: seq[BaseType]
@@ -216,8 +232,9 @@ method eval(self: var Interpreter, expre: CallExpr): BaseType =
   if not (callee of FuncType):
     error(expre.paren, RuntimeError, "Can only call classes and functions")
   let function = FuncType(callee)
-  if arguments.len != function.arity():
-    error(expre.paren, RuntimeError, "Expected " & $function.arity() & " arguments but got " & $arguments.len)
+  let (atLeast, atMost) = function.arity()
+  if arguments.len > atMost or arguments.len < atLeast:
+    error(expre.paren, RuntimeError, "Expected at least " & $atLeast & " arguments but got " & $arguments.len)
   return function.call(self, arguments, expre.paren)
 
 # eval GetExpr
