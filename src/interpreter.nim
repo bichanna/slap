@@ -233,8 +233,10 @@ method eval(self: var Interpreter, expre: CallExpr): BaseType =
     error(expre.paren, RuntimeError, "Can only call classes and functions")
   let function = FuncType(callee)
   let (atLeast, atMost) = function.arity()
-  if arguments.len > atMost or arguments.len < atLeast:
+  if arguments.len < atLeast:
     error(expre.paren, RuntimeError, "Expected at least " & $atLeast & " argument(s) but got " & $arguments.len)
+  if arguments.len > atMost:
+    error(expre.paren, RuntimeError, "Expected at most " & $atMost & " argument(s) but got " & $arguments.len)
   return function.call(self, arguments, expre.paren)
 
 # eval GetExpr
