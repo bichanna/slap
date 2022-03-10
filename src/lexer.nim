@@ -153,6 +153,40 @@ proc makeIdentifier(l: var Lexer) =
     else: l.appendToken(keywords[identifier])
   else: l.appendToken(Identifier, identifier)
 
+# checks for + shorthands
+proc plusShorthand(l: var Lexer) =
+  if l.doesMatch('='):
+    l.appendToken(PlusEqual)
+  elif l.doesMatch('+'):
+    l.appendToken(PlusPlus)
+  else:
+    l.appendToken(Plus)
+
+# checks for - shorthands and ->
+proc minusShorthand(l: var Lexer) =
+  if l.doesMatch('='):
+    l.appendToken(MinusEqual)
+  elif l.doesMatch('-'):
+    l.appendToken(MinusMinus)
+  elif l.doesMatch('>'):
+    l.appendToken(RightArrow)
+  else:
+    l.appendToken(Minus)
+
+# checks for * shorthand
+proc starShorthand(l: var Lexer) =
+  if l.doesMatch('='):
+    l.appendToken(StarEqual)
+  else:
+    l.appendToken(Star)
+
+# checks for / shorthand
+proc slahShorthand(l: var Lexer) =
+  if l.doesMatch('='):
+    l.appendToken(SlashEqual)
+  else:
+    l.appendToken(Slash)
+
 proc tokenize*(l: var Lexer): seq[Token] =
   var c: char
   while not l.isAtEnd():
@@ -166,14 +200,12 @@ proc tokenize*(l: var Lexer): seq[Token] =
     of '}': l.appendToken(RightBrace)
     of ':': l.appendToken(Colon)
     of ';': l.appendToken(SemiColon)
-    of '+': l.appendToken(Plus)
-    of '-':
-      if l.doesMatch('>'): l.appendToken(RightArrow)
-      else: l.appendToken(Minus)
+    of '+': l.plusShorthand()
+    of '-': l.minusShorthand()
     of '~': l.appendToken(Tilde)
-    of '*': l.appendToken(Star)
+    of '*': l.starShorthand()
     of '%': l.appendToken(Modulo)
-    of '/': l.appendToken(Slash)
+    of '/': l.slahShorthand()
     of '@': l.appendToken(At)
     of '^': l.appendToken(Caret)
     of ',': l.appendToken(Comma)
