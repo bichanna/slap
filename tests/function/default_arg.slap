@@ -1,0 +1,6 @@
+define func(a, b="default") {
+	println(a); # not default a
+	println(b); # default
+}
+
+func("not default a");

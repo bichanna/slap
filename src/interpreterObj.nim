@@ -17,7 +17,7 @@ type
   
   FuncType* = ref object of BaseType
     call*: proc (self: var Interpreter, args: seq[BaseType], token: Token): BaseType
-    arity*: proc (): int
+    arity*: proc (): (int, int) # at-least arg length and at-most length
   
   Function* = ref object of FuncType
     name*: string
