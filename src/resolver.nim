@@ -101,7 +101,7 @@ method resolve(self: var Resolver, statement: WhileStmt) =
 
 method resolve(self: var Resolver, expre: BinaryExpr) =
   self.resolve(expre.left)
-  if not expre.right.isNil: self.resolve(expre.right)
+  self.resolve(expre.right)
 
 method resolve(self: var Resolver, expre: CallExpr) =
   self.resolve(expre.callee)

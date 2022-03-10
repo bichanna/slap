@@ -237,12 +237,13 @@ proc assignment(p: var Parser): Expr =
       error(equals, "SyntaxError", "Invalid assignment target")
   
   elif p.doesMatch(PlusEqual) or p.doesMatch(MinusEqual) or p.doesMatch(StarEqual) or p.doesMatch(SlashEqual):
+    var ope = p.previousToken()
     let value = p.assignment()
-    return BinaryExpr(left: expre, operator: p.previousToken(), right: value)
+    return BinaryExpr(left: expre, operator: ope, right: value)
 
   elif p.doesMatch(PlusPlus) or p.doesMatch(MinusMinus):
-    return BinaryExpr(left: expre, operator: p.previousToken(), right: nil)
-  
+    return BinaryExpr(left: expre, operator: p.previousToken(), right: LiteralExpr(kind: Int, value: "1"))
+
   return expre
 
 proc expression(p: var Parser): Expr = return p.assignment()
