@@ -83,7 +83,7 @@ type
     keyword*: Token
 
   FuncExpr* = ref object of Expr
-    parameters*: seq[Token]
+    parameters*: seq[FuncArg]
     body*: seq[Stmt]
 
 # ----------------- Statements ---------------------
@@ -133,3 +133,12 @@ type
     methods*: seq[FuncStmt]
     classMethods*: seq[FuncStmt]
   
+# ----------------- Non-nodes ---------------------
+  FuncArg* = ref object of RootObj
+
+  DefaultValued* = ref object of FuncArg
+    paramName*: Token
+    default*: Expr
+  
+  RequiredArg* = ref object of FuncArg
+    paramName*: Token

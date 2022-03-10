@@ -341,12 +341,22 @@ proc ifStatement(p: var Parser): Stmt =
 
 proc functionBody(p: var Parser, kind: string): FuncExpr =
   p.expect(LeftParen, "Expected '(' after " & kind & "name")
-  var parameters: seq[Token]
+  var parameters: seq[FuncArg]
   if not p.checkCurrentTok(RightParen):
+    var hadDefault = false
     while true:
       if parameters.len >= 10: error(p.currentToken(), "SyntaxError", "Cannot have more than 10 parameters")
-      parameters.add(p.expect(Identifier, "Expected parameter name"))
+      var param = p.expect(Identifier, "Expected parameter name")
+      if p.doesMatch(Equals): # checks for a default arguement
+        var defaultValue = p.expression()
+        hadDefault = true
+        parameters.add(DefaultValued(paramName: param, default: defaultValue))
+      else:
+        if hadDefault: error(param, "SyntaxError", "Required argument cannot follow default argument")
+        parameters.add(RequiredArg(paramName: param))
+        
       if not p.doesMatch(Comma): break
+  
   p.expect(RightParen, "Expected ')' after parameters")
   
   p.expect(LeftBrace, "Expected '{' before " & kind & " body")
