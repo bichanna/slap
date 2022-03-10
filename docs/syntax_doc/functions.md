@@ -58,3 +58,5 @@ doSomething(define() {
     println("Hello World");
 });
 ```
+
+[next > Classes](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/classes.md#classes)

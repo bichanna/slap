@@ -11,3 +11,5 @@ Multi-line or block comments begin with the hash and curly bracket, `#{`, and ar
     #{ I'm nested. }#
 }#
 ```
+
+[next > Data Types](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/data_types.md#data-types)

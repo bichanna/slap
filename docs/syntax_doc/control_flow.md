@@ -45,3 +45,5 @@ forEach(list) <- define (i) { # we'll talk about functions, `<-`, and `->` expre
 	println("Hello, " + i + " developers!");
 }
 ```
+
+[next > Functions](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/functions.md#functions)

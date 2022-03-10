@@ -9,3 +9,5 @@ variable = "Nobuharu Shimazu";
 $age = 15;
 age = age + 1;
 ```
+
+[next > Control Flow](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/control_flow.md#control-flow)
