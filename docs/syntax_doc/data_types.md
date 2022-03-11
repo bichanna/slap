@@ -81,4 +81,4 @@ println(map->keys());
 println(map->values());
 ```
 
-[next > Variables](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/data_types.md#data-types)
+[next > Variables](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/variables.md#variables)
