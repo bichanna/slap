@@ -40,7 +40,7 @@ let num = 10;
 2. `cd` to the `src` directory and run the shell script (maybe need to do`chmod +x ./build.sh`).
 
 ## TODO
->*Note:* If have a feature request, please open an issue.
+>*Note:* If you have a feature request, please open an issue.
 
 ### Main
 - [x] Basic Data Types
