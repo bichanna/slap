@@ -1,0 +1,19 @@
+let num = 10;
+
+num += 12; # num == 22
+println(num);
+
+num -= 32; # num == -10
+println(num);
+
+num *= -10; # num == 100
+println(num);
+
+num /= 2; # num == 50.0
+println(num);
+
+num++; # num == 51.0
+println(num);
+
+num--; # num == 50.0
+println(num);
