@@ -10,3 +10,8 @@ define isOdd(x) {
 
 println(isEven(4)); # true
 println(isOdd(3)); # true
+
+#{
+true
+true
+}#

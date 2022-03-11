@@ -2,3 +2,7 @@
 	let a = "Hello";
 	let a = 123;
 }
+
+#{
+SyntaxError: Variable with this name is already declared in this scope
+}#

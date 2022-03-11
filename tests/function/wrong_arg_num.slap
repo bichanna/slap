@@ -1,3 +1,7 @@
 define func(a, b, c) {}
 
-func(1, 2); # RuntimeError: Expected 3 arguments but got 2
+func(1, 2);
+
+#{
+RuntimeError: Expected at least 3 argument(s) but got 2
+}#

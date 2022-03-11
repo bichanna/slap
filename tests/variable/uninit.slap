@@ -1,2 +1,6 @@
 let a;
 println(a);
+
+#{
+null
+}#

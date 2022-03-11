@@ -6,3 +6,8 @@ let a = "outer";
 }
 
 println(a); # outer
+
+#{
+inner
+outer
+}#

@@ -4,3 +4,8 @@ let a = "global";
   println(a); # shadow
 }
 println(a); # global
+
+#{
+shadow
+global
+}#

@@ -1,2 +1,6 @@
 let map = {"a": {"b": {"c": {"d": {"e": "bichanna"}}}}};
 println(map@["a"]@["b"]@["c"]@["d"]@["e"]);
+
+#{
+bichanna
+}#

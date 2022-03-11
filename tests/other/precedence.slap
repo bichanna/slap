@@ -5,7 +5,19 @@ println(9 - 9 / 3); # 6
 
 println(false == 2 < 1);  # true
 println(false == 1 > 2);  # true
-println(false == 2 <= 1): # true
-println(false == 1 >= 2): # true
+println(false == 2 <= 1); # true
+println(false == 1 >= 2); # true
 
 println(3 * (8 + ((3 - 1) / 1))); # 30
+
+#{
+25
+-2
+10.0
+6.0
+true
+true
+true
+true
+30.0
+}#

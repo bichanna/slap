@@ -1,1 +1,4 @@
-println(abc); # RuntimeError: 'abc' is not defined
+println(abc);
+#{
+RuntimeError: 'abc' is not defined
+}#
