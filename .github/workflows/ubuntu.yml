@@ -13,3 +13,4 @@ jobs:
           version: stable
       - run: chmod +x build.sh 
       - run: ./build.sh
+      - run: nimble test
