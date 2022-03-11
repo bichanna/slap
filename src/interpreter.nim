@@ -110,10 +110,10 @@ proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool
 proc lookUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType
 proc interpret*(self: var Interpreter, statements: seq[Stmt])
 
-proc plus(self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType
-proc minus(self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType
-proc slash(self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType
-proc star(self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType 
+proc plus(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType
+proc minus(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType
+proc slash(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType
+proc star(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType 
 
 proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
   self.locals[expre] = depth
@@ -391,7 +391,7 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
       self.globals.assign(name, fun(self, valueBefore, right, expre))
   else:
     return fun(self, left, right, expre)
-  
+
 # --------------------------- STATEMENTS -------------------------------
 
 method eval(self: var Interpreter, statement: Stmt) {.base, locks: "unknown".} = discard
@@ -532,7 +532,7 @@ proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool =
   elif left of SlapString and right of SlapString: return SlapString(left).value == SlapString(right).value
   else: return false
 
-proc plus(self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType =
+proc plus(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType =
   if left of SlapFloat and right of SlapFloat:
     return newFloat(SlapFloat(left).value + SlapFloat(right).value)
   elif left of SlapFloat and right of SlapInt:
@@ -546,7 +546,7 @@ proc plus(self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryE
   else:
     error(expre.operator, RuntimeError, "All operands must be either string or int and float")
 
-proc minus(self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType =
+proc minus(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType =
   if left of SlapFloat and right of SlapFloat:
     return newFloat(SlapFloat(left).value - SlapFloat(right).value)
   elif left of SlapFloat and right of SlapInt:
@@ -558,7 +558,7 @@ proc minus(self: var Interpreter, right: BaseType, left: BaseType, expre: Binary
   else:
     error(expre.operator, RuntimeError, "All operands must be either string or int and float")
 
-proc slash(self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType =
+proc slash(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType =
   if left of SlapFloat and right of SlapFloat:
     if SlapFloat(right).value == 0:
       error(expre.operator, RuntimeError, "Cannot divide by 0")
@@ -582,7 +582,7 @@ proc slash(self: var Interpreter, right: BaseType, left: BaseType, expre: Binary
   else:
     error(expre.operator, RuntimeError, "All operands must be either int or float")
 
-proc star(self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType =
+proc star(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType =
   if left of SlapFloat and right of SlapFloat:
     return newFloat(SlapFloat(left).value * SlapFloat(right).value)
   elif left of SlapFloat and right of SlapInt:
