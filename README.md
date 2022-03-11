@@ -36,8 +36,12 @@ let num = 10;
 ```
 
 ## Installation
-1. Download the source code from the releases page.
-2. `cd` to the `src` directory and run the shell script (maybe need to do`chmod +x ./build.sh`).
+```
+git clone https://github.com/bichanna/slap.git
+cd slap
+chmod +x ./build.sh 
+./build.sh
+```
 
 ## TODO
 >*Note:* If you have a feature request, please open an issue.
