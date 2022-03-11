@@ -307,94 +307,91 @@ method eval(self: var Interpreter, expre: MapLiteralExpr): BaseType =
 
 # eval BinaryExpr
 method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
-  if not (expre.left of VariableExpr):
-    var left = self.eval(expre.left)
-    var right = self.eval(expre.right)
+  var left = self.eval(expre.left)
+  var right = self.eval(expre.right)
+  var fun: proc (self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType
 
-    case expre.operator.kind
-      of Plus: # allows string concatenation and addition
-        return self.plus(left, right, expre)
-      of Minus:
-        return self.minus(left, right, expre)
-      of Slash: # division always returns a flost
-        return self.slash(left, right, expre)
-      of Star:
-        return self.star(left, right, expre)
-      of Modulo:
-        if left of SlapInt and right of SlapInt:
-          return newInt(SlapInt(left).value mod SlapInt(right).value)
-        else:
-          error(expre.operator, RuntimeError, "All operands must be int")
-      # Comparison Operators
-      of Greater:
-        if left of SlapFloat and right of SlapFloat:
-          return newBool(SlapFloat(left).value > SlapFloat(right).value)
-        elif left of SlapFloat and right of SlapInt:
-          return newBool(SlapFloat(left).value > float(SlapInt(right).value))
-        elif left of SlapInt and right of SlapFloat:
-          return newBool(float(SlapInt(left).value) > SlapFloat(right).value)
-        elif left of SlapInt and right of SlapInt:
-          return newBool(SlapInt(left).value > SlapInt(right).value)
-        else:
-          error(expre.operator, RuntimeError, "All operands must be either int or float")
-      of GreaterEqual:
-        if left of SlapFloat and right of SlapFloat:
-          return newBool(SlapFloat(left).value >= SlapFloat(right).value)
-        elif left of SlapFloat and right of SlapInt:
-          return newBool(SlapFloat(left).value >= float(SlapInt(right).value))
-        elif left of SlapInt and right of SlapFloat:
-          return newBool(float(SlapInt(left).value) >= SlapFloat(right).value)
-        elif left of SlapInt and right of SlapInt:
-          return newBool(SlapInt(left).value >= SlapInt(right).value)
-        else:
-          error(expre.operator, RuntimeError, "All operands must be either int or float")
-      of Less:
-        if left of SlapFloat and right of SlapFloat:
-          return newBool(SlapFloat(left).value < SlapFloat(right).value)
-        elif left of SlapFloat and right of SlapInt:
-          return newBool(SlapFloat(left).value < float(SlapInt(right).value))
-        elif left of SlapInt and right of SlapFloat:
-          return newBool(float(SlapInt(left).value) < SlapFloat(right).value)
-        elif left of SlapInt and right of SlapInt:
-          return newBool(SlapInt(left).value < SlapInt(right).value)
-        else:
-          error(expre.operator, RuntimeError, "All operands must be either int or float")
-      of LessEqual:
-        if left of SlapFloat and right of SlapFloat:
-          return newBool(SlapFloat(left).value <= SlapFloat(right).value)
-        elif left of SlapFloat and right of SlapInt:
-          return newBool(SlapFloat(left).value <= float(SlapInt(right).value))
-        elif left of SlapInt and right of SlapFloat:
-          return newBool(float(SlapInt(left).value) <= SlapFloat(right).value)
-        elif left of SlapInt and right of SlapInt:
-          return newBool(SlapInt(left).value <= SlapInt(right).value)
-        else:
-          error(expre.operator, RuntimeError, "All operands must be either int or float")
-      of BangEqual: return newBool(not self.doesEqual(left, right))
-      of EqualEqual: return newBool(self.doesEqual(left, right))
+  case expre.operator.kind
+    of Plus: # allows string concatenation and addition
+      return self.plus(left, right, expre)
+    of Minus:
+      return self.minus(left, right, expre)
+    of Slash: # division always returns a flost
+      return self.slash(left, right, expre)
+    of Star:
+      return self.star(left, right, expre)
+    of Modulo:
+      if left of SlapInt and right of SlapInt:
+        return newInt(SlapInt(left).value mod SlapInt(right).value)
       else:
-        return right
-  else:
-    var name = VariableExpr(expre.left).name
-    var value = self.eval(expre.right)  
-    var fun: proc (self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType
+        error(expre.operator, RuntimeError, "All operands must be int")
+    # Comparison Operators
+    of Greater:
+      if left of SlapFloat and right of SlapFloat:
+        return newBool(SlapFloat(left).value > SlapFloat(right).value)
+      elif left of SlapFloat and right of SlapInt:
+        return newBool(SlapFloat(left).value > float(SlapInt(right).value))
+      elif left of SlapInt and right of SlapFloat:
+        return newBool(float(SlapInt(left).value) > SlapFloat(right).value)
+      elif left of SlapInt and right of SlapInt:
+        return newBool(SlapInt(left).value > SlapInt(right).value)
+      else:
+        error(expre.operator, RuntimeError, "All operands must be either int or float")
+    of GreaterEqual:
+      if left of SlapFloat and right of SlapFloat:
+        return newBool(SlapFloat(left).value >= SlapFloat(right).value)
+      elif left of SlapFloat and right of SlapInt:
+        return newBool(SlapFloat(left).value >= float(SlapInt(right).value))
+      elif left of SlapInt and right of SlapFloat:
+        return newBool(float(SlapInt(left).value) >= SlapFloat(right).value)
+      elif left of SlapInt and right of SlapInt:
+        return newBool(SlapInt(left).value >= SlapInt(right).value)
+      else:
+        error(expre.operator, RuntimeError, "All operands must be either int or float")
+    of Less:
+      if left of SlapFloat and right of SlapFloat:
+        return newBool(SlapFloat(left).value < SlapFloat(right).value)
+      elif left of SlapFloat and right of SlapInt:
+        return newBool(SlapFloat(left).value < float(SlapInt(right).value))
+      elif left of SlapInt and right of SlapFloat:
+        return newBool(float(SlapInt(left).value) < SlapFloat(right).value)
+      elif left of SlapInt and right of SlapInt:
+        return newBool(SlapInt(left).value < SlapInt(right).value)
+      else:
+        error(expre.operator, RuntimeError, "All operands must be either int or float")
+    of LessEqual:
+      if left of SlapFloat and right of SlapFloat:
+        return newBool(SlapFloat(left).value <= SlapFloat(right).value)
+      elif left of SlapFloat and right of SlapInt:
+        return newBool(SlapFloat(left).value <= float(SlapInt(right).value))
+      elif left of SlapInt and right of SlapFloat:
+        return newBool(float(SlapInt(left).value) <= SlapFloat(right).value)
+      elif left of SlapInt and right of SlapInt:
+        return newBool(SlapInt(left).value <= SlapInt(right).value)
+      else:
+        error(expre.operator, RuntimeError, "All operands must be either int or float")
+    of BangEqual: return newBool(not self.doesEqual(left, right))
+    of EqualEqual: return newBool(self.doesEqual(left, right))
 
-    case expre.operator.kind:
     of PlusEqual, PlusPlus: fun = plus
     of MinusEqual, MinusMinus: fun = minus
     of StarEqual: fun = star
     of SlashEqual: fun = slash
-    else: discard
-
+    else:
+      discard
+    
+  if expre.left of VariableExpr:
+    var name = VariableExpr(expre.left).name
     if self.locals.hasKey(expre.left):
       var distance = self.locals[expre.left]
       var valueBefore = self.env.getAt(distance, name.value)
-      self.env.assignAt(distance, name, fun(self, valueBefore, value, expre))
+      self.env.assignAt(distance, name, fun(self, valueBefore, right, expre))
     else:
       var valueBefore = self.globals.get(name)
-      self.globals.assign(name, fun(self, valueBefore, value, expre))
-      
-    return value
+      self.globals.assign(name, fun(self, valueBefore, right, expre))
+  else:
+    return fun(self, left, right, expre)
+  
 # --------------------------- STATEMENTS -------------------------------
 
 method eval(self: var Interpreter, statement: Stmt) {.base, locks: "unknown".} = discard
