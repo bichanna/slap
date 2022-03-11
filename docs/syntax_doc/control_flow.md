@@ -34,7 +34,7 @@ for ($i = 1; i < 10; i++) {
 }
 ```
 
-### ForEach Function
+### `forEach` Function
 SLAP has an "enhanced" for loop, in the form of `forEach` function.
 ```
 import std; # we'll talk about import statements later.
