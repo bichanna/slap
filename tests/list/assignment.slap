@@ -2,3 +2,7 @@ let list = [1, 3.14, "hello world"];
 let abc = "abc";
 list@[0] = [abc];
 println(list); # @[@[abc], 3.14, hello world]
+
+#{
+@[@[abc], 3.14, hello world]
+}#

@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import lexer, parser, interpreter, resolver
+import lexer, parser, interpreter, resolver, error
 import os, parseopt
 
 const HELP_MESSAGE = """
@@ -18,7 +18,7 @@ usage: slap [option] <filename>.slap
 const CURRENT_VERSION = "0.0.2"
 
 # actually executes a source code
-proc execute(source: string) = 
+proc execute*(source: string) = 
   # lexing
   var lexer = newLexer(source)
   let tokens = lexer.tokenize()
@@ -73,6 +73,7 @@ when isMainModule:
 
   # handle command line arguments and options
   var p = initOptParser(commandLineParams())
+  var isInTest = false
   while true:
     p.next()
     case p.kind:
@@ -82,6 +83,9 @@ when isMainModule:
         showHelp()
       elif p.key == "version" or p.key == "v":
         showVersion()
+      elif p.key == "test":
+        isInTest = true
     of cmdArgument:
+      error.isTest = isInTest
       runFile(p.key)
       break

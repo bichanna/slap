@@ -1,3 +1,7 @@
 define returnsNull() {}
 
 println(returnsNull()); # null
+
+#{
+null
+}#

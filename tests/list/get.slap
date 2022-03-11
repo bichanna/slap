@@ -1,3 +1,7 @@
 let list = [[[[[[[[[[[[["string"]]]], "bichanna"]]]]]]]]];
 println(list@[0]@[0]@[0]@[0]@[0]@[0]@[0]@[0]@[0]@[0]@[0]@[0]@[0]); # string
 println(list@[0]@[0]@[0]@[0]@[0]@[0]@[0]@[0]@[1]); # bichanna
+#{
+string
+bichanna
+}#

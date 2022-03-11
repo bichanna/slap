@@ -8,3 +8,10 @@
   let d = b + " d";
   println(d); # a b d
 }
+
+#{
+a
+a b
+a c
+a b d
+}#

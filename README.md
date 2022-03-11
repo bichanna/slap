@@ -88,4 +88,5 @@ chmod +x ./build.sh
  - [x] Multi-line Comments
 
 ## Contribution
-Contributions are always welcome :D
+Contributions are always welcome :)<br>
+Please be sure to add test files if you add new features (see [tests directory](https://github.com/bichanna/slap/tree/master/tests)).

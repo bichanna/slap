@@ -3,3 +3,6 @@ define func(a, b, c) {
 }
 
 println(func(4, 6, 8)); # 18
+#{
+18
+}#
