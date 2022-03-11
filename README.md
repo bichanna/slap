@@ -78,6 +78,7 @@ let num = 10;
  - [x] Import
  - [ ] Concurrency
 ### Others
+ - [x] Assignment Shorthands (e.g, `+=`, `*=`)
  - [ ] String Interpolation
  - [ ] Optional Type Annotations
  - [x] Multi-line Comments

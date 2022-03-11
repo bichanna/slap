@@ -29,7 +29,7 @@ while (i < 10) {
 ### For Statements
 A `for` loop looks like this:
 ```
-for ($i = 1; i < 10; i = i + 1) {
+for ($i = 1; i < 10; i++) {
     println(i);
 }
 ```
