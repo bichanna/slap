@@ -530,6 +530,7 @@ proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool =
   elif left of SlapFloat and right of SlapFloat: return SlapFloat(left).value == SlapFloat(right).value
   elif left of SlapFloat and right of SlapInt: return SlapFloat(left).value == float(SlapInt(right).value)
   elif left of SlapString and right of SlapString: return SlapString(left).value == SlapString(right).value
+  elif left of SlapBool and right of SlapBool: return SlapBool(left).value == SlapBool(right).value
   else: return false
 
 proc plus(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType =

@@ -10,13 +10,12 @@ import token, node
 
 var sources*: Table[int, string]
 
-var stopWhenError*: bool = true
+var isTest*: bool
 
 proc error*(sId: int8, line: int, errorName: string, message: string) =
-  if not stopWhenError: # this is for tests
-    echo fmt"{errorName}: {message}"
+  if isTest: # this is just for tests
+    quit(fmt"{errorName}: {message}")
   else:
-    echo()
     let source = sources[sId]
     
     if line >= -1:
@@ -35,7 +34,7 @@ proc error*(sId: int8, line: int, errorName: string, message: string) =
       if line+2 < splitLines(source).len:
         echo "\e[90m", fmt"{line+3}: {splitLines(source)[line+2]}", "\e[0m"
       
-    if node.isRepl or stopWhenError:
+    if node.isRepl:
       echo "\n", fmt"{errorName}: {message}", "\e[0m"
     else: quit("\n" & fmt"{errorName}: {message}" & "\e[0m")
 
