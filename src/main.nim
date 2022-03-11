@@ -18,7 +18,7 @@ usage: slap [option] <filename>.slap
 const CURRENT_VERSION = "0.0.2"
 
 # actually executes a source code
-proc execute(source: string) = 
+proc execute*(source: string) = 
   # lexing
   var lexer = newLexer(source)
   let tokens = lexer.tokenize()
