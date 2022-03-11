@@ -110,6 +110,11 @@ proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool
 proc lookUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType
 proc interpret*(self: var Interpreter, statements: seq[Stmt])
 
+proc plus(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType
+proc minus(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType
+proc slash(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType
+proc star(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType 
+
 proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
   self.locals[expre] = depth
 
@@ -224,7 +229,6 @@ method eval(self: var Interpreter, expre: LogicalExpr): BaseType =
   return self.eval(expre.right)
 
 # eval CallExpr
-# TODO: Update this to allow default arguments
 method eval(self: var Interpreter, expre: CallExpr): BaseType =
   let callee = self.eval(expre.callee)
   var arguments: seq[BaseType]
@@ -305,70 +309,17 @@ method eval(self: var Interpreter, expre: MapLiteralExpr): BaseType =
 method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
   var left = self.eval(expre.left)
   var right = self.eval(expre.right)
+  var fun: proc (self: var Interpreter, right: BaseType, left: BaseType, expre: BinaryExpr): BaseType
 
   case expre.operator.kind
     of Plus: # allows string concatenation and addition
-      if left of SlapFloat and right of SlapFloat:
-        return newFloat(SlapFloat(left).value + SlapFloat(right).value)
-      elif left of SlapFloat and right of SlapInt:
-        return newFloat(SlapFloat(left).value + float(SlapInt(right).value))
-      elif left of SlapInt and right of SlapFloat:
-        return newFloat(float(SlapInt(left).value) + SlapFloat(right).value)
-      elif left of SlapInt and right of SlapInt:
-        return newInt(SlapInt(left).value + SlapInt(right).value)
-      elif left of SlapString and right of SlapString:
-        return newString(SlapString(left).value & SlapString(right).value)
-      else:
-        error(expre.operator, RuntimeError, "All operands must be either string or int and float")
+      return self.plus(left, right, expre)
     of Minus:
-      if left of SlapFloat and right of SlapFloat:
-        return newFloat(SlapFloat(left).value - SlapFloat(right).value)
-      elif left of SlapFloat and right of SlapInt:
-        return newFloat(SlapFloat(left).value - float(SlapInt(right).value))
-      elif left of SlapInt and right of SlapFloat:
-        return newFloat(float(SlapInt(left).value) - SlapFloat(right).value)
-      elif left of SlapInt and right of SlapInt:
-        return newInt(SlapInt(left).value - SlapInt(right).value)
-      else:
-        error(expre.operator, RuntimeError, "All operands must be either string or int and float")
+      return self.minus(left, right, expre)
     of Slash: # division always returns a flost
-      if left of SlapFloat and right of SlapFloat:
-        if SlapFloat(right).value == 0:
-          error(expre.operator, RuntimeError, "Cannot divide by 0")
-        else:
-          return newFloat(SlapFloat(left).value / SlapFloat(right).value)
-      elif left of SlapFloat and right of SlapInt:
-        if SlapInt(right).value == 0:
-          error(expre.operator, RuntimeError, "Cannot divide by 0")
-        else:
-          return newFloat(SlapFloat(left).value / float(SlapInt(right).value))
-      elif left of SlapInt and right of SlapFloat:
-        if SlapFloat(right).value == 0:
-          error(expre.operator, RuntimeError, "Cannot divide by 0")
-        else:
-          return newFloat(float(SlapInt(left).value) / SlapFloat(right).value)
-      elif left of SlapInt and right of SlapInt:
-        if SlapInt(right).value == 0:
-          error(expre.operator, RuntimeError, "Cannot divide by 0")
-        else:
-          return newFloat(float(SlapInt(left).value) / float(SlapInt(right).value))
-      else:
-        error(expre.operator, RuntimeError, "All operands must be either int or float")
+      return self.slash(left, right, expre)
     of Star:
-      if left of SlapFloat and right of SlapFloat:
-        return newFloat(SlapFloat(left).value * SlapFloat(right).value)
-      elif left of SlapFloat and right of SlapInt:
-        return newFloat(SlapFloat(left).value * float(SlapInt(right).value))
-      elif left of SlapInt and right of SlapFloat:
-        return newFloat(float(SlapInt(left).value) * SlapFloat(right).value)
-      elif left of SlapInt and right of SlapInt:
-        return newInt(SlapInt(left).value * SlapInt(right).value)
-      elif left of SlapString and right of SlapInt:
-        var str = ""
-        for i in 0 ..< SlapInt(right).value: str &= SlapString(left).value
-        return newString(str)
-      else:
-        error(expre.operator, RuntimeError, "All operands must be either int or float")
+      return self.star(left, right, expre)
     of Modulo:
       if left of SlapInt and right of SlapInt:
         return newInt(SlapInt(left).value mod SlapInt(right).value)
@@ -421,8 +372,25 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
         error(expre.operator, RuntimeError, "All operands must be either int or float")
     of BangEqual: return newBool(not self.doesEqual(left, right))
     of EqualEqual: return newBool(self.doesEqual(left, right))
+
+    of PlusEqual, PlusPlus: fun = plus
+    of MinusEqual, MinusMinus: fun = minus
+    of StarEqual: fun = star
+    of SlashEqual: fun = slash
     else:
       discard
+    
+  if expre.left of VariableExpr:
+    var name = VariableExpr(expre.left).name
+    if self.locals.hasKey(expre.left):
+      var distance = self.locals[expre.left]
+      var valueBefore = self.env.getAt(distance, name.value)
+      self.env.assignAt(distance, name, fun(self, valueBefore, right, expre))
+    else:
+      var valueBefore = self.globals.get(name)
+      self.globals.assign(name, fun(self, valueBefore, right, expre))
+  else:
+    return fun(self, left, right, expre)
 
 # --------------------------- STATEMENTS -------------------------------
 
@@ -563,6 +531,72 @@ proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool =
   elif left of SlapFloat and right of SlapInt: return SlapFloat(left).value == float(SlapInt(right).value)
   elif left of SlapString and right of SlapString: return SlapString(left).value == SlapString(right).value
   else: return false
+
+proc plus(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType =
+  if left of SlapFloat and right of SlapFloat:
+    return newFloat(SlapFloat(left).value + SlapFloat(right).value)
+  elif left of SlapFloat and right of SlapInt:
+    return newFloat(SlapFloat(left).value + float(SlapInt(right).value))
+  elif left of SlapInt and right of SlapFloat:
+    return newFloat(float(SlapInt(left).value) + SlapFloat(right).value)
+  elif left of SlapInt and right of SlapInt:
+    return newInt(SlapInt(left).value + SlapInt(right).value)
+  elif left of SlapString and right of SlapString:
+    return newString(SlapString(left).value & SlapString(right).value)
+  else:
+    error(expre.operator, RuntimeError, "All operands must be either string or int and float")
+
+proc minus(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType =
+  if left of SlapFloat and right of SlapFloat:
+    return newFloat(SlapFloat(left).value - SlapFloat(right).value)
+  elif left of SlapFloat and right of SlapInt:
+    return newFloat(SlapFloat(left).value - float(SlapInt(right).value))
+  elif left of SlapInt and right of SlapFloat:
+    return newFloat(float(SlapInt(left).value) - SlapFloat(right).value)
+  elif left of SlapInt and right of SlapInt:
+    return newInt(SlapInt(left).value - SlapInt(right).value)
+  else:
+    error(expre.operator, RuntimeError, "All operands must be either string or int and float")
+
+proc slash(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType =
+  if left of SlapFloat and right of SlapFloat:
+    if SlapFloat(right).value == 0:
+      error(expre.operator, RuntimeError, "Cannot divide by 0")
+    else:
+      return newFloat(SlapFloat(left).value / SlapFloat(right).value)
+  elif left of SlapFloat and right of SlapInt:
+    if SlapInt(right).value == 0:
+      error(expre.operator, RuntimeError, "Cannot divide by 0")
+    else:
+      return newFloat(SlapFloat(left).value / float(SlapInt(right).value))
+  elif left of SlapInt and right of SlapFloat:
+    if SlapFloat(right).value == 0:
+      error(expre.operator, RuntimeError, "Cannot divide by 0")
+    else:
+      return newFloat(float(SlapInt(left).value) / SlapFloat(right).value)
+  elif left of SlapInt and right of SlapInt:
+    if SlapInt(right).value == 0:
+      error(expre.operator, RuntimeError, "Cannot divide by 0")
+    else:
+      return newFloat(float(SlapInt(left).value) / float(SlapInt(right).value))
+  else:
+    error(expre.operator, RuntimeError, "All operands must be either int or float")
+
+proc star(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryExpr): BaseType =
+  if left of SlapFloat and right of SlapFloat:
+    return newFloat(SlapFloat(left).value * SlapFloat(right).value)
+  elif left of SlapFloat and right of SlapInt:
+    return newFloat(SlapFloat(left).value * float(SlapInt(right).value))
+  elif left of SlapInt and right of SlapFloat:
+    return newFloat(float(SlapInt(left).value) * SlapFloat(right).value)
+  elif left of SlapInt and right of SlapInt:
+    return newInt(SlapInt(left).value * SlapInt(right).value)
+  elif left of SlapString and right of SlapInt:
+    var str = ""
+    for i in 0 ..< SlapInt(right).value: str &= SlapString(left).value
+    return newString(str)
+  else:
+    error(expre.operator, RuntimeError, "All operands must be either int or float")
 
 proc lookUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType = 
   if self.locals.hasKey(expre):

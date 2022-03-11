@@ -24,11 +24,17 @@ type
     Colon               = "COLON" # :
     SemiColon           = "SEMICOLON" # ;
     Plus                = "PLUS" # +
+    PlusPlus            = "PLUS_PLUS" # ++
+    PlusEqual           = "PLUS_EQUAL" # +=
     Minus               = "MINUS" # -
+    MinusMinus          = "MINUS_MINUS" # --
+    MinusEqual          = "MINUS_EQUAL" # -=
     Tilde               = "TILDE" # ~
     Star                = "STAR" # *
+    StarEqual           = "STAR_EQUAL" # *=
     Modulo              = "MODULO" # %
     Slash               = "SLASH" # /
+    SlashEqual          = "SLASH_EQUAL" # /=
     Pound               = "POUND" # #
     At                  = "AT" # @
     Caret               = "CARET" # ^
