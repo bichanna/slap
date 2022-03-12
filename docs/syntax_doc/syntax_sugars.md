@@ -1,3 +1,9 @@
+## String Interpolation
+You can use string interpolation in SLAP by using `$(...)`.
+```
+println("3 time 4 is $(3 * 4)");
+```
+
 ## `<-` Expression
 Because I like callbacks, there's special syntax sugar, the `<-` expression. The `<-` syntax sugar de-sugars like this:
 ```

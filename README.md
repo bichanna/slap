@@ -21,9 +21,9 @@
 Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/lib))
 ```js
 import std;
-let areas = ["tools", "science", "GUI", "game"];
+let areas = ["tools", "GUI", "game"];
 forEach(areas) <- define(area) {
-	println("Hello, " + area + " developers!");
+	println("Hello, $(area) developers!");
 };
 ```
 Here's another example using [`<-` and `->` expressions](https://github.com/bichanna/slap/blob/master/docs/index.md#--expression).
