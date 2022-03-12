@@ -83,7 +83,7 @@ chmod +x ./build.sh
  - [ ] Concurrency
 ### Others
  - [x] Assignment Shorthands (e.g, `+=`, `*=`)
- - [ ] String Interpolation
+ - [x] String Interpolation
  - [ ] Optional Type Annotations
  - [x] Multi-line Comments
 
