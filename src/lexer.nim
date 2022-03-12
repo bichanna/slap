@@ -40,6 +40,9 @@ const
 
 var source: string
 
+var inStrInterp = false
+var strInterpDepth = 0
+
 type
   # Lexer takes in raw source code as a list of characters
   # and groups it into a list of tokens (seq[Token]).
@@ -93,10 +96,21 @@ proc doesMatch(l: var Lexer, c: char): bool =
   else: l.current += 1
 
 # makes a SLAP string token and appends it to the list
+proc tokenize*(l: var Lexer): seq[Token]
 proc makeString(l: var Lexer) = 
   var strValue: string = ""
   while l.currentChar() != '"' and not l.isAtEnd():
     if l.currentChar() == '\n': l.line += 1
+    elif l.currentChar() == '$' and l.nextChar() == '(':
+      l.advance(); l.advance()
+      l.appendToken(String, strValue); strValue = ""
+      l.appendToken(Plus); l.appendToken(LeftParen) # +(
+      inStrInterp = true
+      strInterpDepth += 1
+      discard l.tokenize()
+      inStrInterp = false
+      l.appendToken(RightParen); l.appendToken(Plus) # )+
+      if l.currentChar() == '"': break
     strValue.add(l.currentChar())
     l.advance()
   if l.currentChar() != '"': error(token.sourceId, l.line, "SyntaxError", "Unterminated string, expected '\"'")
@@ -189,11 +203,19 @@ proc slahShorthand(l: var Lexer) =
 
 proc tokenize*(l: var Lexer): seq[Token] =
   var c: char
+  var strInterpBreak = false
   while not l.isAtEnd():
     c = l.advance()
     case c:
     of '(': l.appendToken(LeftParen)
-    of ')': l.appendToken(RightParen)
+    of ')':
+      if inStrInterp:
+        if strInterpDepth > 1: strInterpDepth -= 1
+        elif strInterpDepth == 1:
+          strInterpDepth -= 1
+          strInterpBreak = true
+          break
+      l.appendToken(RightParen)
     of '[': l.appendToken(LeftBracket)
     of ']': l.appendToken(RightBracket)
     of '{': l.appendToken(LeftBrace)
@@ -247,5 +269,6 @@ proc tokenize*(l: var Lexer): seq[Token] =
         l.makeIdentifier()
       elif c in " \t": discard
       else: error(token.sourceId, l.line, "SyntaxError", fmt"Unrecognized character '{c}'")
-  l.appendToken(EOF)
+  if not strInterpBreak:
+    l.appendToken(EOF)
   return l.tokens
