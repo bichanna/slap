@@ -21,7 +21,7 @@
 Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/lib))
 ```js
 import std;
-let areas = ["tools", "GUI", "game"];
+let areas = ["tools", "game", "web", "science", "systems", "embedded", "drivers", "mobile", "GUI"];
 forEach(areas) <- define(area) {
 	println("Hello, $(area) developers!");
 };
