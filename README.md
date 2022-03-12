@@ -42,6 +42,10 @@ cd slap
 chmod +x ./build.sh 
 ./build.sh
 ```
+You may want to test before running your SLAP programs.
+```
+nimble test
+```
 
 ## TODO
 >*Note:* If you have a feature request, please open an issue.
