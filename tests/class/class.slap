@@ -1,0 +1,24 @@
+class Car {
+    new(color, style, brand) { # <-- Initializer
+        self.color = color;
+        self.brand = brand;
+        &style = style; # alternatively, you can use `&` instead of `self.`
+    }
+
+    getColor() {
+        return self.color;
+    }
+}
+
+$blackMazda = Car("Black", "SUV", "Mazda");
+
+println(blackMazda.getColor());
+println(blackMazda.style);
+blackMazda.color = "black";
+println(blackMazda.color);
+
+#{
+Black
+SUV
+black
+}#

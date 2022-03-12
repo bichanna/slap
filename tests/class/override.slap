@@ -1,0 +1,18 @@
+class Car {
+    drive() {
+        println("driving a car");
+    }
+}
+
+class Mazda <- Car {
+	drive() {
+		println("driving a Mazda");
+	}
+}
+
+let myCar = Mazda();
+myCar.drive();
+
+#{
+driving a Mazda
+}#

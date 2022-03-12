@@ -19,7 +19,7 @@ type
     NONE, FUNCTION, METHOD, INITIALIZER
 
   ClassType = enum
-    CNONE, CLASS
+    CNONE, CLASS, SUBCLASS
 
 proc newResolver*(interpreter: Interpreter): Resolver =
   return Resolver(interpreter: interpreter, currentFunction: NONE, currentClass: CNONE)
@@ -127,6 +127,17 @@ method resolve(self: var Resolver, statement: ClassStmt) =
   self.declare(statement.name)
   self.define(statement.name)
 
+  if not statement.superclass.isNil and statement.name.value == statement.superclass.name.value:
+    error(statement.superclass.name, "RuntimeError", "A class cannot inherit from itself.")
+
+  if not statement.superclass.isNil:
+    self.currentClass = SUBCLASS
+    self.resolve(statement.superclass)
+
+  if not statement.superclass.isNil:
+    self.beginScope()
+    self.scopes[self.scopes.len-1]["super"] = true
+
   self.beginScope()
   self.scopes[self.scopes.len-1]["self"] = true
   for m in statement.methods:
@@ -139,6 +150,9 @@ method resolve(self: var Resolver, statement: ClassStmt) =
     self.resolveFunction(m.function, METHOD)
     self.endScope()
   self.endScope()
+
+  if not statement.superclass.isNil: self.endScope()
+
   self.currentClass = enclosingClass;
 
 method resolve(self: var Resolver, expre: UnaryExpr) = self.resolve(expre.right)
@@ -163,6 +177,14 @@ method resolve(self: var Resolver, expre: MapLiteralExpr) =
     self.resolve(k)
   for v in expre.values:
     self.resolve(v)
+
+method resolve(self: var Resolver, expre: SuperExpr) =
+  if self.currentClass == CNONE:
+    error(expre.keyword, "RuntimeError", "Cannot use 'super' outside of a class")
+  elif self.currentClass != SUBCLASS:
+    error(expre.keyword, "RuntimeError", "Cannot use 'super' in a class with no superclass")
+
+  self.resolveLocal(expre, expre.keyword)
 
 # ---------------------------- HELPERS ---------------------------------
 
