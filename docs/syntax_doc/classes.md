@@ -36,13 +36,14 @@ You can create a subclass by using the same `class` keyword but with the base cl
 ```
 class Car {
     drive() {
-        println("driving");
+        print("driving");
     }
 }
 
 class Mazda <- Car {
     drive() {
-        super.drive("Mazda");
+        super.drive();
+        println(" a Mazda");
     }
 }
 ```
