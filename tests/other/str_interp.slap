@@ -1,0 +1,16 @@
+let name = "bichanna";
+
+println("My name is $(name).");
+
+import std;
+
+let areas = ["tools", "game"];
+forEach(areas) <- define(area) {
+    println("Hello, $(area) developers!");
+};
+
+#{
+My name is bichanna.
+Hello, tools developers!
+Hello, game developers!
+}#
