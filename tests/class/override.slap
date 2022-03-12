@@ -6,7 +6,7 @@ class Car {
 
 class Mazda <- Car {
 	drive() {
-		println("driving a Mazda")
+		println("driving a Mazda");
 	}
 }
 
