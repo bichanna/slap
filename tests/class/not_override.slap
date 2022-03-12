@@ -1,0 +1,16 @@
+class Car {
+    drive() {
+        println("driving a car");
+    }
+}
+
+class Mazda <- Car {
+    drive() { super.drive(); }
+}
+
+let myCar = Mazda();
+myCar.drive();
+
+#{
+driving a car
+}#

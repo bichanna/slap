@@ -1,0 +1,13 @@
+class Math {
+    static square(n) {
+        return n * n;
+    }
+}
+
+println(Math.square(3));
+println(Math.square(10));
+
+#{
+9
+100
+}#
