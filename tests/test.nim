@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 3/10/2022
 # 
 
-import os, sugar, osproc, strformat, terminal
+import os, sugar, osproc, strformat
 
 # This piece of code gets all the test files in `tests` directory
 let tests = collect(newSeq):
@@ -38,12 +38,26 @@ proc extractOutput(path: string): string =
 
 # This executes every test files and tests if each test
 # file worked properly by checking the output.
+var errors: seq[seq[string]] = @[]
 for path in tests:
   var expectedOutput = extractOutput(path)
   let (output, _) = execCmdEx(fmt"slap --test {path}")
   if expectedOutput != output:
-    echo "Expected output:\n" & expectedOutput
-    echo "Actual output:\n" & output
-    quit(path & " <- this file causes an error\n\n", 1)
+    errors.add(@[
+      "------------------\nfilename: " & path,
+      "\nExpected output:\n" & expectedOutput,
+      "Actual output:\n" & output & "\n------------------"
+    ])
+    stdout.write("F")
   else:
-    styledEcho(fgGreen, fmt"Test passed: {path}")
+    stdout.write(".")
+
+
+# After running all the files, show errors if there's any.
+stdout.write("\n\n")
+if errors.len == 0:
+  quit(0)
+else:
+  for err in errors:
+    for i in err: echo i
+  quit(1)
