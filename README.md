@@ -78,7 +78,7 @@ $ nimble test
  - [x] While Loops
  - [x] For Loops
      - [x] Break
-     - [ ] Continue
+     - [x] Continue
      - [x] "Enhanced" for loop (in the form of `forEach`)
  - [ ] Try-except Blocks
  - [x] Functions
