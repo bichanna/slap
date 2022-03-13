@@ -99,6 +99,15 @@ proc slapValues(self: var Interpreter, args: seq[BaseType], token: Token): BaseT
   for _, value in SlapMap(args[0]).map: values.add(value)
   return newList(values)
 
+proc slapUpper(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
+  if not (args[0] of SlapString):
+    error(token, RuntimeError, "upper function only accepts a string")
+  return newString(toUpper(SlapString(args[0]).value))
+
+proc slapLower(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
+  if not (args[0] of SlapString):
+    error(token, RuntimeError, "lower function only accepts a string")
+  return newString(toLower(SlapString(args[0]).value))
 
 proc loadBuildins*(): Environment =
   var globals = newEnv()
@@ -119,5 +128,7 @@ proc loadBuildins*(): Environment =
   globals.define("string", FuncType(arity: proc(): (int, int) = (1, 1), call: slapConvertStr))
   globals.define("keys", FuncType(arity: proc(): (int, int) = (1, 1), call: slapKeys))
   globals.define("values", FuncType(arity: proc(): (int, int) = (1, 1), call: slapValues))
+  globals.define("upper", FuncType(arity: proc(): (int, int) = (1, 1), call: slapUpper))
+  globals.define("lower", FuncType(arity: proc(): (int, int) = (1, 1), call: slapLower))
 
   return globals
