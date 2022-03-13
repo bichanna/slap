@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: iffy/install-nim@v3.2.2
         with:
-          version: binary:1.6.0
+          binary: 1.6.0
       - run: chmod +x build.sh 
       - run: ./build.sh
       - run: nimble test
