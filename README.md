@@ -72,7 +72,7 @@ nimble test
  - [ ] Try-except Blocks
  - [x] Functions
      - [x] Lambdas (anonymous functions)
-     - [ ] "Tilde" Functions (`~ (x) -> println(x);`)
+     - [ ] "Tilde" Functions (`~ (x): println(x);`)
      - [x] Default Arguments
      - [ ] Rest Parameters
  - [x] Standard Library
