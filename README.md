@@ -36,15 +36,26 @@ let num = 10;
 ```
 
 ## Installation
+On Linux/macOS, you may be able to run the following commands to install SLAP.
 ```
-git clone https://github.com/bichanna/slap.git
-cd slap
-chmod +x ./build.sh 
-./build.sh
+$ git clone https://github.com/bichanna/slap.git
+$ cd slap
+$ chmod +x ./build.sh 
+$ ./build.sh
 ```
+For Windows, I haven't written bat version of `build.sh`, so you have to manually compile the source code.
+```
+$ nimble build --multimethods:on -d:release
+```
+Then, mark it as an executable file if necessary, and try running `slap --version`.
+```
+$ slap --version
+SLAP 0.0.3
+```
+
 You may want to test before running your SLAP programs.
 ```
-nimble test
+$ nimble test
 ```
 
 ## TODO
