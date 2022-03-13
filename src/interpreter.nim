@@ -43,7 +43,8 @@ proc newFunction(name: string, declaration: FuncExpr, closure: Environment, isIn
     var atMost: int = 0
     for i in fun.declaration.parameters:
       if i of RequiredArg: atLeast += 1; atMost += 1
-      if i of DefaultValued: atMost += 1
+      elif i of DefaultValued: atMost += 1
+      elif i of RestArg: atLeast += 1; atMost = high(int); break
     return (atLeast, atMost)
   fun.call = proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
     var environment = newEnv(closure)
@@ -54,6 +55,10 @@ proc newFunction(name: string, declaration: FuncExpr, closure: Environment, isIn
           environment.define(DefaultValued(parameters[i]).paramName.value, self.eval(DefaultValued(parameters[i]).default))
         else:
           environment.define(DefaultValued(parameters[i]).paramName.value, args[i])
+      elif parameters[i] of RestArg:
+        var list: seq[BaseType]
+        for j in i ..< args.len: list.add(args[j])
+        environment.define(RestArg(parameters[i]).paramName.value, newList(list))
       else:
         environment.define(RequiredArg(parameters[i]).paramName.value, args[i])
     try:

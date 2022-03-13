@@ -353,15 +353,21 @@ proc functionBody(p: var Parser, kind: string): FuncExpr =
   var parameters: seq[FuncArg]
   if not p.checkCurrentTok(RightParen):
     var hadDefault = false
+    var hadRest = false
+
     while true:
-      if parameters.len >= 10: error(p.currentToken(), "SyntaxError", "Cannot have more than 10 parameters")
+      if parameters.len >= 256: error(p.currentToken(), "SyntaxError", "Cannot have more than 256 parameters")
       var param = p.expect(Identifier, "Expected parameter name")
-      if p.doesMatch(Equals): # checks for a default arguement
+      if p.doesMatch(Equals) and not hadRest: # checks for a default parameter
         var defaultValue = p.expression()
         hadDefault = true
         parameters.add(DefaultValued(paramName: param, default: defaultValue))
+      elif p.doesMatch(Plus) and not hadRest: # checks for a rest parameter
+        parameters.add(RestArg(paramName: param))
+        hadRest = true
       else:
-        if hadDefault: error(param, "SyntaxError", "Required argument cannot follow default argument")
+        if hadDefault or hadRest:
+          error(param, "SyntaxError", "Required parameter cannot follow default parameter, and default param cannot follow rest param.")
         parameters.add(RequiredArg(paramName: param))
         
       if not p.doesMatch(Comma): break

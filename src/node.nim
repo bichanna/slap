@@ -142,3 +142,6 @@ type
   
   RequiredArg* = ref object of FuncArg
     paramName*: Token
+
+  RestArg* = ref object of FuncArg
+    paramName*: Token
