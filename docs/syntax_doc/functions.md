@@ -9,15 +9,26 @@ define greetStr(name) {
 println(greetStr("bichanna"));
 ```
 
-Function arguments can have default values in SLAP.<br>
-You can provide a default value to an argument by using `=`.
-
+Function arguments can have default values in SLAP. You can provide a default value to an argument by using `=`.
 ```
 define greet(name="somebody") {
     println("Hello, " + name + "!");
 }
 greet();
 # output: 'Hello, somebody!'
+```
+
+You can add `+` after parameter name if you are unsure about the number of arguments to pass in the functions.
+```
+import std;
+
+define sum(list+) {
+	let sum = 0;
+	forEach(list) <- define(i) { sum += i; };
+	return sum;
+}
+
+sum(3, 1, 4, 2, 5) -> println();
 ```
 
 SLAP supports closures as well as passing functions.
