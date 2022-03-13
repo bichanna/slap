@@ -1,0 +1,13 @@
+import std;
+
+define sum(list+) {
+	let sum = 0;
+	forEach(list) <- define(i) { sum += i; };
+	return sum;
+}
+
+sum(3, 1, 4, 2) -> println();
+
+#{
+10
+}#
