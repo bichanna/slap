@@ -14,5 +14,9 @@ type
     value*: BaseType
   
   # just like ReturnException, this is used to unwind all the way
-  # down to the end of the for or while loop
+  # down to the end of the for or while loop to `break`
   BreakException* = ref object of CatchableError
+
+  # just like ReturnException, this is used to unwind all the way
+  # down to the end of the for or while loop to `continue`
+  ContinueException* = ref object of CatchableError

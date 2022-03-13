@@ -437,7 +437,10 @@ method eval(self: var Interpreter, statement: ReturnStmt) =
 method eval(self: var Interpreter, statement: WhileStmt) =
   try:
     while self.isTruthy(self.eval(statement.condition)):
-      self.eval(statement.body)
+      try:
+        self.eval(statement.body)
+      except ContinueException:
+        discard
   except OverflowDefect:
     error(statement.keyword, RuntimeError, "Over- or underflow")
   # just ignore
@@ -458,6 +461,8 @@ method eval(self: var Interpreter, statement: IfStmt) =
     self.eval(statement.elseBranch)
 
 method eval(self: var Interpreter, statement: BreakStmt) = raise BreakException()
+
+method eval(self: var Interpreter, statement: ContinueStmt) = raise ContinueException()
 
 method eval(self: var Interpreter, statement: ImportStmt) =
   var source: string = ""
