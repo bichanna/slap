@@ -126,6 +126,8 @@ type
     name*: Token
 
   BreakStmt* = ref object of Stmt
+
+  ContinueStmt* = ref object of Stmt
     
   ClassStmt* = ref object of Stmt
     name*: Token

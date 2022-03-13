@@ -95,6 +95,10 @@ method resolve(self: var Resolver, statement: ReturnStmt) =
       error(statement.keyword, "SyntaxError", "Cannot return a value from an initializer")
     self.resolve(statement.value)
 
+method resolve(self: var Resolver, statement: BreakStmt) = discard
+
+method resolve(self: var Resolver, statement: ContinueStmt) = discard
+
 method resolve(self: var Resolver, statement: WhileStmt) =
   self.resolve(statement.condition)
   self.resolve(statement.body)

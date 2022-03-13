@@ -264,6 +264,12 @@ proc importStatement(p: var Parser): Stmt =
   p.expect(SemiColon, "Expected ';' after import statement")
   return ImportStmt(name: name)
 
+proc continueStatement(p: var Parser): Stmt =
+  if p.loopDepth == 0:
+    error(p.previousToken(), "SyntaxError", "'continue' can only be used inside a loop")
+  p.expect(SemiColon, "Expected ';' after 'continue'")
+  return ContinueStmt()
+
 proc statement(p: var Parser): Stmt =
   if p.doesMatch(LeftBrace): return BlockStmt(statements: p.parseBlock())
   elif p.doesMatch(If): return p.ifStatement()
@@ -271,6 +277,7 @@ proc statement(p: var Parser): Stmt =
   elif p.doesMatch(For): return p.forStatement()
   elif p.doesMatch(Return): return p.returnStatement()
   elif p.doesMatch(Break): return p.breakStatement()
+  elif p.doesMatch(Continue): return p.continueStatement()
   elif p.doesMatch(Import): return p.importStatement()
   return p.exprStmt()
 
