@@ -74,7 +74,7 @@ nimble test
      - [x] Lambdas (anonymous functions)
      - [ ] "Tilde" Functions (`~ (x): println(x);`)
      - [x] Default Arguments
-     - [ ] Rest Parameters
+     - [x] Rest Parameters
  - [x] Standard Library
      - [x] Basic (e.g., `println`, `print`)
      - [x] Std
