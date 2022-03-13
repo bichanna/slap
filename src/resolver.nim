@@ -222,6 +222,8 @@ proc resolveFunction(self: var Resolver, function: FuncExpr, functype: FunctionT
     elif param of DefaultValued:
       paramName = DefaultValued(param).paramName
       defaultValue = DefaultValued(param).default
+    elif param of RestArg:
+      paramName = RestArg(param).paramName
     self.declare(paramName)
     self.define(paramName)
     
