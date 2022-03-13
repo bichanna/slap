@@ -12,7 +12,7 @@
 	
 </div>
 
-**WARNING!! THIS LANGUAGE IS IN ACTIVE DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT. AND EVERTHING IS VERY FRAGILE & UNSTABLE.**
+**WARNING!! THIS LANGUAGE IS IN ACTIVE DEVELOPMENT. EVERTHING IS VERY UNSTABLE. ANYTHING CAN CHANGE AT ANY MOMENT.**
 
 SLAP stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday (speed is not my concern).
 
@@ -99,5 +99,5 @@ Please be sure to add test files if you add new features (see [tests directory](
 
 ## Credits
 I learned a lot from
- - [Oak language](https://github.com/thesephist/oak) by @thesephist
+ - [Oak language](https://github.com/thesephist/oak) by thesephist
  - Bob Nystrom's great book, *Crafting Interpreters*.
