@@ -15,14 +15,14 @@ then
   if [[ $answer == *"yes"* ]]
   then
     curl https://nim-lang.org/choosenim/init.sh -sSf | sh
-	exit 0
+    
   else
     echo "Nim installation canceled"
 	exit 0
   fi
 fi
 
-# actually building the language
+# actually building the source code
 echo "Building SLAP..."
 nimble build --multimethods:on -d:release --silent
 
