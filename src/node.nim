@@ -124,6 +124,7 @@ type
 
   ImportStmt* = ref object of Stmt
     name*: Token
+    asName*: Token
 
   BreakStmt* = ref object of Stmt
 
