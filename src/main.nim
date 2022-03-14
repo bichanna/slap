@@ -8,6 +8,9 @@
 import lexer, parser, interpreter, resolver, error
 import os, parseopt
 
+when compileOption("profiler"): # this is for profiler, obviously
+  import nimprof
+
 const HELP_MESSAGE = """
 usage: slap [option] <filename>.slap
 -h, --help             : show this message and exit
