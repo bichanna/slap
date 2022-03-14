@@ -26,7 +26,7 @@ forEach(areas) <- define(area) {
 	println("Hello, $(area) developers!");
 };
 ```
-Here's another example using [`<-` and `->` expressions](https://github.com/bichanna/slap/blob/master/docs/index.md#--expression).
+Here's another example using [`<-` and `->` expressions](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/syntax_sugars.md#--expression).
 
 ```js
 import math;
