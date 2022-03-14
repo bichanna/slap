@@ -35,13 +35,12 @@ type
     class*: ClassType
     fields*: Table[string, BaseType]
   
-  ModuleClass* = ref object of BaseType
+  Module* = ref object of BaseType
     name*: string
-    keys*: seq[string]
-    values*: seq[BaseType]
+    values*: Table[string, BaseType]
 
-proc newModuleClass*(name: string, keys: seq[string], values: seq[BaseType]): ModuleClass =
-  return ModuleClass(name: name, keys: keys, values: values)
+proc newModule*(name: string, values: Table[string, BaseType]): Module =
+  return Module(name: name, values: values)
 
 proc `$`*(obj: BaseType): string =
   if obj of SlapNull: return "null"
@@ -61,7 +60,7 @@ proc `$`*(obj: BaseType): string =
   elif obj of FuncType: return "<native fn>"
   elif obj of ClassType: return "<class " & ClassType(obj).name & ">"
   elif obj of ClassInstance: return "<instance " & ClassInstance(obj).class.name & ">"
-  elif obj of ModuleClass: return "<module class>"
+  elif obj of Module: return "<module class " & Module(obj).name & ">"
   
   # hopefully unreachable
   return "unknown type"
