@@ -1,4 +1,6 @@
 ## Import Statement
+> *Note:* The SLAP module system will be updated soon.
+
 A module is a file containing SLAP definitions and statements. The file name is the module name with the suffix `.slap` appended.
 ```
 # A.slap
