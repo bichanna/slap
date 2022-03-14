@@ -15,10 +15,10 @@ const
   libstr = staticRead"../lib/strlib.slap"
   libmath = staticRead"../lib/mathlib.slap"
 
-let stdlibs: Table[string, string] = {
-    "std": libstd,
-    "str": libstr,
-    "math": libmath,
+let stdlibs: Table[string, seq[string]] = {
+    "std": @[libstd, "../lib/stdlib.slap"],
+    "str": @[libstr, "../lib/strlib.slap"],
+    "math": @[libmath, "../lib/mathlib.slap"],
   }.toTable
 
 
@@ -466,6 +466,7 @@ method eval(self: var Interpreter, statement: ContinueStmt) = raise ContinueExce
 
 method eval(self: var Interpreter, statement: ImportStmt) =
   var source: string = ""
+  var path: string = ""
   # this is for tracking source files
   token.sourceId += 1
   if not stdlibs.hasKey(statement.name.value):
@@ -474,9 +475,10 @@ method eval(self: var Interpreter, statement: ImportStmt) =
     except IOError:
       error(statement.name, RuntimeError, "Cannot open '" & statement.name.value & ".slap'. No such file or directory")
   else:
-    source = stdlibs[statement.name.value]
+    source = stdlibs[statement.name.value][0]
+    path = stdlibs[statement.name.value][1]
   var
-    lexer = newLexer(source)
+    lexer = newLexer(source, path)
     tokens = lexer.tokenize()
     parser = newParser(tokens)
     nodes = parser.parse()

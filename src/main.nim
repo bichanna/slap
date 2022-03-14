@@ -18,9 +18,9 @@ usage: slap [option] <filename>.slap
 const CURRENT_VERSION = "0.0.3"
 
 # actually executes a source code
-proc execute*(source: string) = 
+proc execute*(source: string, path: string) = 
   # lexing
-  var lexer = newLexer(source)
+  var lexer = newLexer(source, path)
   let tokens = lexer.tokenize()
   
   # parsing
@@ -39,7 +39,7 @@ proc execute*(source: string) =
 proc runFile(path: string) =
   try:
     let source = readFile(path)
-    execute(source)
+    execute(source, path)
   except IOError:
     quit("Cannot open '" & path & "'. No such file or directory")
 

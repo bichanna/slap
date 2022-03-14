@@ -50,8 +50,8 @@ type
     tokens*: seq[Token]
     current*, line*: int
 
-proc newLexer*(src: string): Lexer = 
-  error.sources[token.sourceId] = src
+proc newLexer*(src: string, path: string): Lexer = 
+  error.sources[token.sourceId] = path
   source = src
   return Lexer(
     tokens: @[],
