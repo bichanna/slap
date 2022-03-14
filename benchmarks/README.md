@@ -1,4 +1,4 @@
-As of March 2022, SLAP is approximately 9-11x slower than Python 3.9. But speed is not my concern.
+As of March 2022, SLAP is approximately 10-11x slower than Python 3.9.
 
 Commands used:
 ```
@@ -14,7 +14,7 @@ time slap benchmark/fib/slap.slap     # None
 | JavaScript| 0.07s|
 | Python    | 0.07s|
 | Julia     | 0.11s|
-| SLAP	    | 0.60s|
+| SLAP	    | 0.57s|
 
 
 ### Prime Numbers
@@ -23,7 +23,7 @@ time slap benchmark/fib/slap.slap     # None
 | JavaScript| 0.07s|
 | Python    | 0.17s|
 | Julia     | 0.32s|
-| SLAP	    | 1.99s|
+| SLAP	    | 1.97s|
 
 
 ## Bubble Sort
@@ -32,4 +32,4 @@ time slap benchmark/fib/slap.slap     # None
 | JavaScript| 0.05s|
 | Python    | 0.19s|
 | Julia     | 0.23s|
-| SLAP	    | 2.75s|
+| SLAP	    | 2.39s|
