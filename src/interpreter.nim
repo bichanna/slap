@@ -255,12 +255,6 @@ method eval(self: var Interpreter, expre: GetExpr): BaseType =
     return ClassInstance(obj).get(expre.name)
   elif obj of ClassType:
     return ClassType(obj).cinstance.get(expre.name)
-  elif obj of ModuleClass:
-    var module = ModuleClass(obj)
-    for i in 0 ..< module.keys.len:
-      if module.keys[i] == expre.name.value:
-        return module.values[i]
-    error(expre.name, RuntimeError, "'" & expre.name.value & "' is not defined in module " & module.name)
 
   error(expre.name, RuntimeError, "Only instances have properties")
 
@@ -270,14 +264,6 @@ method eval(self: var Interpreter, expre: SetExpr): BaseType =
   let value = self.eval(expre.value)
   if instance of ClassInstance:
     ClassInstance(instance).set(expre.name, value)
-  elif instance of ModuleClass:
-    var module = ModuleClass(instance)
-    var setIt = false
-    for i in 0 ..< module.keys.len():
-      if module.keys[i] == expre.name.value:
-        module.values[i] = value
-        setIt = true
-    if not setIt: error(expre.name, RuntimeError, "'" & $expre.name.value & "' is not defined in module " & module.name)
   else:
     error(expre.name, RuntimeError, "Only instances have fields")
   return value
@@ -463,35 +449,6 @@ method eval(self: var Interpreter, statement: IfStmt) =
 method eval(self: var Interpreter, statement: BreakStmt) = raise BreakException()
 
 method eval(self: var Interpreter, statement: ContinueStmt) = raise ContinueException()
-
-method eval(self: var Interpreter, statement: ImportStmt) =
-  var source: string = ""
-  var path: string = ""
-  # this is for tracking source files
-  token.sourceId += 1
-  if not stdlibs.hasKey(statement.name.value):
-    try:
-      source = readFile(statement.name.value & ".slap")
-    except IOError:
-      error(statement.name, RuntimeError, "Cannot open '" & statement.name.value & ".slap'. No such file or directory")
-  else:
-    source = stdlibs[statement.name.value][0]
-    path = stdlibs[statement.name.value][1]
-  var
-    lexer = newLexer(source, path)
-    tokens = lexer.tokenize()
-    parser = newParser(tokens)
-    nodes = parser.parse()
-    interpreter = newInterpreter()
-    resolver = newResolver(interpreter)
-  resolver.resolve(nodes)
-  interpreter = resolver.interpreter
-  interpreter.interpret(nodes)
-  
-  for key, value in interpreter.globals.values:
-    self.env.define(key, value)
-  
-  for key, value in interpreter.locals: self.locals[key] = value
 
 method eval(self: var Interpreter, statement: ClassStmt) =
   var superclass: BaseType
