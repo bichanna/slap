@@ -509,13 +509,13 @@ method eval(self: var Interpreter, statement: ImportStmt) =
     path = stdlibs[statement.name.value][1]
     name = statement.name.value
   else:
+    path = statement.name.value & ".slap"
+    name = statement.name.value
     try:
-      source = readFile(statement.name.value)
+      source = readFile(path)
     except IOError:
       error(statement.name, RuntimeError, "Cannot open '" & path & "'.")
-    
-    path = statement.name.value
-    name = path
+
   
   # check for SLAP equivalent of Python `as` keyword
   if not statement.asName.isNil:

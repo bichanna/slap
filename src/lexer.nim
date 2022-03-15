@@ -273,4 +273,5 @@ proc tokenize*(l: var Lexer): seq[Token] =
       else: error(token.sourceId, l.line, "SyntaxError", fmt"Unrecognized character '{c}'")
   if not strInterpBreak:
     l.appendToken(EOF)
+  token.sourceId += 1
   return l.tokens
