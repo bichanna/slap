@@ -10,12 +10,10 @@ import strutils, tables
 
 const RuntimeError = "RuntimeError"
 
-# import func
-proc slapImport(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-  discard
+proc loadBuildins*(): Environment  
 
 proc slapPrintln(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
-  if args.len < 1:
+  if args.len == 0:
     stdout.write("\n")
   else:
     stdout.write(args[0], "\n")
@@ -123,7 +121,6 @@ proc loadBuildins*(): Environment =
       call: call)
     )
   
-  def("import", (1, 2), slapImport)
   def("println", (0, 1), slapPrintln)
   def("print", (1, 1), slapPrint)
   def("append", (2, 2), slapAppend)

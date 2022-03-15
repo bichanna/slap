@@ -5,8 +5,8 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import lexer, parser, interpreter, resolver, error
-import os, parseopt
+import lexer, parser, interpreter, resolver, error, interpreterObj, token
+import os, parseopt, hashes
 
 when compileOption("profiler"): # this is for profiler, obviously
   import nimprof
@@ -23,7 +23,7 @@ const CURRENT_VERSION = "0.0.3"
 # actually executes a source code
 proc execute*(source: string, path: string) = 
   # lexing
-  var lexer = newLexer(source, path)
+  var lexer = newLexer(source, path, "__main__")
   let tokens = lexer.tokenize()
   
   # parsing
@@ -32,10 +32,11 @@ proc execute*(source: string, path: string) =
 
   # interpreting
   var
-    interpreter = newInterpreter()
+    interpreter = newInterpreter("__main__")
     resolver = newResolver(interpreter)
   resolver.resolve(nodes)
   interpreter = resolver.interpreter
+  newModuleObj(interpreter, "__main__", interpreter)
   interpreter.interpret(nodes)
 
 # reads a file and pass it to the execute func

@@ -124,6 +124,10 @@ type
 
   BreakStmt* = ref object of Stmt
 
+  ImportStmt* = ref object of Stmt
+    name*: Token
+    asName*: Token
+
   ContinueStmt* = ref object of Stmt
     
   ClassStmt* = ref object of Stmt

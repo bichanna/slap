@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import std/strformat, strutils
+import std/strformat, strutils, hashes
 
 var sourceId*: int8 = 0;
 
@@ -82,9 +82,10 @@ type
     value*: string
     line*: int
     sId*: int8
+    moduleHash*: Hash
 
-proc newToken*(kind: TokenType, value: string, line: int): Token =
-  return Token(kind: kind, value: value, line: line, sId: sourceId)
+proc newToken*(kind: TokenType, value: string, line: int, hashed: Hash): Token =
+  return Token(kind: kind, value: value, line: line, sId: sourceId, moduleHash: hashed)
 
 proc `$`*(token: Token): string =
   return fmt"{token.kind}:{token.value}:{token.line}"
