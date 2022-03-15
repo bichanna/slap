@@ -3,5 +3,5 @@ map@["a"] = [1, 2, 3];
 println(map); # @{ a:@{ b:@{ c:@{ d:@{ e:bichanna } } } } a:@[1, 2, 3] }
 
 #{
-@{ a:@{ b:@{ c:@{ d:@{ e:bichanna } } } } a:@[1, 2, 3] }
+{a: {b: {c: {d: {e: bichanna}}}}, a: @[1, 2, 3]}
 }#
