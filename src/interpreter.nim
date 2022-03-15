@@ -222,6 +222,7 @@ method eval(self: var Interpreter, expre: ListOrMapAssignExpr): BaseType =
       self.env.listOrMapAssignAt(distance, name, value, indexOrKey)
     else:
       self.globals.listOrMapAssign(name, value, indexOrKey)
+    newModuleObj(self, self.name, self)
   
   return value
 
@@ -278,6 +279,7 @@ method eval(self: var Interpreter, expre: SetExpr): BaseType =
   let value = self.eval(expre.value)
   if instance of ClassInstance:
     ClassInstance(instance).set(expre.name, value)
+    newModuleObj(self, self.name, self)
   elif instance of ModuleObj:
     ModuleObj(instance).interpreter.globals.assign(expre.name, value)
     newModuleObj(self, self.name, self)
@@ -522,11 +524,20 @@ method eval(self: var Interpreter, statement: ImportStmt) =
     name = statement.asName.value
   
   var
+    lexer: Lexer
+    tokens: seq[Token]
+    parser: Parser
+    nodes: seq[Stmt]
+    resolver: Resolver
+  
+  try:
     lexer = newLexer(source, path, name)
     tokens = lexer.tokenize()
     parser = newParser(tokens)
     nodes = parser.parse()
     resolver = newResolver(newInterpreter(name))
+  except OverflowDefect:
+    error(statement.name, RuntimeError, "Circular import")
   
   resolver.resolve(nodes)
   var interpreter = resolver.interpreter
