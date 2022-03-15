@@ -13,7 +13,11 @@ You can import like so:
 # B.slap
 import A;
 
-greet("bichanna");
+A.greet("bichanna");
+```
+You can use `->` like `as` keyword in Python.
+```
+import A -> a;
 ```
 
 [next > Syntax Sugars](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/syntax_sugars.md#--expression)

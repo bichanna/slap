@@ -26,7 +26,7 @@ proc listOrMapAssign*(env: var Environment, name: Token, value: BaseType, indexO
 proc listOrMapAssignAt*(env: var Environment, distance: int, name: Token, value: BaseType, indexOrKey: BaseType)
 
 # this awkward import is for recursive import; DO NOT REMOVE THIS!!
-import interpreterObj
+# import interpreterObj
 
 # --------------------------------------------------------------
 

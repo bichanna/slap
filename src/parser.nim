@@ -261,8 +261,10 @@ proc breakStatement(p: var Parser): Stmt =
 
 proc importStatement(p: var Parser): Stmt =
   let name = p.expect(Identifier, "Expected an identifier")
+  var asName: Token
+  if p.doesMatch(RightArrow): asName = p.expect(Identifier, "Expected an identifier")
   p.expect(SemiColon, "Expected ';' after import statement")
-  return ImportStmt(name: name)
+  return ImportStmt(name: name, asName: asName)
 
 proc continueStatement(p: var Parser): Stmt =
   if p.loopDepth == 0:
@@ -277,8 +279,8 @@ proc statement(p: var Parser): Stmt =
   elif p.doesMatch(For): return p.forStatement()
   elif p.doesMatch(Return): return p.returnStatement()
   elif p.doesMatch(Break): return p.breakStatement()
-  elif p.doesMatch(Continue): return p.continueStatement()
   elif p.doesMatch(Import): return p.importStatement()
+  elif p.doesMatch(Continue): return p.continueStatement()
   return p.exprStmt()
 
 proc returnStatement(p: var Parser): Stmt =

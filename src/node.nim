@@ -122,10 +122,11 @@ type
     keyword*: Token
     value*: Expr
 
+  BreakStmt* = ref object of Stmt
+
   ImportStmt* = ref object of Stmt
     name*: Token
-
-  BreakStmt* = ref object of Stmt
+    asName*: Token
 
   ContinueStmt* = ref object of Stmt
     

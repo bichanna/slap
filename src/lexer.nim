@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import tables, std/strformat
+import tables, std/strformat, hashes
 import token, error
 
 const
@@ -49,14 +49,16 @@ type
   Lexer* = object
     tokens*: seq[Token]
     current*, line*: int
+    moduleHash*: Hash
 
-proc newLexer*(src: string, path: string): Lexer = 
+proc newLexer*(src: string, path: string, moduleName: string): Lexer = 
   error.sources[token.sourceId] = path
   source = src
   return Lexer(
     tokens: @[],
     current: 0,
-    line: 0
+    line: 0,
+    moduleHash: moduleName.hash
   )
 
 # ----------------------------------------------------------------------
@@ -76,7 +78,7 @@ proc isAtEnd(l: var Lexer): bool = return l.current >= source.len
 
 # appends a token to the list with a value or without a value
 proc appendToken(l: var Lexer, ttype: TokenType, tvalue: string="") = 
-  l.tokens.add(newToken(ttype, tvalue, l.line))
+  l.tokens.add(newToken(ttype, tvalue, l.line, l.moduleHash))
 
 # returns the current character
 proc currentChar(l: var Lexer): char =
@@ -271,4 +273,5 @@ proc tokenize*(l: var Lexer): seq[Token] =
       else: error(token.sourceId, l.line, "SyntaxError", fmt"Unrecognized character '{c}'")
   if not strInterpBreak:
     l.appendToken(EOF)
+  token.sourceId += 1
   return l.tokens

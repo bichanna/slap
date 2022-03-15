@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/22/2022
 #
 
-import interpreter, node, token, error, interpreterObj
+import node, token, error, interpreterObj
 import tables
 
 type
@@ -97,6 +97,8 @@ method resolve(self: var Resolver, statement: ReturnStmt) =
 
 method resolve(self: var Resolver, statement: BreakStmt) = discard
 
+method resolve(self: var Resolver, statement: ImportStmt) = discard
+
 method resolve(self: var Resolver, statement: ContinueStmt) = discard
 
 method resolve(self: var Resolver, statement: WhileStmt) =
@@ -119,7 +121,6 @@ method resolve(self: var Resolver, expre: GroupingExpr) = self.resolve(expre.exp
 
 method resolve(self: var Resolver, expre: LiteralExpr) = discard
 
-method resolve(self: var Resolver, expre: ImportStmt) = discard
 
 method resolve(self: var Resolver, expre: LogicalExpr) =
   self.resolve(expre.left)
