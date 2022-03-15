@@ -21,8 +21,10 @@ SLAP stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**ow
 Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/lib))
 ```js
 import std;
+
 let areas = ["tools", "game", "web", "science", "systems", "embedded", "drivers", "mobile", "GUI"];
-forEach(areas) <- define(area) {
+
+std.forEach(areas) <- define(area) {
 	println("Hello, $(area) developers!");
 };
 ```
