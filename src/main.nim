@@ -5,8 +5,8 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import lexer, parser, interpreter, resolver, error, interpreterObj, token
-import os, parseopt, hashes
+import lexer, parser, interpreter, resolver, error, interpreterObj
+import os, parseopt
 
 when compileOption("profiler"): # this is for profiler, obviously
   import nimprof
