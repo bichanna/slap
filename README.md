@@ -110,5 +110,5 @@ Please be sure to add test files if you add new features (see [tests directory](
 
 ## Credits
 I learned a lot from
- - [Oak language](https://github.com/thesephist/oak) by thesephist
- - Bob Nystrom's great book, [*Crafting Interpreters*](https://craftinginterpreters.com/).
+ - [Oak language](https://github.com/thesephist/oak) by [thesephist](https://github.com/thesephist)
+ - [Bob Nystrom](https://github.com/munificent)'s great book, [*Crafting Interpreters*](https://craftinginterpreters.com/).
