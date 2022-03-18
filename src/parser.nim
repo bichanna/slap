@@ -33,8 +33,12 @@ proc ifStatement(p: var Parser): Stmt
 proc whileStatement(p: var Parser): Stmt
 proc forStatement(p: var Parser): Stmt
 proc returnStatement(p: var Parser): Stmt
+proc getParams(p: var Parser, kind: string): seq[FuncArg]
 proc functionBody(p: var Parser, kind: string): FuncExpr
+proc statement(p: var Parser): Stmt
 proc parse*(p: var Parser): seq[Stmt]
+
+var dontNeedSemicolon = false
 
 # returns the previous token
 proc previousToken(p: var Parser): Token = return p.tokens[p.current - 1]
@@ -135,7 +139,17 @@ proc primary(p: var Parser): Expr =
 
     return MapLiteralExpr(keys: keys, values: values, keyword: keyword)
 
-  elif p.doesMatch(Define): return p.functionBody("function")
+  elif p.doesMatch(Define):
+    if p.checkNextTok(RightBrace):
+      return p.functionBody("function")
+    else:
+      var params = p.getParams("function")
+      p.expect(FatRightArrow, "Expected '=>' before function body")
+      dontNeedSemicolon = true
+      var statement = p.statement()
+      dontNeedSemicolon = false
+      var body: seq[Stmt]; body.add(statement)
+      return FuncExpr(parameters: params, body: body)
   error(p.currentToken(), "SyntaxError", "Expected an expression")
 
 proc finishCall(p: var Parser, callee: Expr, arg: Expr): Expr =
@@ -250,25 +264,25 @@ proc expression(p: var Parser): Expr = return p.assignment()
 
 proc exprStmt(p: var Parser): Stmt =
   let expre = p.expression()
-  p.expect(SemiColon, "Expected ';'")
+  if not dontNeedSemicolon: p.expect(SemiColon, "Expected ';'")
   return ExprStmt(expression: expre)
 
 proc breakStatement(p: var Parser): Stmt =
   if p.loopDepth == 0:
     error(p.previousToken(), "SyntaxError", "'break' can only be used inside a loop")
-  p.expect(SemiColon, "Expected ';' after 'break'")
+  if not dontNeedSemicolon: p.expect(SemiColon, "Expected ';' after 'break'")
   return BreakStmt()
 
 proc importStatement(p: var Parser): Stmt =
   let token = p.previousToken()
   let name = p.expression()
-  p.expect(SemiColon, "Expected ';' after import statement")
+  if not dontNeedSemicolon: p.expect(SemiColon, "Expected ';' after import statement")
   return ImportStmt(name: name, keyword: token)
 
 proc continueStatement(p: var Parser): Stmt =
   if p.loopDepth == 0:
     error(p.previousToken(), "SyntaxError", "'continue' can only be used inside a loop")
-  p.expect(SemiColon, "Expected ';' after 'continue'")
+  if not dontNeedSemicolon: p.expect(SemiColon, "Expected ';' after 'continue'")
   return ContinueStmt()
 
 proc statement(p: var Parser): Stmt =
@@ -286,14 +300,14 @@ proc returnStatement(p: var Parser): Stmt =
   let keyword = p.previousToken()
   var value: Expr
   if not p.checkCurrentTok(SemiColon): value = p.expression()
-  p.expect(SemiColon, "Expected ';' after return value")
+  if not dontNeedSemicolon: p.expect(SemiColon, "Expected ';' after return value")
   return ReturnStmt(keyword: keyword, value: value)
 
 proc varDeclaration(p: var Parser): Stmt = 
   let name = p.expect(Identifier, "Expected an identifier")
   var init: Expr
   if p.doesMatch(Equals): init = p.expression()
-  p.expect(SemiColon, "Expected ';' after variable declaration")
+  if not dontNeedSemicolon: p.expect(SemiColon, "Expected ';' after variable declaration")
   return VariableStmt(name: name, init: init)
 
 proc forStatement(p: var Parser): Stmt =
@@ -307,7 +321,7 @@ proc forStatement(p: var Parser): Stmt =
 
   var condition: Expr
   if not p.checkCurrentTok(SemiColon): condition = p.expression()
-  p.expect(SemiColon, "Expected ';' after loop condition")
+  if not dontNeedSemicolon: p.expect(SemiColon, "Expected ';' after loop condition")
 
   var increment: Expr
   if not p.checkCurrentTok(RightParen): increment = p.expression()
@@ -356,7 +370,7 @@ proc ifStatement(p: var Parser): Stmt =
   
   return IfStmt(condition: condition, thenBranch: thenBranch, elseBranch: elseBranch, elifBranches: elifBranches)
 
-proc functionBody(p: var Parser, kind: string): FuncExpr =
+proc getParams(p: var Parser, kind: string): seq[FuncArg] =
   p.expect(LeftParen, "Expected '(' after " & kind & "name")
   var parameters: seq[FuncArg]
   if not p.checkCurrentTok(RightParen):
@@ -381,6 +395,11 @@ proc functionBody(p: var Parser, kind: string): FuncExpr =
       if not p.doesMatch(Comma): break
   
   p.expect(RightParen, "Expected ')' after parameters")
+
+  return parameters
+
+proc functionBody(p: var Parser, kind: string): FuncExpr =
+  var parameters = p.getParams(kind)
   
   p.expect(LeftBrace, "Expected '{' before " & kind & " body")
   let body = p.parseBlock()
