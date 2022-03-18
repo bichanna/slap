@@ -30,14 +30,16 @@ areas -> forEach() <- define(area) {
 	println("Hello, $(area) developers!");
 };
 ```
-Here's another example using [`<-` and `->` expressions](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/syntax_sugars.md#--expression).
+Here's another example using [`<-` and `->`](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/syntax_sugars.md#--expression) expressions intensively.
 
-```js
+```py
 import "math";
 
 let num = 10;
 
 (num -> abs() -> pow() <- num -> abs() -> sqrt()) -> println();
+# same as below
+# println(pow(abs(num), sqrt(abs(num))));
 ```
 
 ## Installation
