@@ -12,7 +12,7 @@
 	
 </div>
 
-**WARNING!! THIS LANGUAGE IS IN ACTIVE DEVELOPMENT. EVERTHING IS VERY UNSTABLE. ANYTHING CAN CHANGE AT ANY MOMENT.**
+**WARNING!! THIS LANGUAGE IS IN ACTIVE DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT.**
 
 SLAP stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday (though SLAP is mostly for my learning).
 
