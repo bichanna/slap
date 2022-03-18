@@ -65,7 +65,7 @@ define doSomething(func) {
     func();
 }
 
-doSomething(define() {
+doSomething(define() => {
     println("Hello World");
 });
 ```

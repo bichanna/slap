@@ -26,8 +26,8 @@ import "std";
 
 let areas = ["tools", "game", "web", "science", "systems", "embedded", "drivers", "mobile", "GUI"];
 
-areas -> forEach() <- define(area) {
-	println("Hello, $(area) developers!");
+areas -> forEach() <- define(area) => {
+	println("Hello, ${area} developers!");
 };
 ```
 Here's another example using [`<-` and `->`](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/syntax_sugars.md#--expression) expressions intensively.
