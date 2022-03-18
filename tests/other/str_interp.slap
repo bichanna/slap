@@ -2,10 +2,10 @@ let name = "bichanna";
 
 println("My name is $(name).");
 
-import std;
+import "std";
 
 let areas = ["tools", "game"];
-std.forEach(areas) <- define(area) {
+forEach(areas) <- define(area) {
     println("Hello, $(area) developers!");
 };
 
