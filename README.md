@@ -14,11 +14,13 @@
 
 **WARNING!! THIS LANGUAGE IS IN ACTIVE DEVELOPMENT. EVERTHING IS VERY UNSTABLE. ANYTHING CAN CHANGE AT ANY MOMENT.**
 
-SLAP stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday.
+SLAP stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday (though SLAP is mostly for my learning).
 
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language with a small portion of functional-language-like features. Its syntax is a member of the C family with a bit of difference.
 
-Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/lib))
+As of March 2022, you can write pretty decent small programs in SLAP.
+
+Here's an example SLAP program. ([samples & libs](https://github.com/bichanna/slap/tree/master/lib))
 ```js
 import std;
 
