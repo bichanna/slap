@@ -22,11 +22,11 @@ As of March 2022, you can write pretty decent small programs in SLAP.
 
 Here's an example SLAP program. ([samples & libs](https://github.com/bichanna/slap/tree/master/lib))
 ```js
-import std;
+import "std";
 
 let areas = ["tools", "game", "web", "science", "systems", "embedded", "drivers", "mobile", "GUI"];
 
-std.forEach(areas) <- define(area) {
+forEach(areas) <- define(area) {
 	println("Hello, $(area) developers!");
 };
 ```
