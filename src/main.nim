@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import lexer, parser, interpreter, resolver, error, interpreterObj
+import lexer, parser, interpreter, resolver, error
 import os, parseopt
 
 when compileOption("profiler"): # this is for profiler, obviously
@@ -23,7 +23,7 @@ const CURRENT_VERSION = "0.0.3"
 # actually executes a source code
 proc execute*(source: string, path: string) = 
   # lexing
-  var lexer = newLexer(source, path, "__main__")
+  var lexer = newLexer(source, path)
   let tokens = lexer.tokenize()
   
   # parsing
@@ -32,11 +32,10 @@ proc execute*(source: string, path: string) =
 
   # interpreting
   var
-    interpreter = newInterpreter("__main__")
+    interpreter = newInterpreter()
     resolver = newResolver(interpreter)
   resolver.resolve(nodes)
   interpreter = resolver.interpreter
-  newModuleObj(interpreter, "__main__", interpreter)
   interpreter.interpret(nodes)
 
 # reads a file and pass it to the execute func

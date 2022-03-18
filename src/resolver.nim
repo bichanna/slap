@@ -97,7 +97,8 @@ method resolve(self: var Resolver, statement: ReturnStmt) =
 
 method resolve(self: var Resolver, statement: BreakStmt) = discard
 
-method resolve(self: var Resolver, statement: ImportStmt) = discard
+method resolve(self: var Resolver, statement: ImportStmt) =
+  self.resolve(statement.name)
 
 method resolve(self: var Resolver, statement: ContinueStmt) = discard
 

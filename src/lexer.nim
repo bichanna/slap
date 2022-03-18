@@ -49,16 +49,14 @@ type
   Lexer* = object
     tokens*: seq[Token]
     current*, line*: int
-    moduleHash*: Hash
 
-proc newLexer*(src: string, path: string, moduleName: string): Lexer = 
+proc newLexer*(src: string, path: string): Lexer = 
   error.sources[token.sourceId] = path
   source = src
   return Lexer(
     tokens: @[],
     current: 0,
     line: 0,
-    moduleHash: moduleName.hash
   )
 
 # ----------------------------------------------------------------------
@@ -78,7 +76,7 @@ proc isAtEnd(l: var Lexer): bool = return l.current >= source.len
 
 # appends a token to the list with a value or without a value
 proc appendToken(l: var Lexer, ttype: TokenType, tvalue: string="") = 
-  l.tokens.add(newToken(ttype, tvalue, l.line, l.moduleHash))
+  l.tokens.add(newToken(ttype, tvalue, l.line))
 
 # returns the current character
 proc currentChar(l: var Lexer): char =

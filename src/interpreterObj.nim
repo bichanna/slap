@@ -11,13 +11,11 @@ import tables, strutils, hashes
 type
   # Interpreter takes in an abstract syntax tree and executes
   Interpreter* = ref object of RootObj
-    name*: string
     env*: Environment
     globals*: Environment
     locals*: Table[Expr, int]
   
   FuncType* = ref object of BaseType
-    moduleHash*: Hash
     call*: proc (self: var Interpreter, args: seq[BaseType], token: Token): BaseType
     arity*: proc (): (int, int) # at-least arg length and at-most length
   
@@ -37,16 +35,6 @@ type
     class*: ClassType
     fields*: Table[string, BaseType]
 
-  ModuleObj* = ref object of BaseType
-    interpreter*: Interpreter
-
-var modules*: Table[Hash, ModuleObj]
-
-proc newModuleObj*(self: var Interpreter, name: string, interp: Interpreter) =
-  var moduleObj = ModuleObj(interpreter: interp)
-  modules[moduleObj.interpreter.name.hash] = moduleObj
-  self.env.define(name, moduleObj)
-
 proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
   self.locals[expre] = depth
 
@@ -64,7 +52,6 @@ proc `$`*(obj: BaseType): string =
   elif obj of FuncType: return "<native fn>"
   elif obj of ClassType: return "<class " & ClassType(obj).name & ">"
   elif obj of ClassInstance: return "<instance " & ClassInstance(obj).class.name & ">"
-  elif obj of ModuleObj: return "<module " & ModuleObj(obj).interpreter.name & ">"
   
   # hopefully unreachable
   return "unknown type"

@@ -29,15 +29,14 @@ proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Env
 
 method eval(self: var Interpreter, expre: Expr): BaseType {.base, locks: "unknown".}
 
-proc newInterpreter*(name: string): Interpreter =
+proc newInterpreter*(): Interpreter =
   var globals = loadBuildins()
-  return Interpreter(name: name, env: globals, globals: globals, locals: initTable[Expr, int]())
+  return Interpreter(env: globals, globals: globals, locals: initTable[Expr, int]())
 
 # ----------------------------- FUNCTIONS & CLASSES ----------------------------------
 
-proc newFunction(self: var Interpreter, name: string, declaration: FuncExpr, closure: Environment, isInitFunc: bool = false): Function =
+proc newFunction(name: string, declaration: FuncExpr, closure: Environment, isInitFunc: bool = false): Function =
   var fun = Function()
-  fun.moduleHash = self.name.hash
   fun.name = name
   fun.isInitFunc = isInitFunc
   fun.declaration = declaration
@@ -65,7 +64,6 @@ proc newFunction(self: var Interpreter, name: string, declaration: FuncExpr, clo
         environment.define(RestArg(parameters[i]).paramName.value, newList(list))
       else:
         environment.define(RequiredArg(parameters[i]).paramName.value, args[i])
-      newModuleObj(self, self.name, self)
     try:
       self.executeBlock(declaration.body, environment)
     except ReturnException as rx:
@@ -79,11 +77,10 @@ proc findMethod(ct: ClassType, name: string): Function =
   if not ct.superclass.isNil: return ct.superclass.findMethod(name)
   return nil
 
-proc `bind`(i: var Interpreter, self: Function, instance: ClassInstance): Function =
+proc `bind`(self: Function, instance: ClassInstance): Function =
   var env = newEnv(self.closure)
   env.define("self", instance)
-  newModuleObj(i, i.name, i)
-  return newFunction(i, self.name, self.declaration, env, self.isInitFunc)
+  return newFunction(self.name, self.declaration, env, self.isInitFunc)
 
 proc newClassInstance(class: ClassType): ClassInstance = 
   var instance = ClassInstance(class: class, fields: initTable[string, BaseType]())
@@ -98,7 +95,7 @@ proc newClass(metaclass: ClassType, superclass: ClassType, name: string, methods
   class.call = proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = 
     var instance = newClassInstance(class)
     var init = class.methods.getOrDefault("new", nil)
-    if not init.isNil: discard self.`bind`(init, instance).call(self, args, token)
+    if not init.isNil: discard `bind`(init, instance).call(self, args, token)
     return instance
   class.methods = methods
   class.cinstance = newClassInstance(metaclass)
@@ -108,7 +105,7 @@ proc newClass(metaclass: ClassType, superclass: ClassType, name: string, methods
 proc get(ci: ClassInstance, name: Token, i: var Interpreter): BaseType =
   if ci.fields.hasKey(name.value): return ci.fields[name.value]
   let m = findMethod(ci.class, name.value)
-  if not m.isNil: return i.`bind`(m, ci)
+  if not m.isNil: return `bind`(m, ci)
   error(name, RuntimeError, "Property '" & name.value & "' is not defined")
 
 proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value] = value
@@ -201,7 +198,6 @@ method eval(self: var Interpreter, expre: AssignExpr): BaseType =
     self.env.assignAt(distance, expre.name, value)
   else:
     self.globals.assign(expre.name, value)
-  newModuleObj(self, self.name, self)
   return value
 
 # eval ListOrMapAssignExpr
@@ -222,7 +218,6 @@ method eval(self: var Interpreter, expre: ListOrMapAssignExpr): BaseType =
       self.env.listOrMapAssignAt(distance, name, value, indexOrKey)
     else:
       self.globals.listOrMapAssign(name, value, indexOrKey)
-    newModuleObj(self, self.name, self)
   
   return value
 
@@ -249,17 +244,7 @@ method eval(self: var Interpreter, expre: CallExpr): BaseType =
   if arguments.len > atMost:
     error(expre.paren, RuntimeError, "Expected at most " & $atMost & " argument(s) but got " & $arguments.len)
   
-  var returnValue: BaseType
-  
-  if function.moduleHash != self.name.hash and function of Function:
-    var hashed = function.moduleHash
-    if not modules.hasKey(hashed):
-      error(expre.paren, RuntimeError, "Module not found")
-    returnValue = function.call(modules[hashed].interpreter, arguments, expre.paren)
-  else:
-    returnValue = function.call(self, arguments, expre.paren)
-  
-  return returnValue
+  return function.call(self, arguments, expre.paren)
 
 # eval GetExpr
 method eval(self: var Interpreter, expre: GetExpr): BaseType =
@@ -268,8 +253,6 @@ method eval(self: var Interpreter, expre: GetExpr): BaseType =
     return ClassInstance(obj).get(expre.name, self)
   elif obj of ClassType:
     return ClassType(obj).cinstance.get(expre.name, self)
-  elif obj of ModuleObj:
-    return ModuleObj(obj).interpreter.globals.get(expre.name)
 
   error(expre.name, RuntimeError, "Only instances have properties")
 
@@ -279,10 +262,6 @@ method eval(self: var Interpreter, expre: SetExpr): BaseType =
   let value = self.eval(expre.value)
   if instance of ClassInstance:
     ClassInstance(instance).set(expre.name, value)
-    newModuleObj(self, self.name, self)
-  elif instance of ModuleObj:
-    ModuleObj(instance).interpreter.globals.assign(expre.name, value)
-    newModuleObj(self, self.name, self)
   else:
     error(expre.name, RuntimeError, "Only instances have fields")
   return value
@@ -299,7 +278,7 @@ method eval(self: var Interpreter, expre: SuperExpr): BaseType =
   
   if m.isNil:
     error(expre.classMethod, RuntimeError, "'" & expre.classMethod.value & "' is not defined")
-  return self.`bind`(m, obj)
+  return `bind`(m, obj)
 
 # eval ListLiteralExpr
 method eval(self: var Interpreter, expre: ListLiteralExpr): BaseType =
@@ -399,7 +378,6 @@ method eval(self: var Interpreter, expre: BinaryExpr): BaseType =
     else:
       var valueBefore = self.globals.get(name)
       self.globals.assign(name, fun(self, valueBefore, right, expre))
-    newModuleObj(self, self.name, self)
   else:
     return fun(self, left, right, expre)
 
@@ -414,16 +392,14 @@ method eval(self: var Interpreter, statement: VariableStmt) =
   var value: BaseType = newNull() # defaults to null
   if not statement.init.isNil: value = self.eval(statement.init)
   self.env.define(statement.name.value, value)
-  newModuleObj(self, self.name, self)
 
 method eval(self: var Interpreter, statement: FuncStmt) =
   let funcName = statement.name.value
-  let function = self.newFunction(funcName, statement.function, self.env)
+  let function = newFunction(funcName, statement.function, self.env)
   self.env.define(funcName, function)
-  newModuleObj(self, self.name, self)
 
 method eval(self: var Interpreter, expre: FuncExpr): BaseType =
-  return self.newFunction("", expre, self.env)
+  return newFunction("", expre, self.env)
 
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment) =
   let previous = self.env
@@ -482,7 +458,7 @@ method eval(self: var Interpreter, statement: ClassStmt) =
   self.env.define(statement.name.value, newNull())
   var classMethods = initTable[string, Function]()
   for m in statement.classMethods:
-    let fun = self.newFunction(m.name.value, m.function, self.env, false)
+    let fun = newFunction(m.name.value, m.function, self.env, false)
     classMethods[m.name.value] = fun
   let metaclass = newClass(nil, nil, statement.name.value & " metaclass", classMethods, statement.name)
 
@@ -492,36 +468,31 @@ method eval(self: var Interpreter, statement: ClassStmt) =
 
   var methods = initTable[string, Function]()
   for m in statement.methods:
-    let function = self.newFunction(m.name.value, m.function, self.env, m.name.value == "new")
+    let function = newFunction(m.name.value, m.function, self.env, m.name.value == "new")
     methods[m.name.value] = function
   let class = newClass(metaclass, ClassType(superclass), statement.name.value, methods, statement.name)
 
   if not superclass.isNil: self.env = self.env.enclosing
 
   self.env.assign(statement.name, class)
-  newModuleObj(self, self.name, self)
 
 method eval(self: var Interpreter, statement: ImportStmt) =
   var source: string
   var path: string
-  var name: string
 
-  if stdlibs.contains(statement.name.value):
-    source = stdlibs[statement.name.value][0]
-    path = stdlibs[statement.name.value][1]
-    name = statement.name.value
+  var possiblePath = self.eval(statement.name)
+  if not (possiblePath of SlapString): error(statement.keyword, RuntimeError, "Path must be string")
+
+  let strPossiblePath = SlapString(possiblePath).value
+  if stdlibs.contains(strPossiblePath):
+    source = stdlibs[strPossiblePath][0]
+    path = stdlibs[strPossiblePath][1]
   else:
-    path = statement.name.value & ".slap"
-    name = statement.name.value
+    path = strPossiblePath
     try:
       source = readFile(path)
     except IOError:
-      error(statement.name, RuntimeError, "Cannot open '" & path & "'.")
-
-  
-  # check for SLAP equivalent of Python `as` keyword
-  if not statement.asName.isNil:
-    name = statement.asName.value
+      error(statement.keyword, RuntimeError, "Cannot open '" & path & "'.")
   
   var
     lexer: Lexer
@@ -531,18 +502,21 @@ method eval(self: var Interpreter, statement: ImportStmt) =
     resolver: Resolver
   
   try:
-    lexer = newLexer(source, path, name)
+    lexer = newLexer(source, path)
     tokens = lexer.tokenize()
     parser = newParser(tokens)
     nodes = parser.parse()
-    resolver = newResolver(newInterpreter(name))
+    resolver = newResolver(newInterpreter())
   except OverflowDefect:
-    error(statement.name, RuntimeError, "Circular import")
+    error(statement.keyword, RuntimeError, "Circular import")
   
   resolver.resolve(nodes)
   var interpreter = resolver.interpreter
   interpreter.interpret(nodes)
-  newModuleObj(self, name, interpreter)
+
+  for key, value in interpreter.locals: self.locals[key] = value
+
+  for key, value in interpreter.env.values: self.env.define(key, value)
 
 # ----------------------------------------------------------------------
 
@@ -646,12 +620,5 @@ proc lookUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType =
   if self.locals.hasKey(expre):
     let distance = self.locals[expre]
     return self.env.getAt(distance, name.value)
-  elif interpreterObj.modules.hasKey(name.moduleHash):
-    var inter = interpreterObj.modules[name.moduleHash].interpreter
-    if inter.locals.hasKey(expre):
-      var distance = inter.locals[expre]
-      return inter.env.getAt(distance, name.value)
-    else:
-      return inter.globals.get(name)
   else:
     return self.globals.get(name)
