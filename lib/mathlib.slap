@@ -4,6 +4,7 @@
 #
 # Created by Nobuharu Shimazu on 2/22/2022
 #
+# Import by `import "math";`
 
 # math.slap contains math functions.
 

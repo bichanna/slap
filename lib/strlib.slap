@@ -4,6 +4,7 @@
 #
 # Created by Nobuharu Shimazu on 3/4/2022
 #
+# Import by `import "strutils";`
 
 # str.slap contains the core string library for SLAP.
 # This provides a set of utility functions for working with strings and data
