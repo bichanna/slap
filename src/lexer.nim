@@ -245,6 +245,7 @@ proc tokenize*(l: var Lexer): seq[Token] =
       else: l.appendToken(Less)
     of '=':
       if l.doesMatch('='): l.appendToken(EqualEqual)
+      elif l.doesMatch('>'): l.appendToken(FatRightArrow)
       else: l.appendToken(Equals)
     of '>':
       if l.doesMatch('='): l.appendToken(GreaterEqual)
