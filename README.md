@@ -26,7 +26,7 @@ import "std";
 
 let areas = ["tools", "game", "web", "science", "systems", "embedded", "drivers", "mobile", "GUI"];
 
-forEach(areas) <- define(area) {
+areas -> forEach() <- define(area) {
 	println("Hello, $(area) developers!");
 };
 ```
