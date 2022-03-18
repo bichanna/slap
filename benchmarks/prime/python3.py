@@ -4,4 +4,4 @@ for num in range(2, 1500):
 		if num % i == 0:
 			prime = False
 	if prime:
-		print(num)
+		pass

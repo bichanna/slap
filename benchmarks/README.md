@@ -12,24 +12,24 @@ time slap benchmark/fib/slap.slap     # None
 | Language  | Time |
 | --------- | ---- |
 | JavaScript| 0.07s|
-| Python    | 0.07s|
+| Python    | 0.09s|
 | Julia     | 0.11s|
-| SLAP	    | 0.57s|
+| SLAP	    | 0.58s|
 
 
 ### Prime Numbers
 | Language  | Time |
 | --------- | ---- |
 | JavaScript| 0.07s|
-| Python    | 0.17s|
-| Julia     | 0.32s|
-| SLAP	    | 1.97s|
+| Python    | 0.13s|
+| Julia     | 0.28s|
+| SLAP	    | 1.88s|
 
 
 ## Bubble Sort
 | Language  | Time |
 | --------- | ---- |
-| JavaScript| 0.05s|
-| Python    | 0.19s|
-| Julia     | 0.23s|
-| SLAP	    | 2.39s|
+| JavaScript| 0.06s|
+| Python    | 0.18s|
+| Julia     | 0.27s|
+| SLAP	    | 2.37s|

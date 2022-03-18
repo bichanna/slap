@@ -6,6 +6,6 @@ for num in 2:1499
 		end
 	end
 	if prime
-		println(num)
+		
 	end
 end

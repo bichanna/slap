@@ -5,7 +5,5 @@ for (var num = 2; num < 1500; num += 1) {
 			prime = false;
 		}
 	}
-	if (prime) {
-		console.log(num)
-	}
+	if (prime) {}
 }
