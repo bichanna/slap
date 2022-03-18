@@ -2,7 +2,7 @@ import "std";
 
 define sum(list+) {
 	let sum = 0;
-	forEach(list) <- define(i) { sum += i; };
+	forEach(list) <- define(i) => { sum += i; };
 	return sum;
 }
 

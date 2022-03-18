@@ -140,10 +140,10 @@ proc primary(p: var Parser): Expr =
     return MapLiteralExpr(keys: keys, values: values, keyword: keyword)
 
   elif p.doesMatch(Define):
+    var params = p.getParams("function")
     if p.checkNextTok(RightBrace):
       return p.functionBody("function")
     else:
-      var params = p.getParams("function")
       p.expect(FatRightArrow, "Expected '=>' before function body")
       dontNeedSemicolon = true
       var statement = p.statement()
@@ -286,7 +286,7 @@ proc continueStatement(p: var Parser): Stmt =
   return ContinueStmt()
 
 proc statement(p: var Parser): Stmt =
-  if p.doesMatch(LeftBrace): return BlockStmt(statements: p.parseBlock())
+  if p.doesMatch(LeftBrace): dontNeedSemicolon = false; return BlockStmt(statements: p.parseBlock())
   elif p.doesMatch(If): return p.ifStatement()
   elif p.doesMatch(While): return p.whileStatement()
   elif p.doesMatch(For): return p.forStatement()
