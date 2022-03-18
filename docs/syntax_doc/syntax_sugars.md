@@ -1,7 +1,7 @@
 ## String Interpolation
-You can use string interpolation in SLAP by using `$(...)`.
+You can use string interpolation in SLAP by using `${...}`.
 ```
-println("3 time 4 is $(3 * 4)");
+println("3 time 4 is ${3 * 4}");
 ```
 SLAP de-sugars the above code to this:
 ```
