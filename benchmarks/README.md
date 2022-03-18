@@ -1,4 +1,4 @@
-As of March 2022, SLAP is approximately 10-11x slower than Python 3.9.
+As of March 2022, SLAP is approximately 7-8x slower than Python 3.9 (that's pretty fast for a tree-walker).
 
 Commands used:
 ```
