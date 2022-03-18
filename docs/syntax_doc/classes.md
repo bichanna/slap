@@ -48,4 +48,4 @@ class Mazda <- Car {
 }
 ```
 
-[next > Import Statement](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/classes.md#classes)
+[next > Import Statement](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/import.md#import-statement)
