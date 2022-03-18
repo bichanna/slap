@@ -95,7 +95,7 @@ $ nimble test
      - [x] Math
      - [ ] Networking
  - [x] Classes
- - [x] Import
+ - [x] Import (very, ver, very buggy, so Do Not use this yet!)
  - [ ] Concurrency
 ### Others
  - [x] Assignment Shorthands (e.g, `+=`, `*=`)
