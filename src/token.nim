@@ -42,6 +42,7 @@ type
     Bang                = "BANG" # !
     LeftArrow           = "LEFT_ARROW" # <-
     RightArrow          = "RIGHT_ARROW" # ->
+    FatRightArrow       = "FAT_RIGHT_ARROW" # =>
     Equals              = "EQUALS" # =
     EqualEqual          = "EQUAL_EQUAL" # ==
     GreaterEqual        = "GREATER_THAN_OR_EQUAL" # >=

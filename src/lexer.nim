@@ -101,7 +101,7 @@ proc makeString(l: var Lexer) =
   var strValue: string = ""
   while l.currentChar() != '"' and not l.isAtEnd():
     if l.currentChar() == '\n': l.line += 1
-    elif l.currentChar() == '$' and l.nextChar() == '(':
+    elif l.currentChar() == '$' and l.nextChar() == '{':
       l.advance(); l.advance()
       l.appendToken(String, strValue); strValue = ""
       l.appendToken(Plus); l.appendToken(LeftParen) # +(
@@ -208,18 +208,18 @@ proc tokenize*(l: var Lexer): seq[Token] =
     c = l.advance()
     case c:
     of '(': l.appendToken(LeftParen)
-    of ')':
+    of ')': l.appendToken(RightParen)
+    of '[': l.appendToken(LeftBracket)
+    of ']': l.appendToken(RightBracket)
+    of '{': l.appendToken(LeftBrace)
+    of '}':
       if inStrInterp:
         if strInterpDepth > 1: strInterpDepth -= 1
         elif strInterpDepth == 1:
           strInterpDepth -= 1
           strInterpBreak = true
           break
-      l.appendToken(RightParen)
-    of '[': l.appendToken(LeftBracket)
-    of ']': l.appendToken(RightBracket)
-    of '{': l.appendToken(LeftBrace)
-    of '}': l.appendToken(RightBrace)
+      l.appendToken(RightBrace)
     of ':': l.appendToken(Colon)
     of ';': l.appendToken(SemiColon)
     of '+': l.plusShorthand()
@@ -245,6 +245,7 @@ proc tokenize*(l: var Lexer): seq[Token] =
       else: l.appendToken(Less)
     of '=':
       if l.doesMatch('='): l.appendToken(EqualEqual)
+      elif l.doesMatch('>'): l.appendToken(FatRightArrow)
       else: l.appendToken(Equals)
     of '>':
       if l.doesMatch('='): l.appendToken(GreaterEqual)
@@ -271,5 +272,5 @@ proc tokenize*(l: var Lexer): seq[Token] =
       else: error(token.sourceId, l.line, "SyntaxError", fmt"Unrecognized character '{c}'")
   if not strInterpBreak:
     l.appendToken(EOF)
-  token.sourceId += 1
+  if not inStrInterp: token.sourceId += 1
   return l.tokens

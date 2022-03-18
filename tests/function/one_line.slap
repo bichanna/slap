@@ -1,0 +1,7 @@
+let shoutPrintln = define (msg) => println("${upper(msg)}!");
+
+shoutPrintln("my username is bichanna");
+
+#{
+MY USERNAME IS BICHANNA!
+}#
