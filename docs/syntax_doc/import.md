@@ -17,4 +17,4 @@ import "A.slap";
 greet("bichanna");
 ```
 
-[next > Syntax Sugars](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/syntax_sugars.md#--expression)
+[next > Syntax Sugars](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/syntax_sugars.md#string-interpolation)
