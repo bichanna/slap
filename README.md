@@ -58,7 +58,7 @@ $ slap --version
 SLAP 0.0.3
 ```
 
-You may want to test before running your SLAP programs.
+You may want to test current SLAP you just built before running your programs.
 ```
 $ nimble test
 ```
