@@ -5,7 +5,7 @@ You can import by using relative paths.
 
 ```
 # A.slap
-define greet(name) {
+def greet(name) {
     println("Hello " + name + "!");
 }
 ```

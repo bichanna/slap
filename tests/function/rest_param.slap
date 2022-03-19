@@ -1,8 +1,8 @@
 import "std";
 
-define sum(list+) {
+def sum(list+) {
 	let sum = 0;
-	forEach(list) <- define(i) => { sum += i; };
+	forEach(list) <- def (i) => { sum += i; };
 	return sum;
 }
 

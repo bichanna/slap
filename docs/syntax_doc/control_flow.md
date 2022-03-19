@@ -41,7 +41,7 @@ import std; # we'll talk about import statements later.
 
 let list = ["game", "GUI", "web"]
 
-forEach(list) <- define (i) { # we'll talk about functions, `<-`, and `->` expressions.
+forEach(list) <- def (i) { # we'll talk about functions, `<-`, and `->` expressions.
 	println("Hello, " + i + " developers!");
 }
 ```

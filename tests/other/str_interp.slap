@@ -5,7 +5,7 @@ println("My name is ${name}.");
 import "std";
 
 let areas = ["tools", "game"];
-forEach(areas) <- define(area) => {
+forEach(areas) <- def (area) => {
     println("Hello, ${area} developers!");
 };
 

@@ -1,4 +1,4 @@
-define returnsNull() {}
+def returnsNull() {}
 
 println(returnsNull()); # null
 

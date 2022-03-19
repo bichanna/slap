@@ -1,4 +1,4 @@
-let shoutPrintln = define (msg) => println("${upper(msg)}!");
+let shoutPrintln = def (msg) => println("${upper(msg)}!");
 
 shoutPrintln("my username is bichanna");
 

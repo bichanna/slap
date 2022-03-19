@@ -1,4 +1,4 @@
-define func(a, b, c) {}
+def func(a, b, c) {}
 
 func(1, 2);
 

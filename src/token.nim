@@ -56,7 +56,7 @@ type
     EOF                 = "EOF"
 
     # keywords
-    Define              = "define"
+    Define              = "def"
     Class               = "class"
     Static              = "static"
     And                 = "and"

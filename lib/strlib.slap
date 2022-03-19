@@ -12,7 +12,7 @@
 
 # substring returns the substring beginning at index 'f' and ending at index 't-1' [f, t)
 # signature: substring(x: str, f: int, t: int): str
-define substring(x, f, t) {
+def substring(x, f, t) {
     let result = "";
     for ($i = f; i < t; i = i + 1) result = result + x@[i];
     return result;
@@ -21,7 +21,7 @@ define substring(x, f, t) {
 # expand disassembles a string to a list of characters, which are just 
 # a list of one-character strings.
 # signature: expand(x: str): @[str]
-define expand(x) {
+def expand(x) {
     let list = [];
     for ($i = 0; i < len(x); i = i + 1) list->append(x@[i]);
     return list;
@@ -30,7 +30,7 @@ define expand(x) {
 # fuse concatenates together a list of strings into a single string
 # and returns the result, so the original list is not mutated.
 # signature: fuse(x: [str]): str
-define fuse(x) {
+def fuse(x) {
     let result = "";
     for ($i = 0; i < len(x); i = i + 1) result = result + string(x@[i]);
     return result;
@@ -39,7 +39,7 @@ define fuse(x) {
 # replace replaces all the occurrence of 'target' with 'repl'
 # and returns the modified string.
 # signature: replaceChar(x: str, target: str, repl: str): str
-define replaceChar(x, target, repl) {
+def replaceChar(x, target, repl) {
     let charList = expand(x);
     for ($i = 0; i < len(charList); i = i + 1) {
         if (charList@[i] == target) charList@[i] = repl;
@@ -49,7 +49,7 @@ define replaceChar(x, target, repl) {
 
 # endsWith reports whether a string ends with the substring 'suffix'.
 # signature: endsWith(x: str, suffix: str): bool
-define endsWith(x, suffix) {
+def endsWith(x, suffix) {
     let strLen = len(x);
     let n = len(suffix);
     let nMinN = len(x) - n;
@@ -59,7 +59,7 @@ define endsWith(x, suffix) {
 
 # startsWith reports whether a string starts with the substring 'prefix'.
 # signature: startsWith(x: str, prefix: str): bool
-define startsWith(x, prefix) {
+def startsWith(x, prefix) {
     let strLen = len(x);
     let n = len(prefix);
     if (n <= strLen and x->substring(0, n) == prefix) return true;

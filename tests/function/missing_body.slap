@@ -1,4 +1,4 @@
-define someFunc() println("Hello World"); # SyntaxError: Expected '{' before function body
+def someFunc() println("Hello World"); # SyntaxError: Expected '{' before function body
 
 
 #{

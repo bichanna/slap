@@ -11,11 +11,11 @@ println("3 times 4 is " + (3 * 4) + "");
 ## `<-` Expression
 Because I like callbacks, there's special syntax sugar, the `<-` expression. The `<-` syntax sugar de-sugars like this:
 ```
-someFunc("abc") <- define(data) {
+someFunc("abc") <- def (data) {
     println(data);
 };
 
-someFunc("abc", define(data) {  # de-sugars to this
+someFunc("abc", def (data) {  # de-sugars to this
     println(data);
 });
 ```

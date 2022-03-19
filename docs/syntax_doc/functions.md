@@ -1,8 +1,8 @@
 ## Functions
 
-Functions in SLAP are declared using `define` and do not require their parameters and return types be annotated.
+Functions in SLAP are declared using `def` and do not require their parameters and return types be annotated.
 ```
-define greetStr(name) {
+def greetStr(name) {
     return "Hello, " + name + "!";
 }
 
@@ -11,7 +11,7 @@ println(greetStr("bichanna"));
 
 Function arguments can have default values in SLAP. You can provide a default value to an argument by using `=`.
 ```
-define greet(name="somebody") {
+def greet(name="somebody") {
     println("Hello, " + name + "!");
 }
 greet();
@@ -22,9 +22,9 @@ You can add `+` after parameter name if you are unsure about the number of argum
 ```
 import std;
 
-define sum(list+) {
+def sum(list+) {
 	let sum = 0;
-	forEach(list) <- define(i) { sum += i; };
+	forEach(list) <- def (i) { sum += i; };
 	return sum;
 }
 
@@ -34,11 +34,11 @@ sum(3, 1, 4, 2, 5) -> println();
 SLAP supports closures as well as passing functions.
 
 ```
-define add(a, b) {
+def add(a, b) {
     return a + b;
 }
 
-define returnFunc(a) {
+def returnFunc(a) {
     return a;
 }
 
@@ -48,8 +48,8 @@ println(returnFunc(add)(1, 4));
 A function within a function looks like this:
 
 ```
-define outerFunc() {
-    define insideFunc() {
+def outerFunc() {
+    def insideFunc() {
         println("I'm local.");
     }
     insideFunc();
@@ -61,11 +61,11 @@ outerFunc();
 Here's an anonymous function example:
 
 ```
-define doSomething(func) {
+def doSomething(func) {
     func();
 }
 
-doSomething(define() => {
+doSomething(def() => {
     println("Hello World");
 });
 ```

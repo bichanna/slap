@@ -1,4 +1,4 @@
-define func(a, b="default") {
+def func(a, b="default") {
 	println(a); # not default a
 	println(b); # default
 }

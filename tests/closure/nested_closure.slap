@@ -1,14 +1,14 @@
-define funcA() {
+def funcA() {
 	let a = "a";
-	define funcB() {
+	def funcB() {
 		let b = "b";
-		define funcC() {
+		def funcC() {
 			let c = "c";
-			define funcD() {
+			def funcD() {
 				let d = "d";
-				define funcE() {
+				def funcE() {
 					let e = "e";
-					define funcF() {
+					def funcF() {
 						println(a);
 						println(b);
 						println(c);

@@ -1,4 +1,4 @@
-define bubbleSort(list) {
+def bubbleSort(list) {
   for ($i = 0; i < list -> len(); i = i + 1) {
     for ($j = 0; j < list -> len() - i - 1; j = j + 1) {
       if (list@[j] > list@[j+1]) {

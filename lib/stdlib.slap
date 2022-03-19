@@ -9,12 +9,12 @@
 # std.slap contains the core standard library for SLAP.
 
 # identity returns its first argument
-define identitiy(x) { return x; }
+def identitiy(x) { return x; }
 
 # join concatenates two lists and returns the
 # joined list (does not mutate the original lists).
 # signature: join(x: @[any], y: @[any]): @[any]
-define join(x, y) {
+def join(x, y) {
     let newList = [];
     for ($i = 0; i < len(x); i = i + 1) newList->append(x@[i]);
     for ($j = 0; j < len(y); j = j + 1) newList->append(y@[j]);
@@ -24,7 +24,7 @@ define join(x, y) {
 # slice takes a list, and returns a copied "slice" of the
 # original list from the range [x, y)
 # signature: slice(list: @[any], x: int, y: int): @[any]
-define slice(list, x, y) {
+def slice(list, x, y) {
     let newList = [];
     for ($i = x; i < y; i = i + 1) newList->append(list@[i]);
     return newList;
@@ -34,7 +34,7 @@ define slice(list, x, y) {
 # the list appears twice in a row. Elements may occur twice
 # in the list if they are separated by other elements.
 # signature: areUnique(list: @[any]): bool
-define areUnique(list) {
+def areUnique(list) {
     if (len(list) == 0) {
         return false;
     } elif (len(list) == 1) {
@@ -53,7 +53,7 @@ define areUnique(list) {
 # of the original list appears twice in a row. Elements may occur twice
 # in the list if they are separated by other elements.
 # signature: uniqueList(list: @[any]): @[any]
-define uniqueList(list) {
+def uniqueList(list) {
     if (len(list) == 0 or len(list) == 1) return list;
      
     let newList = [];
@@ -67,7 +67,7 @@ define uniqueList(list) {
 
 # contains reports whether a list contains an item equal to 'y'.
 # signature: contains(x: @[any] | str, y: any): bool
-define contains(x, y) {
+def contains(x, y) {
     for ($i = 0; i < len(x); i = i + 1) {
         if (x@[i] == y) return true;
     }
@@ -75,7 +75,7 @@ define contains(x, y) {
 }
 
 # forEach executes a provided function once for each list element.
-# signature: forEach(list: @[any], func: define(x: any))
-define forEach(list, func) {
+# signature: forEach(list: @[any], func: def(x: any))
+def forEach(list, func) {
     for ($i = 0; i < len(list); i = i + 1) func(list@[i]);
 }

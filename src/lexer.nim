@@ -11,7 +11,7 @@ import token, error
 const
   # keywords in SLAP
   keywords = {
-    "define": Define,
+    "def": Define,
     "class": Class,
     "static": Static,
     "and": And,

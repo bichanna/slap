@@ -16,14 +16,14 @@ let E = 2.71828182845904523536028747135266249775724709369995;
 
 # abs returns the absolute value of a real number
 # signature: abs(n: int | float): int | float
-define abs(n) {
+def abs(n) {
 	if (n >= 0) return n;
 	return -n;
 }
 
 # pow acts like you expect
 # signature: pow(b: int | float, e: int | float): int | float
-define pow(b, e) {
+def pow(b, e) {
 	if (e == 0) return 1;
 	let result = b;
 	for ($i = 1; i < e; i = i + 1) result = result * b;
@@ -32,7 +32,7 @@ define pow(b, e) {
 
 # sqrt acts like you expect
 # signature: sqrt(n: int | float): float
-define sqrt(n) {
+def sqrt(n) {
 	let num = n / 2;
 	let tmp = 0;
 	while (num != tmp) {

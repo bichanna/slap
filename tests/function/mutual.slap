@@ -1,9 +1,9 @@
-define isEven(x) {
+def isEven(x) {
 	if (x == 0) return true;
 	return isOdd(x - 1);
 }
 
-define isOdd(x) {
+def isOdd(x) {
 	if (x == 0) return false;
 	return isEven(x - 1);
 }
