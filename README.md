@@ -100,6 +100,8 @@ $ nimble test
      - [ ] Networking
  - [x] Classes
      - [x] Class Methods
+     - [x] Inheritance
+     - [ ] Abstract Class (Interface)
  - [x] Import
  - [ ] Concurrency
 ### Others
