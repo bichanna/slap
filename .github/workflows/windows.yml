@@ -1,0 +1,16 @@
+name: Windows
+on:
+  pull_request:
+    branches: [master]
+
+
+jobs:
+  macOS:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: iffy/install-nim@v3.2.2
+        with:
+          binary: 1.6.0
+      - run: nimble build --multimethods:on -d:release
+      - run: nimble test
