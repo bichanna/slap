@@ -517,7 +517,11 @@ method eval(self: var Interpreter, statement: ImportStmt) =
 
   for key, value in interpreter.locals: self.locals[key] = value
 
-  for key, value in interpreter.env.values: self.env.define(key, value)
+  if statement.imports.len == 0 or statement.imports[0] == "*".hash:
+    for key, value in interpreter.env.values: self.env.define(key, value)
+  else:
+    for key, value in interpreter.env.values:
+      if statement.imports.contains(key): self.env.define(key, value)
 
 # ----------------------------------------------------------------------
 

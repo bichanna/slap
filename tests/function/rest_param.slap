@@ -1,4 +1,4 @@
-import "std";
+import "std" => forEach;
 
 def sum(list+) {
 	let sum = 0;
