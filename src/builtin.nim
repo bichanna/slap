@@ -67,6 +67,8 @@ proc slapIsString(self: var Interpreter, args: seq[BaseType], token: Token): Bas
 
 proc slapIsList(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapList)
 
+proc slapIsMap(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapMap)
+
 proc slapIsNull(self: var Interpreter, args: seq[BaseType], token: Token): BaseType = return newBool(args[0] of SlapNull)
 
 proc slapConvertInt(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
@@ -133,6 +135,7 @@ proc loadBuildins*(): Environment =
   def("isBool", (1, 1), slapIsBool)
   def("isStr", (1, 1), slapIsString)
   def("isList", (1, 1), slapIsList)
+  def("isMap", (1, 1), slapIsMap)
   def("isNull", (1, 1), slapIsNull)
   def("int", (1, 1), slapConvertInt)
   def("str", (1, 1), slapConvertStr)
