@@ -99,6 +99,7 @@ $ nimble test
      - [x] Math
      - [ ] Networking
  - [x] Classes
+     - [x] Class Methods
  - [x] Import
  - [ ] Concurrency
 ### Others
