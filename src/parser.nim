@@ -6,6 +6,7 @@
 #
 
 import token, error, node
+import hashes
 
 type
   # Parser takes in a list of tokens (seq[Token]) and 
@@ -276,8 +277,17 @@ proc breakStatement(p: var Parser): Stmt =
 proc importStatement(p: var Parser): Stmt =
   let token = p.previousToken()
   let name = p.expression()
+
+  var imports: seq[Hash] = @[]
+  if p.doesMatch(FatRightArrow):
+    imports.add(p.currentToken().value.hash)
+    p.advance()
+    while p.doesMatch(Comma):
+      imports.add(p.currentToken().value.hash)
+      p.advance()
+  
   if not dontNeedSemicolon: p.expect(SemiColon, "Expected ';' after import statement")
-  return ImportStmt(name: name, keyword: token)
+  return ImportStmt(name: name, keyword: token, imports: imports)
 
 proc continueStatement(p: var Parser): Stmt =
   if p.loopDepth == 0:

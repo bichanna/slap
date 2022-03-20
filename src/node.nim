@@ -6,6 +6,7 @@
 # 
 
 import token
+import hashes
 
 var isRepl*: bool = false
 
@@ -127,6 +128,7 @@ type
   ImportStmt* = ref object of Stmt
     name*: Expr
     keyword*: Token
+    imports*: seq[Hash]
 
   ContinueStmt* = ref object of Stmt
     
