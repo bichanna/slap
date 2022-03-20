@@ -23,10 +23,23 @@ syntax keyword SLAPBool true false
 " Numbers
 syntax match SLAPNum "\d\+"
 
+" Stringß
+syntax region SLAPString start="\"" end="\""
+
+" Comments
+syntax match SLAPComment "#.*$" contains=SLAPMLComment
+syntax region SLAPMLComment start="#{" end="}#"
+
+" Ops
+syntax match valeOp "[+\-\*/@&$=<>!]"
+
 " Set highlights
-highlight default link SLAPKeywords Repeat
-highlight default link SLAPNum Number
-highlight default link SLAPType Type
-highlight default link SLAPBool Boolean
+highlight default link SLAPKeywords    Repeat
+highlight default link SLAPNum         Number
+highlight default link SLAPString      String
+highlight default link SLAPType        Type
+highlight default link SLAPBool        Boolean
+highlight default link SLAPComment     Comment
+highlight default link SLAPMLComment   Comment
 
 let b:current_syntax = "slap"
