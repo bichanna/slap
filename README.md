@@ -47,7 +47,7 @@ On Linux/macOS, you may be able to run the following commands to install SLAP.
 $ git clone https://github.com/bichanna/slap.git
 $ cd slap
 $ chmod +x ./build.sh 
-$ ./build.sh
+$ ./build.sh         # SLAP Vim highlighter automatically gets installed
 ```
 For Windows, I haven't written bat version of `build.sh`, so you have to manually compile the source code.
 ```
