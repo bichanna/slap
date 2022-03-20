@@ -106,6 +106,9 @@ $ nimble test
  - [x] String Interpolation
  - [ ] Optional Type Annotations
  - [x] Multi-line Comments
+ - [x] Vim Highlighter
+ - [ ] VSCode Highlighter
+ - [ ] Sublime Text Highlighter
 
 ## Contribution
 Contributions are always welcome :)<br>
