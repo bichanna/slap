@@ -158,7 +158,7 @@ proc makeNumber(l: var Lexer) =
 # makes an identifier and appends it to the list
 proc makeIdentifier(l: var Lexer) =
   var identifier: string = ""
-  while l.currentChar() in Letters:
+  while l.currentChar() in Letters or l.currentChar() in $Digits:
     identifier.add(l.currentChar())
     l.advance()
   if keywords.hasKey(identifier):
