@@ -114,8 +114,8 @@ $ nimble test
  - [ ] Sublime Text Highlighter
 
 ## Contribution
-Contributions are always welcome :)<br>
-Please be sure to add test files if you add new features (see [tests directory](https://github.com/bichanna/slap/tree/master/tests#tests) for more info).
+Bug reports and contributions are always welcome :)<br>
+Please be sure to add test files if you want to add new features (see [tests directory](https://github.com/bichanna/slap/tree/master/tests#tests) for more info).
 
 
 ## Credits
