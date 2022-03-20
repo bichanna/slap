@@ -9,6 +9,7 @@
 	
 [![Ubuntu](https://github.com/bichanna/slap/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/bichanna/slap/actions/workflows/ubuntu.yml)
 [![macOS](https://github.com/bichanna/slap/actions/workflows/mac.yml/badge.svg)](https://github.com/bichanna/slap/actions/workflows/mac.yml)
+[![Windows](https://github.com/bichanna/slap/actions/workflows/windows.yml/badge.svg)](https://github.com/bichanna/slap/actions/workflows/windows.yml)
 	
 </div>
 
