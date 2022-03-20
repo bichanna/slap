@@ -213,8 +213,9 @@ method eval(self: var Interpreter, expre: ListOrMapAssignExpr): BaseType =
     #   var map = SlapMap(listOrMap)
   else:
     var name = VariableExpr(expre.variable).name
-    if self.locals.hasKey(expre):
-      var distance = self.locals[expre]
+    var variable = VariableExpr(expre.variable)
+    if self.locals.hasKey(variable):
+      var distance = self.locals[variable]
       self.env.listOrMapAssignAt(distance, name, value, indexOrKey)
     else:
       self.globals.listOrMapAssign(name, value, indexOrKey)
