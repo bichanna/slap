@@ -14,7 +14,7 @@
 # signature: substring(x: str, f: int, t: int): str
 def substring(x, f, t) {
     let result = "";
-    for ($i = f; i < t; i = i + 1) result = result + x@[i];
+    for ($i = f; i < t; i++) result += x@[i];
     return result;
 }
 
@@ -23,7 +23,7 @@ def substring(x, f, t) {
 # signature: expand(x: str): @[str]
 def expand(x) {
     let list = [];
-    for ($i = 0; i < len(x); i = i + 1) list->append(x@[i]);
+    for ($i = 0; i < len(x); i++) list->append(x@[i]);
     return list;
 }
 
@@ -32,7 +32,7 @@ def expand(x) {
 # signature: fuse(x: [str]): str
 def fuse(x) {
     let result = "";
-    for ($i = 0; i < len(x); i = i + 1) result = result + string(x@[i]);
+    for ($i = 0; i < len(x); i = i + 1) result += string(x@[i]);
     return result;
 }
 

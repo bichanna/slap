@@ -9,15 +9,15 @@
 # std.slap contains the core standard library for SLAP.
 
 # identity returns its first argument
-def identitiy(x) { return x; }
+def identity(x) => return x;
 
 # join concatenates two lists and returns the
 # joined list (does not mutate the original lists).
 # signature: join(x: @[any], y: @[any]): @[any]
 def join(x, y) {
     let newList = [];
-    for ($i = 0; i < len(x); i = i + 1) newList->append(x@[i]);
-    for ($j = 0; j < len(y); j = j + 1) newList->append(y@[j]);
+    for ($i = 0; i < len(x); i++) newList->append(x@[i]);
+    for ($j = 0; j < len(y); j++) newList->append(y@[j]);
     return newList;
 }
 
@@ -26,7 +26,7 @@ def join(x, y) {
 # signature: slice(list: @[any], x: int, y: int): @[any]
 def slice(list, x, y) {
     let newList = [];
-    for ($i = x; i < y; i = i + 1) newList->append(list@[i]);
+    for ($i = x; i < y; i++) newList->append(list@[i]);
     return newList;
 }
 
@@ -35,14 +35,11 @@ def slice(list, x, y) {
 # in the list if they are separated by other elements.
 # signature: areUnique(list: @[any]): bool
 def areUnique(list) {
-    if (len(list) == 0) {
-        return false;
-    } elif (len(list) == 1) {
-        return true;
-    }
+    if (len(list) == 0) return false;
+    if (len(list) == 1) return true;
     
     let previous = list@[0];
-    for ($i = 1; i < len(list); i = i + 1) {
+    for ($i = 1; i < len(list); i++) {
         if (previous == list@[i]) return false;
         previous = list@[i];
     }
@@ -58,7 +55,7 @@ def uniqueList(list) {
      
     let newList = [];
     let previous = list@[0];
-    for ($i = 1; i < len(list); i = i + 1) {
+    for ($i = 1; i < len(list); i++) {
         if (previous != list@[i]) newList->append(list@[i]);
         previous = list@[i];
     }
@@ -68,14 +65,43 @@ def uniqueList(list) {
 # contains reports whether a list contains an item equal to 'y'.
 # signature: contains(x: @[any] | str, y: any): bool
 def contains(x, y) {
-    for ($i = 0; i < len(x); i = i + 1) {
+    for ($i = 0; i < len(x); i++) {
         if (x@[i] == y) return true;
     }
     return false;
 }
 
-# forEach executes a provided function once for each list element.
-# signature: forEach(list: @[any], func: def(x: any))
-def forEach(list, func) {
-    for ($i = 0; i < len(list); i = i + 1) func(list@[i]);
+# forEach executes a provided function once for each list element or map element.
+# signature: forEach(listOrMap: @[any] | @{any: any}, func: def(any) | def(any, any))
+def forEach(listOrMap, func) {
+    if (isList(listOrMap)) {
+        let list = listOrMap;
+        for ($i = 0; i < len(list); i++) func(list@[i]);
+    } elif (isMap(listOrMap)) {
+        let mapKeys = keys(listOrMap); # already knows that listOrMap is a map
+        for ($i = 0; i < len(mapKeys); i++) func(mapKeys@[i], listOrMap@[mapKeys@[i]]);
+    }
+}
+
+# indexOf returns the index of the first item equal to x in a list.
+# If nothing matches, it return -1.
+# signature: indexOf(list: @[any], x: any): int
+def indexOf(list, x) {
+    for ($i = 0; i < len(list); i++) {
+        if (list@[i] == x) return i;
+    }
+    return -1;
+}
+
+# merge concatenates two maps and returns the
+# merged map (does not mutate the original maps).
+# signature: merge(x: @{any: any}, y: @{any: any}): @{any: any}
+def merge(x, y) {
+    let newMap = {};
+    let func = def (k, v) => newMap@[k] = v;
+
+    x -> forEach(func);
+    y -> forEach(func);
+
+    return newMap;
 }
