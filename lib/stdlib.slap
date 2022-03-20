@@ -9,7 +9,9 @@
 # std.slap contains the core standard library for SLAP.
 
 # identity returns its first argument
-def identity(x) => return x;
+def identity(x) {
+    return x;
+}
 
 # join concatenates two lists and returns the
 # joined list (does not mutate the original lists).
