@@ -4,7 +4,7 @@
 #
 # Created by Nobuharu Shimazu on 2/22/2022
 #
-# Import by `import "math";`
+# Import this file by `import "math";`
 
 # math.slap contains math functions.
 
@@ -13,6 +13,14 @@ let Pi = 3.14159265358979323846264338327950288419716939937510;
 
 # E, the base of the natural logarithm
 let E = 2.71828182845904523536028747135266249775724709369995;
+
+# sum returns the sum of the passed values
+# signature: sum(list+: int | float): int | float
+def sum(list+) {
+    let sum = 0;
+    for ($i = 0; i < len(list); i++) sum += list@[i];
+    return sum;
+}
 
 # abs returns the absolute value of a real number
 # signature: abs(n: int | float): int | float

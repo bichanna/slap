@@ -4,7 +4,7 @@
 #
 # Created by Nobuharu Shimazu on 2/22/2022
 #
-# Import by `import "std";`
+# Import this file by `import "std";`
 
 # std.slap contains the core standard library for SLAP.
 
@@ -107,3 +107,16 @@ def merge(x, y) {
 
     return newMap;
 }
+
+# range returns a list of [start, stop) with optional step
+# signature: range(start: int, stop: int, step: int = 1)
+def range(start, stop, step = 1) {
+    let list = [];
+    if (start < stop) {
+        for ($i = start; i < stop; i += step) list->append(i);
+    } else {
+        for ($i = start; i > stop; i += step) list->append(i);
+    }
+    return list;
+}
+

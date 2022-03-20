@@ -4,11 +4,23 @@
 #
 # Created by Nobuharu Shimazu on 3/4/2022
 #
-# Import by `import "strutils";`
+# Import this file by `import "strutils";`
 
 # str.slap contains the core string library for SLAP.
 # This provides a set of utility functions for working with strings and data
 # encoded in strings.
+
+# The lowercase letters 'abcdefghijklmnopqrstuvwxyz'.
+let AsciiLowercase = "abcdefghijklmnopqrstuvwxyz";
+
+# The uppercase letters 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.
+let AsciiUppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+# The concatenation of the AsciiLowercase and AsciiUppercase.
+let AsciiLetters = AsciiLowercase + AsciiUppercase;
+
+# The string '0123456789'
+let Digits = "0123456789";
 
 # substring returns the substring beginning at index 'f' and ending at index 't-1' [f, t)
 # signature: substring(x: str, f: int, t: int): str
@@ -32,7 +44,7 @@ def expand(x) {
 # signature: fuse(x: [str]): str
 def fuse(x) {
     let result = "";
-    for ($i = 0; i < len(x); i = i + 1) result += string(x@[i]);
+    for ($i = 0; i < len(x); i++) result += str(x@[i]);
     return result;
 }
 
@@ -41,7 +53,7 @@ def fuse(x) {
 # signature: replaceChar(x: str, target: str, repl: str): str
 def replaceChar(x, target, repl) {
     let charList = expand(x);
-    for ($i = 0; i < len(charList); i = i + 1) {
+    for ($i = 0; i < len(charList); i++) {
         if (charList@[i] == target) charList@[i] = repl;
     }
     return fuse(charList);
@@ -65,3 +77,4 @@ def startsWith(x, prefix) {
     if (n <= strLen and x->substring(0, n) == prefix) return true;
     return false;
 }
+
