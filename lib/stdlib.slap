@@ -57,6 +57,7 @@ def uniqueList(list) {
      
     let newList = [];
     let previous = list@[0];
+    newList -> append(previous);
     for ($i = 1; i < len(list); i++) {
         if (previous != list@[i]) newList->append(list@[i]);
         previous = list@[i];
