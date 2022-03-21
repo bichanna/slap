@@ -1,0 +1,46 @@
+import "std";
+
+println(identity(123));
+
+println(join([1, 2, 3], [4, 5, 6]));
+
+println([1, 2, 3, 4, 5, 6, 7, 8, 9] -> slice(2, 4));
+
+println([1, 2, 3, 4, 5] -> areUnique());
+println([1, 1, 2, 2, 3] -> areUnique());
+
+println([1, 2, 3, 4, 5, 6] -> uniqueList());
+println([1, 1, 2, 2, 3, 4] -> uniqueList());
+
+println(["Hello", "World"] -> contains("World"));
+
+let areas = ["web", "game", "tools"];
+forEach(areas) <- def (area) => println(area);
+
+println(["a", "b", "c", "d", "e"] -> indexOf("d"));
+
+println(merge({"key1": "value1"}, {"key2": "value2"}));
+
+println(range(0, 10));
+println(range(10, 0, -1));
+
+println(sum(1, 2, 3, 4, 5));
+
+#{
+123
+@[1, 2, 3, 4, 5, 6]
+@[3, 4]
+true
+false
+@[1, 2, 3, 4, 5, 6]
+@[1, 2, 3, 4]
+true
+web
+game
+tools
+3
+{key1: value1, key2: value2}
+@[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+@[10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+15
+}#

@@ -1,0 +1,36 @@
+import "strutils";
+
+println(AsciiLowercase);
+
+println(AsciiUppercase);
+
+println(AsciiLetters);
+
+println(Digits);
+
+println("Hello World" -> substring(6, 11));
+
+let expanded = expand("bichanna");
+println(expanded);
+
+println(fuse(expanded));
+
+println("bichanna" -> replaceChar("a", "e"));
+
+println("test.slap" -> endsWith("slap"));
+
+println("test.slap" -> startsWith("slap"));
+
+#{
+abcdefghijklmnopqrstuvwxyz
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+0123456789
+World
+@[b, i, c, h, a, n, n, a]
+bichanna
+bichenne
+true
+false
+}#
+

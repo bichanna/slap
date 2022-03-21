@@ -1,0 +1,19 @@
+import "math";
+
+println(Pi);
+
+println(E);
+
+println(abs(-78));
+
+println(pow(2, 3));
+
+println(sqrt(16));
+
+#{
+3.141592653589793
+2.718281828459045
+78
+8
+4.0
+}#
