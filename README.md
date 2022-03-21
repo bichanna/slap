@@ -94,8 +94,8 @@ $ nimble test
  - [x] Standard Library
      - [x] Std
      - [x] String
-     - [ ] OS
-     - [ ] I/O interfaces
+     - [x] OS
+     - [x] I/O interfaces
      - [x] Math
      - [ ] Networking
  - [x] Classes
