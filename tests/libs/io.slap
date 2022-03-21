@@ -1,0 +1,24 @@
+import "io";
+
+let filename = "/Users/nobu/WorkSpace/Nim/SLAP/tests/libs/test.txt";
+
+println(readFile(filename));
+
+write(filename, "Without a new line.");
+println(readFile(filename));
+
+writeln(filename, "Append a new line!");
+println(readFile(filename));
+
+writeln(filename) <-
+"This is a test
+file for the io.slap";
+
+#{
+This is a test
+file for the io.slap
+
+Without a new line.
+Append a new line!
+
+}#
