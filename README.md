@@ -19,7 +19,7 @@
 
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language with a small portion of functional-language-like features. Its syntax is a member of the C family with a bit of difference.
 
-As of March 2022, you can write pretty decent small programs in SLAP.
+As of March 2022, you can write pretty decent, small programs in SLAP.
 
 Here's an example SLAP program. ([samples & libs](https://github.com/bichanna/slap/tree/master/lib))
 ```js
@@ -27,7 +27,7 @@ import "std" => forEach;
 
 let areas = ["tools", "game", "web", "science", "systems", "embedded", "drivers", "mobile", "GUI"];
 
-areas -> forEach() <- def (area) => println("Hello, ${area} developers!");
+forEach(areas) <- def (area) => println("Hello, ${area} developers!");
 ```
 Here's another example using [`<-` and `->`](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/syntax_sugars.md#--expression) expressions intensively.
 
@@ -120,5 +120,5 @@ Please be sure to add test files if you want to add new features (see [tests dir
 
 ## Credits
 I learned a lot from
- - [Oak language](https://github.com/thesephist/oak) by [thesephist](https://github.com/thesephist)
- - [Bob Nystrom](https://github.com/munificent)'s great book, [*Crafting Interpreters*](https://craftinginterpreters.com/).
+ - [Oak programming language](https://github.com/thesephist/oak) by [thesephist](https://github.com/thesephist)
+ - [Bob Nystrom (munificent)](https://github.com/munificent)'s great book, [*Crafting Interpreters*](https://craftinginterpreters.com/).
