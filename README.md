@@ -93,7 +93,7 @@ $ nimble test
      - [x] Rest Parameters
  - [x] Standard Library
      - [x] Std
-     - [x] Str
+     - [x] String
      - [ ] OS
      - [ ] I/O interfaces
      - [x] Math
