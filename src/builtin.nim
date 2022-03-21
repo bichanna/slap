@@ -10,7 +10,7 @@ import strutils, tables
 
 const RuntimeError = "RuntimeError"
 
-proc loadBuildins*(): Environment  
+proc loadBuiltins*(): Environment  
 
 proc slapPrintln(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if args.len == 0:
@@ -113,7 +113,7 @@ proc slapLower(self: var Interpreter, args: seq[BaseType], token: Token): BaseTy
     error(token, RuntimeError, "lower function only accepts a string")
   return newString(toLower(SlapString(args[0]).value))
 
-proc loadBuildins*(): Environment =
+proc loadBuiltins*(): Environment =
   var globals = newEnv()
   
   proc def(name: string, arity: (int, int), call: proc(self: var Interpreter, args: seq[BaseType], token: Token): BaseType) =

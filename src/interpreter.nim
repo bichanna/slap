@@ -6,6 +6,7 @@
 #
 
 import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash, lexer, resolver, parser
+import lib/[io, os]
 import strutils, tables, sequtils, hashes
   
 const
@@ -19,10 +20,15 @@ const
   libstr = staticRead "../" & strpath
   libmath = staticRead "../" & mathpath
 
-let stdlibs: Table[string, seq[string]] = {
+const slapStdLibs = {
     "std": @[libstd, stdpath],
     "strutils": @[libstr, strpath],
     "math": @[libmath, mathpath],
+  }.toTable
+
+let stdLibs = {
+    "os": loadOSLib,
+    "io": loadIOLib,
   }.toTable
 
 proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Environment)
@@ -30,7 +36,7 @@ proc executeBlock(self: var Interpreter, statements: seq[Stmt], environment: Env
 method eval(self: var Interpreter, expre: Expr): BaseType {.base, locks: "unknown".}
 
 proc newInterpreter*(): Interpreter =
-  var globals = loadBuildins()
+  var globals = loadBuiltins()
   return Interpreter(env: globals, globals: globals, locals: initTable[Expr, int]())
 
 # ----------------------------- FUNCTIONS & CLASSES ----------------------------------
@@ -113,6 +119,7 @@ proc set(ci: ClassInstance, name: Token, value: BaseType) = ci.fields[name.value
 # ----------------------------------------------------------------------
 
 # forward declarations for helper functions
+proc addGlobals(self: var Interpreter, locals: Table[Expr, int], env: Environment, statement: ImportStmt)
 proc isTruthy(self: var Interpreter, obj: BaseType): bool
 proc doesEqual(self: var Interpreter, left: BaseType, right: BaseType): bool
 proc lookUpVariable(self: var Interpreter, name: Token, expre: Expr): BaseType
@@ -485,9 +492,14 @@ method eval(self: var Interpreter, statement: ImportStmt) =
   if not (possiblePath of SlapString): error(statement.keyword, RuntimeError, "Path must be string")
 
   let strPossiblePath = SlapString(possiblePath).value
-  if stdlibs.contains(strPossiblePath):
-    source = stdlibs[strPossiblePath][0]
-    path = stdlibs[strPossiblePath][1]
+  if slapStdLibs.contains(strPossiblePath):
+    source = slapStdLibs[strPossiblePath][0]
+    path = slapStdLibs[strPossiblePath][1]
+  elif stdLibs.contains(strPossiblePath):
+    var globals = stdLibs[strPossiblePath]()
+    var locals: Table[Expr, int]
+    self.addGlobals(locals, globals, statement)
+    return
   else:
     path = strPossiblePath
     try:
@@ -515,13 +527,7 @@ method eval(self: var Interpreter, statement: ImportStmt) =
   var interpreter = resolver.interpreter
   interpreter.interpret(nodes)
 
-  for key, value in interpreter.locals: self.locals[key] = value
-
-  if statement.imports.len == 0 or statement.imports[0] == "*".hash:
-    for key, value in interpreter.env.values: self.env.define(key, value)
-  else:
-    for key, value in interpreter.env.values:
-      if statement.imports.contains(key): self.env.define(key, value)
+  self.addGlobals(interpreter.locals, interpreter.env, statement)
 
 # ----------------------------------------------------------------------
 
@@ -530,6 +536,17 @@ proc interpret*(self: var Interpreter, statements: seq[Stmt]) =
     self.eval(s)
 
 # ---------------------------- HELPERS ---------------------------------
+
+proc addGlobals(self: var Interpreter, locals: Table[Expr, int], env: Environment, statement: ImportStmt) =
+  for key, value in locals: self.locals[key] = value
+  
+  if statement.imports.len == 0 or statement.imports[0] == "*".hash:
+    for key, value in env.values:
+      self.env.define(key, value)
+  else:
+    for key, value in env.values:
+      if statement.imports.contains(key):
+        self.env.define(key, value)
 
 proc isTruthy(self: var Interpreter, obj: BaseType): bool =
   if obj of SlapNull: return false
