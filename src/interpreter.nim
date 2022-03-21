@@ -566,6 +566,10 @@ proc plus(self: var Interpreter, left: BaseType, right: BaseType, expre: BinaryE
     return newString(SlapString(left).value & $SlapInt(right).value)
   elif left of SlapString and right of SlapFloat:
     return newString(SlapString(left).value & $SlapFloat(right).value)
+  elif left of SlapInt and right of SlapString:
+    return newString($SlapInt(left).value & SlapString(right).value)
+  elif left of SlapFloat and right of SlapString:
+    return newString($SlapFloat(left).value & SlapString(right).value)
   else:
     error(expre.operator, RuntimeError, "All operands must be either string or int and float")
 
