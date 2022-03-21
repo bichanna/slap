@@ -15,7 +15,7 @@
 
 **WARNING!! THIS LANGUAGE IS IN ACTIVE DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT.**
 
-🖐 SLAP stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday (though it is mostly for my learning).
+🖐 **SLAP** stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday (though it is mostly for my learning).
 
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language with a small portion of functional-language-like features. Its syntax is a member of the C family with a bit of difference.
 
@@ -23,7 +23,7 @@ As of March 2022, you can write pretty decent, small programs in SLAP.
 
 Here's an example SLAP program. ([samples & libs](https://github.com/bichanna/slap/tree/master/lib))
 ```js
-import "std" => forEach;
+import "std";
 
 let areas = ["tools", "game", "web", "science", "systems", "embedded", "drivers", "mobile", "GUI"];
 
@@ -47,7 +47,7 @@ On Linux/macOS, you may be able to run the following commands to install SLAP.
 $ git clone https://github.com/bichanna/slap.git
 $ cd slap
 $ chmod +x ./build.sh 
-$ ./build.sh         # SLAP Vim highlighter automatically gets installed
+$ ./build.sh         # The SLAP Vim highlighter automatically gets installed
 ```
 For Windows, I haven't written bat version of `build.sh`, so you have to manually compile the source code.
 ```
@@ -65,7 +65,7 @@ $ nimble test
 ```
 
 ## TODO
->*Note:* If you have a feature request, please open an issue.
+*Note:* If you have a feature request, please open an issue.
 
 ### Main
 - [x] Basic Data Types
