@@ -1,7 +1,7 @@
 # About SLAP
-SLAP stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday.
+🖐 SLAP stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday (though it is mostly for my learning).
 
-SLAP is a dynamically- and strongly-typed, object-oriented programming language. Its syntax is a member of the C family with a bit of difference.
+**SLAP** is a dynamically- and strongly-typed, object-oriented programming language with a small portion of functional-language-like features. Its syntax is a member of the C family with a bit of difference.
 
 # How slow is SLAP?
 You can see the benchmarks [here](https://github.com/bichanna/slap/tree/master/benchmarks#readme).
