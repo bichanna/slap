@@ -6,7 +6,7 @@
 #
 
 import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash, lexer, resolver, parser
-import lib/[io, os]
+import ../lib/[io, os]
 import strutils, tables, sequtils, hashes
   
 const
