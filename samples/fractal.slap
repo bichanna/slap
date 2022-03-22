@@ -1,0 +1,18 @@
+for ($ypixel = 0; ypixel < 24; ypixel++) {
+    let y = ypixel / 12 - 1;
+    for ($xpixel = 0; xpixel < 80; xpixel++) {
+        let x = xpixel / 30 - 2;
+        let x0 = x;
+        let y0 = y;
+        let iter = 0;
+        while (iter < 11 and x0 * x0 + y0 * y0 <= 4) {
+            let x1 = (x0 * x0) - (y0 * y0) + x;
+            let y1 = 2 * x0 * y0 + y;
+            x0 = x1;
+            y0 = y1;
+            iter += 1;
+        }
+        print(" .-:;+=xX$& "@[iter]);
+    }
+    println();
+}
