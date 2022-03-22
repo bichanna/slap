@@ -21,7 +21,7 @@
 
 As of March 2022, you can write pretty decent, small programs in SLAP.
 
-Here's an example SLAP program. ([samples & libs](https://github.com/bichanna/slap/tree/master/lib))
+Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/samples))
 ```js
 import "std";
 
