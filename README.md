@@ -112,6 +112,7 @@ $ nimble test
  - [x] Vim Highlighter
  - [ ] VSCode Highlighter
  - [ ] Sublime Text Highlighter
+ - [ ] Transpiler (JS or Python)
 
 ## Contribution
 Bug reports and contributions are always welcome :)<br>
