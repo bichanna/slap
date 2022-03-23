@@ -8,11 +8,12 @@
 import strformat, strutils, tables
 import token, node
 
-# `sources` stores paths
+# `sources` stores paths.
 var sources*: Table[int, string]
 
 var isTest*: bool
 
+# This is the place where errors are printed. Scary, right?
 proc error*(sId: int8, line: int, errorName: string, message: string) =
   if isTest: # this is just for tests
     quit(fmt"{errorName}: {message}")
