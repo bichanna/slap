@@ -50,6 +50,7 @@ type
     tokens*: seq[Token]
     current*, line*: int
 
+# newLexer creates a new Lexer and returns it.
 proc newLexer*(src: string, path: string): Lexer = 
   error.sources[token.sourceId] = path
   source = src
@@ -201,6 +202,9 @@ proc slahShorthand(l: var Lexer) =
   else:
     l.appendToken(Slash)
 
+# This proc iterates every character of the source,
+# tokenize them, and returns a sequence (list or array)
+# of tokens.
 proc tokenize*(l: var Lexer): seq[Token] =
   var c: char
   var strInterpBreak = false
