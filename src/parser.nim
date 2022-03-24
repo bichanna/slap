@@ -10,13 +10,14 @@ import hashes
 
 type
   # Parser takes in a list of tokens (seq[Token]) and 
-  # generates an abstract syntax tree
+  # generates an abstract syntax tree.
   Parser* = object
     tokens*: seq[Token]
     current*: int
     loopDepth*: int
     statements*: seq[Stmt]
 
+# newParser creates a new Parser and returns it.
 proc newParser*(tokens: seq[Token]): Parser =
   return Parser(
     tokens: tokens,
@@ -27,7 +28,7 @@ proc newParser*(tokens: seq[Token]): Parser =
 
 # ----------------------------------------------------------------------
 
-# forward declaration
+# forward declarations
 proc expression(p: var Parser): Expr
 proc parseBlock(p: var Parser): seq[Stmt]
 proc ifStatement(p: var Parser): Stmt
@@ -39,6 +40,7 @@ proc functionBody(p: var Parser, kind: string): FuncExpr
 proc statement(p: var Parser): Stmt
 proc parse*(p: var Parser): seq[Stmt]
 
+# This is for one-line, anonymous functions.
 var dontNeedSemicolon = false
 
 # returns the previous token
@@ -74,6 +76,8 @@ proc doesMatch(p: var Parser, types: varargs[TokenType]): bool =
       return true
   return false
 
+# This checks wheter the current token is the expected type or not.
+# If not, throws an error.
 proc expect(p: var Parser, ttype: TokenType, message: string): Token {.discardable.} =
   if p.checkCurrentTok(ttype): return p.advance()
   else: 
@@ -105,7 +109,7 @@ proc primary(p: var Parser): Expr =
     p.expect(RightParen, "Expected ')'")
     return GroupingExpr(expression: expre)
 
-  elif p.doesMatch(LeftBracket): # list literal
+  elif p.doesMatch(LeftBracket):            # list literal
     let keyword = p.previousToken()
     
     if p.doesMatch(RightBracket):
@@ -120,7 +124,7 @@ proc primary(p: var Parser): Expr =
     
     return ListLiteralExpr(values: values, keyword: keyword)
 
-  elif p.doesMatch(LeftBrace): # map literal
+  elif p.doesMatch(LeftBrace):              # map literal
     let keyword = p.previousToken()
     if p.doesMatch(RightBrace):
       return MapLiteralExpr(keys: @[], values: @[], keyword: keyword)
@@ -452,6 +456,7 @@ proc parseBlock(p: var Parser): seq[Stmt] =
   p.expect(RightBrace, "Expected '}' after a block")
   return statements
 
+# This is where all the parsing starts.
 proc parse*(p: var Parser): seq[Stmt] =
   while not p.isAtEnd():
     p.statements.add(p.declaration())
