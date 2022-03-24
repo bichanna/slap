@@ -9,32 +9,38 @@ import env, slaptype, node, token, objhash
 import tables, strutils, hashes
 
 type
-  # Interpreter takes in an abstract syntax tree and executes
+  # Interpreter takes in an abstract syntax tree and executes them!
   Interpreter* = ref object of RootObj
     env*: Environment
     globals*: Environment
     locals*: Table[Expr, int]
   
+  # The base SLAP function type. SLAP anonymous functions are stuck with this.
   FuncType* = ref object of BaseType
     call*: proc (self: var Interpreter, args: seq[BaseType], token: Token): BaseType
     arity*: proc (): (int, int) # at-least arg length and at-most length
   
+  # The base SLAP function type. All SLAP named functions are of this type.
   Function* = ref object of FuncType
     name*: string
     isInitFunc*: bool
     declaration*: FuncExpr
     closure*: Environment
 
+  # The SLAP class type. This is the SLAP class itself, not its instances.
   ClassType* = ref object of FuncType
     name*: string
     methods*: Table[string, Function]
     cinstance*: ClassInstance
     superclass*: ClassType
 
+  # This is the SLAP class instance type. Every instance of every class
+  # is of this type.
   ClassInstance* = ref object of BaseType
     class*: ClassType
     fields*: Table[string, BaseType]
 
+# Adds expressions (variables) to the locals table.
 proc resolve*(self: var Interpreter, expre: Expr, depth: int) =
   self.locals[expre] = depth
 
