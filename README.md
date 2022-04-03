@@ -13,14 +13,14 @@
 	
 </div>
 
-**WARNING!! THIS LANGUAGE IS IN DEVELOPMENT. ANYTHING CAN CHANGE AT ANY MOMENT.**
+**WARNING!! THIS LANGUAGE IS IN DEVELOPMENT (AND FOR LEARNING PURPOSES). ANYTHING CAN CHANGE AT ANY MOMENT.**
 
-🖐 **SLAP** stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday (though it is mostly for my learning).
+🖐 **SLAP** stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday.<br>
+>I'm planning to create a simple transpiler that compiles to JavaScript, C, or C++, depending on the difficulty. So, SLAP might become pretty fast in the future.
 
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language with a small portion of functional-language-like features. Its syntax is a member of the C family with a bit of difference.
 
-As of March 2022, you can write pretty decent, small programs in SLAP.<br>
-**EDIT:** I'm planning to create a simple transpiler that compiles to JavaScript, C, or C++, depending on the difficulty.
+As of March 2022, you can write pretty decent, small programs in SLAP.
 
 Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/samples))
 ```js
