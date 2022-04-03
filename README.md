@@ -102,6 +102,7 @@ $ nimble test
  - [x] Vim Highlighter
  - [ ] VSCode Highlighter
  - [ ] Transpiler (JS or (hopefully) C++)
+ - [ ] New line as statement separator
 
 ## Contribution
 Bug reports and contributions are always welcome :)<br>
