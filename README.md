@@ -101,7 +101,7 @@ $ nimble test
  - [x] Multi-line Comments
  - [x] Vim Highlighter
  - [ ] VSCode Highlighter
- - [ ] Transpiler (JS or (hopefully) C++)
+ - [ ] Transpiler (JavaScript, C, or C++)
  - [ ] New line as statement separator
 
 ## Contribution
