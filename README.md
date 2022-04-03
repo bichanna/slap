@@ -19,7 +19,8 @@
 
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language with a small portion of functional-language-like features. Its syntax is a member of the C family with a bit of difference.
 
-As of March 2022, you can write pretty decent, small programs in SLAP.
+As of March 2022, you can write pretty decent, small programs in SLAP.<br>
+**EDIT:** I'm planning to create a simple transpiler that compiles to JavaScript, C, or C++, depending on the difficulty.
 
 Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/samples))
 ```js
