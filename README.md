@@ -100,8 +100,7 @@ $ nimble test
  - [x] Multi-line Comments
  - [x] Vim Highlighter
  - [ ] VSCode Highlighter
- - [ ] Sublime Text Highlighter
- - [ ] Transpiler (JS or Python)
+ - [ ] Transpiler (JS or (hopefully) C++)
 
 ## Contribution
 Bug reports and contributions are always welcome :)<br>
