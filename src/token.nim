@@ -7,7 +7,7 @@
 
 import std/strformat, strutils
 
-var sourceId*: int8 = 0;
+var sourceId*: int16 = 0;
 
 type
   TokenType* = enum
@@ -85,7 +85,7 @@ type
     sId*: int8
 
 proc newToken*(kind: TokenType, value: string, line: int): Token =
-  return Token(kind: kind, value: value, line: line, sId: sourceId)
+  return Token(kind: kind, value: value, line: line, sId: int8(sourceId))
 
 proc `$`*(token: Token): string =
   return fmt"{token.kind}:{token.value}:{token.line}"

@@ -8,6 +8,8 @@
 import token, error, node
 import hashes
 
+const ErrorName = "SyntaxError"
+
 type
   # Parser takes in a list of tokens (seq[Token]) and 
   # generates an abstract syntax tree.
@@ -81,7 +83,7 @@ proc doesMatch(p: var Parser, types: varargs[TokenType]): bool =
 proc expect(p: var Parser, ttype: TokenType, message: string): Token {.discardable.} =
   if p.checkCurrentTok(ttype): return p.advance()
   else: 
-    error(p.currentToken(), "SyntaxError", message)
+    error(p.currentToken(), ErrorName, message)
 
 proc primary(p: var Parser): Expr =
   if p.doesMatch(True): return LiteralExpr(kind: True, value: "true")
@@ -155,7 +157,7 @@ proc primary(p: var Parser): Expr =
       dontNeedSemicolon = false
       var body: seq[Stmt]; body.add(statement)
       return FuncExpr(parameters: params, body: body)
-  error(p.currentToken(), "SyntaxError", "Expected an expression")
+  error(p.currentToken(), ErrorName, "Expected an expression")
 
 proc finishCall(p: var Parser, callee: Expr, arg: Expr): Expr =
   var arguments: seq[Expr]
@@ -164,7 +166,7 @@ proc finishCall(p: var Parser, callee: Expr, arg: Expr): Expr =
     arguments.add(p.expression())
     while p.doesMatch(Comma):
       if arguments.len >= 256:
-        error(p.currentToken(), "SyntaxError", "Cannot have more than 256 arguments")
+        error(p.currentToken(), ErrorName, "Cannot have more than 256 arguments")
       arguments.add(p.expression())
   let paren = p.expect(RightParen, "Expected ')' after arguments")
   # check for <-
@@ -253,7 +255,7 @@ proc assignment(p: var Parser): Expr =
       let get = GetExpr(expre)
       return SetExpr(instance: get.instance, name: get.name, value: value)
     else:
-      error(equals, "SyntaxError", "Invalid assignment target")
+      error(equals, ErrorName, "Invalid assignment target")
   
   elif p.doesMatch(PlusEqual) or p.doesMatch(MinusEqual) or p.doesMatch(StarEqual) or p.doesMatch(SlashEqual):
     var ope = p.previousToken()
@@ -274,7 +276,7 @@ proc exprStmt(p: var Parser): Stmt =
 
 proc breakStatement(p: var Parser): Stmt =
   if p.loopDepth == 0:
-    error(p.previousToken(), "SyntaxError", "'break' can only be used inside a loop")
+    error(p.previousToken(), ErrorName, "'break' can only be used inside a loop")
   if not dontNeedSemicolon: p.expect(SemiColon, "Expected ';' after 'break'")
   return BreakStmt()
 
@@ -295,7 +297,7 @@ proc importStatement(p: var Parser): Stmt =
 
 proc continueStatement(p: var Parser): Stmt =
   if p.loopDepth == 0:
-    error(p.previousToken(), "SyntaxError", "'continue' can only be used inside a loop")
+    error(p.previousToken(), ErrorName, "'continue' can only be used inside a loop")
   if not dontNeedSemicolon: p.expect(SemiColon, "Expected ';' after 'continue'")
   return ContinueStmt()
 
@@ -392,7 +394,7 @@ proc getParams(p: var Parser, kind: string): seq[FuncArg] =
     var hadRest = false
 
     while true:
-      if parameters.len >= 256: error(p.currentToken(), "SyntaxError", "Cannot have more than 256 parameters")
+      if parameters.len >= 256: error(p.currentToken(), ErrorName, "Cannot have more than 256 parameters")
       var param = p.expect(Identifier, "Expected parameter name")
       if p.doesMatch(Equals) and not hadRest: # checks for a default parameter
         var defaultValue = p.expression()
@@ -403,7 +405,7 @@ proc getParams(p: var Parser, kind: string): seq[FuncArg] =
         hadRest = true
       else:
         if hadDefault or hadRest:
-          error(param, "SyntaxError", "Required parameter cannot follow default parameter, and default param cannot follow rest param.")
+          error(param, ErrorName, "Required parameter cannot follow default parameter, and default param cannot follow rest param.")
         parameters.add(RequiredArg(paramName: param))
         
       if not p.doesMatch(Comma): break
