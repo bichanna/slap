@@ -16,7 +16,7 @@
 **WARNING!! THIS LANGUAGE IS IN DEVELOPMENT (AND FOR LEARNING PURPOSES). ANYTHING CAN CHANGE AT ANY MOMENT.**
 
 🖐 **SLAP** stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday.<br>
->I'm planning to create a simple transpiler that compiles to JavaScript, C, or C++, depending on the difficulty. So, SLAP might become pretty fast in the future.
+>I'm planning to create a simple transpiler that compiles to JavaScript. So, SLAP might become pretty fast in the future.
 
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language with a small portion of functional-language-like features. Its syntax is a member of the C family with a bit of difference.
 
@@ -101,7 +101,7 @@ $ nimble test
  - [x] Multi-line Comments
  - [x] Vim Highlighter
  - [ ] VSCode Highlighter
- - [ ] Transpiler (JavaScript, C, or C++)
+ - [ ] Transpiler (to JavaScript)
  - [ ] New line as statement separator
 
 ## Contribution
