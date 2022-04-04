@@ -25,7 +25,7 @@ type
 
 # These are the base methods for the emit methods below.
 method emit(self: CodeGenerator, expre: Expr): string {.base, locks: "unknown".} = discard
-method emit(self: CodeGenerator, statement: Stmt) {.base, locks: "unknown".} = discard
+method emit(self: CodeGenerator, statement: Stmt): string {.base, locks: "unknown".} = discard
 
 # ------------------------------------------------------------------------------------------
 
@@ -83,8 +83,9 @@ method emit(self: CodeGenerator, expre: SelfExpr): string =
   "this"
 
 method emit(self: CodeGenerator, expre: FuncExpr): string =
-  proc switchArgType(arg: FuncArg): string =
+  proc getArgType(arg: FuncArg): string =
     if arg of DefaultValued: return DefaultValued(arg).paramName.value & "=" & self.emit(DefaultValued(arg).default)
     if arg of RequiredArg: return RequiredArg(arg).paramName.value
     if arg of RestArg: return "..." & RestArg(arg).paramName.value
-  "(" & toSeq(0..<expre.parameters.len).map(i => switchArgType(expre.parameters[i])).join(", ") & ")"
+  "(" & toSeq(0..<expre.parameters.len).map(i => getArgType(expre.parameters[i])).join(", ") & ") => " &
+    "{\n\t" & toSeq(0..<expre.body.len).map(i => self.emit(expre.body[i])).join("\n") & "}"
