@@ -22,14 +22,7 @@
 
 As of March 2022, you can write pretty decent, small programs in SLAP.
 
-Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/samples))
-```js
-import "std";
-
-let areas = ["tools", "game", "web", "science", "systems", "embedded", "drivers", "mobile", "GUI"];
-
-forEach(areas) <- def (area) => println("Hello, ${area} developers!");
-```
+![carbon](https://user-images.githubusercontent.com/60306074/161585270-6ce59735-f910-4068-994b-d74d12371f5d.png)
 
 ## Installation
 On Linux/macOS, you may be able to run the following commands to install SLAP.
