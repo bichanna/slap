@@ -16,20 +16,13 @@
 **WARNING!! THIS LANGUAGE IS IN DEVELOPMENT (AND FOR LEARNING PURPOSES). ANYTHING CAN CHANGE AT ANY MOMENT.**
 
 🖐 **SLAP** stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday.<br>
->I'm planning to create a simple transpiler that compiles to JavaScript, C, or C++, depending on the difficulty. So, SLAP might become pretty fast in the future.
+>I'm planning to create a simple transpiler that compiles to JavaScript (see [compiler branch](https://github.com/bichanna/slap/tree/compiler)). So, SLAP might become pretty fast in the future.
 
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language with a small portion of functional-language-like features. Its syntax is a member of the C family with a bit of difference.
 
 As of March 2022, you can write pretty decent, small programs in SLAP.
 
-Here's an example SLAP program. ([samples](https://github.com/bichanna/slap/tree/master/samples))
-```js
-import "std";
-
-let areas = ["tools", "game", "web", "science", "systems", "embedded", "drivers", "mobile", "GUI"];
-
-forEach(areas) <- def (area) => println("Hello, ${area} developers!");
-```
+![carbon](https://user-images.githubusercontent.com/60306074/161585270-6ce59735-f910-4068-994b-d74d12371f5d.png)
 
 ## Installation
 On Linux/macOS, you may be able to run the following commands to install SLAP.
@@ -101,7 +94,7 @@ $ nimble test
  - [x] Multi-line Comments
  - [x] Vim Highlighter
  - [ ] VSCode Highlighter
- - [ ] Transpiler (JavaScript, C, or C++)
+ - [ ] Transpiler (to JavaScript)
  - [ ] New line as statement separator
 
 ## Contribution

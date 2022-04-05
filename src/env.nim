@@ -8,6 +8,8 @@
 import tables, hashes
 import slaptype, token, error, objhash
 
+const ErrorName = "RuntimeError"
+
 type
   # Environment holds all the variables and values
   Environment* = ref object
@@ -53,7 +55,7 @@ proc get*(env: var Environment, name: Token): BaseType =
   if env.values.hasKey(name.value.hash): return env.values[name.value.hash]
   if not env.enclosing.isNil: return env.enclosing.get(name)
   else:
-    error(name, "RuntimeError", "'" & name.value & "' is not defined")
+    error(name, ErrorName, "'" & name.value & "' is not defined")
 
 # This proc returns the local environments with the distance of `distance`
 proc ancestor*(env: var Environment, distance: int): Environment =
@@ -72,7 +74,7 @@ proc assign*(env: var Environment, name: Token, value: BaseType) =
   elif not env.enclosing.isNil:
     env.enclosing.assign(name, value)
     return
-  error(name, "RuntimeError", "'" & name.value & "' is not defined")
+  error(name, ErrorName, "'" & name.value & "' is not defined")
 
 # This proc uses the ancestor proc above to assign a SLAP value
 # to an already-existing variable.
@@ -83,27 +85,27 @@ proc listOrMapAssign*(env: var Environment, name: Token, value: BaseType, indexO
   if env.values.hasKey(name.value.hash):
     let listOrMap = env.values[name.value.hash]
     if listOrMap of SlapList:
-      if not (indexOrKey of SlapInt): error(name, "RuntimeError", "List indices must be integers")
+      if not (indexOrKey of SlapInt): error(name, ErrorName, "List indices must be integers")
       if SlapInt(indexOrKey).value < SlapList(listOrMap).values.len and SlapInt(indexOrKey).value > -1:
         SlapList(listOrMap).values[SlapInt(indexOrKey).value] = value
       else: 
-        error(name, "RuntimeError", "Index out of range")
+        error(name, ErrorName, "Index out of range")
     
     elif listOrMap of SlapMap:
       SlapMap(listOrMap).map[indexOrKey] = value
   elif not env.enclosing.isNil:
     env.enclosing.listOrMapAssign(name, value, indexOrKey)
   else:
-    error(name, "RuntimeError", "'" & name.value & "' is not defined")
+    error(name, ErrorName, "'" & name.value & "' is not defined")
 
 # This is essentially the same as the assignAt proc but used with map and lists.
 proc listOrMapAssignAt*(env: var Environment, distance: int, name: Token, value: BaseType, indexOrKey: BaseType) =
   let listOrMap = env.ancestor(distance).values[name.value.hash]
   if listOrMap of SlapList:
-    if not (indexOrKey of SlapInt): error(name, "RuntimeError", "List indices must be integers")
+    if not (indexOrKey of SlapInt): error(name, ErrorName, "List indices must be integers")
     SlapList(listOrMap).values[SlapInt(indexOrKey).value] = value
   
   elif listOrMap of SlapMap:
     SlapMap(listOrMap).map[indexOrKey] = value
   
-  else: error(name, "RuntimeError", "Only lists and maps can be used with '@[]'")
+  else: error(name, ErrorName, "Only lists and maps can be used with '@[]'")

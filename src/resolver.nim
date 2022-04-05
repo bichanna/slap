@@ -8,6 +8,8 @@
 import node, token, error, interpreterObj
 import tables
 
+const ErrorName = "SyntaxError"
+
 type
   Resolver* = ref object of RootObj
     interpreter*: Interpreter
@@ -54,7 +56,7 @@ method resolve(self: var Resolver, statement: VariableStmt) =
 
 method resolve(self: var Resolver, expre: VariableExpr) =
   if not (self.scopes.len == 0) and self.scopes[self.scopes.len-1].getOrDefault(expre.name.value, true) == false:
-    error(expre.name, "SyntaxError", "Cannot read local variable in its own initializer")
+    error(expre.name, ErrorName, "Cannot read local variable in its own initializer")
   self.resolveLocal(expre, expre.name)
 
 method resolve(self: var Resolver, expre: AssignExpr) =
@@ -89,10 +91,10 @@ method resolve(self: var Resolver, statement: IfStmt) =
   if not statement.elseBranch.isNil: self.resolve(statement.elseBranch)
 
 method resolve(self: var Resolver, statement: ReturnStmt) =
-  if self.currentFunction == NONE: error(statement.keyword, "SyntaxError", "Cannot return from top-level code")
+  if self.currentFunction == NONE: error(statement.keyword, ErrorName, "Cannot return from top-level code")
   if not statement.value.isNil:
     if self.currentFunction == INITIALIZER:
-      error(statement.keyword, "SyntaxError", "Cannot return a value from an initializer")
+      error(statement.keyword, ErrorName, "Cannot return a value from an initializer")
     self.resolve(statement.value)
 
 method resolve(self: var Resolver, statement: BreakStmt) = discard
@@ -134,7 +136,7 @@ method resolve(self: var Resolver, statement: ClassStmt) =
   self.define(statement.name)
 
   if not statement.superclass.isNil and statement.name.value == statement.superclass.name.value:
-    error(statement.superclass.name, "RuntimeError", "A class cannot inherit from itself.")
+    error(statement.superclass.name, ErrorName, "A class cannot inherit from itself.")
 
   if not statement.superclass.isNil:
     self.currentClass = SUBCLASS
@@ -171,7 +173,7 @@ method resolve(self: var Resolver, expre: SetExpr) =
 
 method resolve(self: var Resolver, expre: SelfExpr) =
   if self.currentClass == CNONE:
-    error(expre.keyword, "SyntaxError", "Cannot use 'self' or '&' outside of a class")
+    error(expre.keyword, ErrorName, "Cannot use 'self' or '&' outside of a class")
   self.resolveLocal(expre, expre.keyword)
 
 method resolve(self: var Resolver, expre: ListLiteralExpr) =
@@ -186,9 +188,9 @@ method resolve(self: var Resolver, expre: MapLiteralExpr) =
 
 method resolve(self: var Resolver, expre: SuperExpr) =
   if self.currentClass == CNONE:
-    error(expre.keyword, "RuntimeError", "Cannot use 'super' outside of a class")
+    error(expre.keyword, ErrorName, "Cannot use 'super' outside of a class")
   elif self.currentClass != SUBCLASS:
-    error(expre.keyword, "RuntimeError", "Cannot use 'super' in a class with no superclass")
+    error(expre.keyword, ErrorName, "Cannot use 'super' in a class with no superclass")
 
   self.resolveLocal(expre, expre.keyword)
 
@@ -201,7 +203,7 @@ proc endScope(self: var Resolver) = discard self.scopes.pop()
 proc declare(self: var Resolver, name: Token) =
   if self.scopes.len == 0: return
   elif self.scopes[self.scopes.len-1].contains(name.value):
-    error(name, "SyntaxError", "Variable with this name is already declared in this scope")
+    error(name, ErrorName, "Variable with this name is already declared in this scope")
   else: self.scopes[self.scopes.len-1][name.value] = false
 
 proc define(self: var Resolver, name: Token) =
