@@ -105,12 +105,12 @@ proc makeString(l: var Lexer) =
     elif l.currentChar() == '$' and l.nextChar() == '{':
       l.advance(); l.advance()
       l.appendToken(String, strValue); strValue = ""
-      l.appendToken(Plus); l.appendToken(LeftParen) # +(
+      l.appendToken(Plus, "+"); l.appendToken(LeftParen) # +(
       inStrInterp = true
       strInterpDepth += 1
       discard l.tokenize()
       inStrInterp = false
-      l.appendToken(RightParen); l.appendToken(Plus) # )+
+      l.appendToken(RightParen); l.appendToken(Plus, "+") # )+
       if l.currentChar() == '"': break
     strValue.add(l.currentChar())
     l.advance()
@@ -186,7 +186,7 @@ proc minusShorthand(l: var Lexer) =
   elif l.doesMatch('>'):
     l.appendToken(RightArrow, "->")
   else:
-    l.appendToken(Minus)
+    l.appendToken(Minus, "-")
 
 # checks for * shorthand
 proc starShorthand(l: var Lexer) =
