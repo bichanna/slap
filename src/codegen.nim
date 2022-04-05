@@ -50,13 +50,14 @@ method emit(self: CodeGenerator, expre: UnaryExpr): string =
   expre.operator.value & self.emit(expre.right)
 
 method emit(self: CodeGenerator, expre: BinaryExpr): string =
-  self.emit(expre.left) & expre.operator.value & self.emit(expre.right)
+  echo $expre.operator & "HERE => " & expre.operator.value
+  self.emit(expre.left) & " " & expre.operator.value & " " & self.emit(expre.right)
 
 method emit(self: CodeGenerator, expre: ListLiteralExpr): string =
-  expre.values.map(x => self.emit(x)).join(", ")
+  "[" & expre.values.map(x => self.emit(x)).join(", ") & "]"
 
 method emit(self: CodeGenerator, expre: MapLiteralExpr): string =
-  toSeq(0..<expre.keys.len).map(i => self.emit(expre.keys[i]) & ": " & self.emit(expre.values[i])).join(", ")
+  "{" & toSeq(0..<expre.keys.len).map(i => self.emit(expre.keys[i]) & ": " & self.emit(expre.values[i])).join(", ") & "}"
 
 method emit(self: CodeGenerator, expre: LogicalExpr): string =
   result = self.emit(expre.left) & (if expre.operator.value == "==": "===" else: expre.operator.value) & self.emit(expre.right)
@@ -98,7 +99,7 @@ method emit(self: CodeGenerator, expre: FuncExpr): string =
 # -----------------------------------------------------------------------------------------------
 
 method emit(self: CodeGenerator, statement: ExprStmt): string =
-  self.emit(statement.expression)
+  self.emit(statement.expression) & ";"
 
 method emit(self: CodeGenerator, statement: VariableStmt): string =
   "var " & statement.name.value & " = " & self.emit(statement.init) & ";"
@@ -139,3 +140,12 @@ method emit(self: CodeGenerator, statement: ClassStmt): string =
   "class " & statement.name.value & (if statement.superclass.isNil: "" else: " extends " & self.emit(statement.superclass)) &
     " {\n" & toSeq(0..<statement.methods.len).map(i => self.emit(statement.methods[i])).join(";\n") &
     toSeq(0..<statement.classMethods.len).map(i => self.emit(statement.classMethods[i])).join(";\n") & "}"
+
+
+
+proc compile*(self: CodeGenerator) = 
+  var source = ""
+  for s in self.ast:
+    source &= self.emit(s) & "\n"
+  
+  echo source
