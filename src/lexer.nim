@@ -171,36 +171,36 @@ proc makeIdentifier(l: var Lexer) =
 # checks for + shorthands
 proc plusShorthand(l: var Lexer) =
   if l.doesMatch('='):
-    l.appendToken(PlusEqual)
+    l.appendToken(PlusEqual, "+=")
   elif l.doesMatch('+'):
-    l.appendToken(PlusPlus)
+    l.appendToken(PlusPlus, "++")
   else:
-    l.appendToken(Plus)
+    l.appendToken(Plus, "+")
 
 # checks for - shorthands and ->
 proc minusShorthand(l: var Lexer) =
   if l.doesMatch('='):
-    l.appendToken(MinusEqual)
+    l.appendToken(MinusEqual, "-=")
   elif l.doesMatch('-'):
-    l.appendToken(MinusMinus)
+    l.appendToken(MinusMinus, "--")
   elif l.doesMatch('>'):
-    l.appendToken(RightArrow)
+    l.appendToken(RightArrow, "->")
   else:
     l.appendToken(Minus)
 
 # checks for * shorthand
 proc starShorthand(l: var Lexer) =
   if l.doesMatch('='):
-    l.appendToken(StarEqual)
+    l.appendToken(StarEqual, "*=")
   else:
-    l.appendToken(Star)
+    l.appendToken(Star, "*")
 
 # checks for / shorthand
 proc slahShorthand(l: var Lexer) =
   if l.doesMatch('='):
-    l.appendToken(SlashEqual)
+    l.appendToken(SlashEqual, "/=")
   else:
-    l.appendToken(Slash)
+    l.appendToken(Slash, "/")
 
 # This proc iterates every character of the source,
 # tokenize them, and returns a sequence (list or array)
@@ -228,35 +228,35 @@ proc tokenize*(l: var Lexer): seq[Token] =
     of ';': l.appendToken(SemiColon)
     of '+': l.plusShorthand()
     of '-': l.minusShorthand()
-    of '~': l.appendToken(Tilde)
+    of '~': l.appendToken(Tilde, "~")
     of '*': l.starShorthand()
-    of '%': l.appendToken(Modulo)
+    of '%': l.appendToken(Modulo, "%")
     of '/': l.slahShorthand()
-    of '@': l.appendToken(At)
-    of '^': l.appendToken(Caret)
-    of ',': l.appendToken(Comma)
+    of '@': l.appendToken(At, "@")
+    of '^': l.appendToken(Caret, "^")
+    of ',': l.appendToken(Comma, ",")
     of '$': l.appendToken(Let)
     of '"': l.makeString()
     of '&': # `&property` is a shortcut for `self.property`
       l.appendToken(Self, "self")
       l.appendToken(Dot)
     of '!':
-      if l.doesMatch('='): l.appendToken(BangEqual)
-      else: l.appendToken(Bang)
+      if l.doesMatch('='): l.appendToken(BangEqual, "!=")
+      else: l.appendToken(Bang, "!")
     of '<':
-      if l.doesMatch('-'): l.appendToken(LeftArrow)
-      elif l.doesMatch('='): l.appendToken(LessEqual)
-      else: l.appendToken(Less)
+      if l.doesMatch('-'): l.appendToken(LeftArrow, "<-")
+      elif l.doesMatch('='): l.appendToken(LessEqual, "<=")
+      else: l.appendToken(Less, "<")
     of '=':
-      if l.doesMatch('='): l.appendToken(EqualEqual)
-      elif l.doesMatch('>'): l.appendToken(FatRightArrow)
-      else: l.appendToken(Equals)
+      if l.doesMatch('='): l.appendToken(EqualEqual, "=")
+      elif l.doesMatch('>'): l.appendToken(FatRightArrow, "=>")
+      else: l.appendToken(Equals, "=")
     of '>':
-      if l.doesMatch('='): l.appendToken(GreaterEqual)
-      else: l.appendToken(Greater)
+      if l.doesMatch('='): l.appendToken(GreaterEqual, ">=")
+      else: l.appendToken(Greater, ">")
     of '.':
-      if l.doesMatch('.'): l.appendToken(DoubleDot)
-      else: l.appendToken(Dot)
+      if l.doesMatch('.'): l.appendToken(DoubleDot, "..")
+      else: l.appendToken(Dot, ".")
     of '#':
       if l.doesMatch('{'): l.skipBlockComment()
       else:
