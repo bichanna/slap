@@ -9,7 +9,7 @@ import node, token
 import sugar, sequtils, strutils
 
 const
-  ErrorName* = "CompilerError"
+  ErrorName = "CompilerError"
 
 var isNamedFunc = false
 
@@ -50,7 +50,6 @@ method emit(self: CodeGenerator, expre: UnaryExpr): string =
   expre.operator.value & self.emit(expre.right)
 
 method emit(self: CodeGenerator, expre: BinaryExpr): string =
-  echo $expre.operator & "HERE => " & expre.operator.value
   self.emit(expre.left) & " " & expre.operator.value & " " & self.emit(expre.right)
 
 method emit(self: CodeGenerator, expre: ListLiteralExpr): string =
@@ -102,21 +101,21 @@ method emit(self: CodeGenerator, statement: ExprStmt): string =
   self.emit(statement.expression) & ";"
 
 method emit(self: CodeGenerator, statement: VariableStmt): string =
-  "var " & statement.name.value & " = " & self.emit(statement.init) & ";"
+  "var " & statement.name.value & " = " & self.emit(statement.init)
 
 method emit(self: CodeGenerator, statement: IfStmt): string =
-  result = "if (" & self.emit(statement.condition) & ") {\n" & self.emit(statement.thenBranch) & "\n}"
+  result = "if (" & self.emit(statement.condition) & ") {\n\t" & self.emit(statement.thenBranch) & "\n}"
   if statement.elifBranches.len != 0:
     for each in statement.elifBranches:
-      result &= "else if (" & self.emit(each.condition) & ") {\n" & self.emit(each.thenBranch) & "\n}"
+      result &= "else if (" & self.emit(each.condition) & ") {\n\t" & self.emit(each.thenBranch) & "\n}"
   if not statement.elseBranch.isNil:
-    result &= "else {\n" & self.emit(statement.elseBranch) & "\n}"
+    result &= "else {\n\t" & self.emit(statement.elseBranch) & "\n}"
 
 method emit(self: CodeGenerator, statement: BlockStmt): string =
   toSeq(0..<statement.statements.len).map(i => self.emit(statement.statements[i])).join(";\n")
 
 method emit(self: CodeGenerator, statement: WhileStmt): string =
-  "while (" & self.emit(statement.condition) & ") " & self.emit(statement.body)
+  "while (" & self.emit(statement.condition) & ") {\n\t" & self.emit(statement.body) & "}"
 
 method emit(self: CodeGenerator, statement: FuncStmt): string =
   isNamedFunc = true
@@ -138,7 +137,7 @@ method emit(self: CodeGenerator, statement: ImportStmt): string =
 
 method emit(self: CodeGenerator, statement: ClassStmt): string =
   "class " & statement.name.value & (if statement.superclass.isNil: "" else: " extends " & self.emit(statement.superclass)) &
-    " {\n" & toSeq(0..<statement.methods.len).map(i => self.emit(statement.methods[i])).join(";\n") &
+    " {\n\t" & toSeq(0..<statement.methods.len).map(i => self.emit(statement.methods[i])).join(";\n") &
     toSeq(0..<statement.classMethods.len).map(i => self.emit(statement.classMethods[i])).join(";\n") & "}"
 
 
@@ -146,6 +145,6 @@ method emit(self: CodeGenerator, statement: ClassStmt): string =
 proc compile*(self: CodeGenerator) = 
   var source = ""
   for s in self.ast:
-    source &= self.emit(s) & "\n"
+    source &= self.emit(s) & "\n\n"
   
   echo source
