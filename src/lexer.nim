@@ -167,7 +167,7 @@ proc makeIdentifier(l: var Lexer) =
   if keywords.hasKey(identifier):
     if identifier == "self": l.appendToken(keywords[identifier], "self")
     elif identifier == "super": l.appendToken(keywords[identifier], "super")
-    else: l.appendToken(keywords[identifier])
+    else: l.appendToken(keywords[identifier], identifier)
   else: l.appendToken(Identifier, identifier)
 
 # checks for + shorthands
@@ -175,7 +175,7 @@ proc plusShorthand(l: var Lexer) =
   if l.doesMatch('='):
     l.appendToken(PlusEqual, "+=")
   elif l.doesMatch('+'):
-    l.appendToken(PlusPlus, "+")
+    l.appendToken(PlusPlus, "++")
   else:
     l.appendToken(Plus, "+")
 
@@ -184,7 +184,7 @@ proc minusShorthand(l: var Lexer) =
   if l.doesMatch('='):
     l.appendToken(MinusEqual, "-=")
   elif l.doesMatch('-'):
-    l.appendToken(MinusMinus, "-")
+    l.appendToken(MinusMinus, "--")
   elif l.doesMatch('>'):
     l.appendToken(RightArrow, "->")
   else:
