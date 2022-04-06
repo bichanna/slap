@@ -55,7 +55,7 @@ method emit(self: CodeGenerator, expre: UnaryExpr): string =
   expre.operator.value & self.emit(expre.right)
 
 method emit(self: CodeGenerator, expre: BinaryExpr): string =
-  self.emit(expre.left) & " " & expre.operator.value & " " & self.emit(expre.right)
+  self.emit(expre.left) & " " & (if expre.operator.value == "==": "===" else: expre.operator.value) & " " & self.emit(expre.right)
 
 method emit(self: CodeGenerator, expre: ListLiteralExpr): string =
   "[" & expre.values.map(x => self.emit(x)).join(", ") & "]"
@@ -64,7 +64,7 @@ method emit(self: CodeGenerator, expre: MapLiteralExpr): string =
   "{" & toSeq(0..<expre.keys.len).map(i => self.emit(expre.keys[i]) & ": " & self.emit(expre.values[i])).join(", ") & "}"
 
 method emit(self: CodeGenerator, expre: LogicalExpr): string =
-  result = self.emit(expre.left) & (if expre.operator.value == "==": "===" else: expre.operator.value) & self.emit(expre.right)
+  result = self.emit(expre.left) & expre.operator.value & self.emit(expre.right)
 
 method emit(self: CodeGenerator, expre: VariableExpr): string = expre.name.value
 
@@ -134,13 +134,13 @@ method emit(self: CodeGenerator, statement: FuncStmt): string =
   isNamedFunc = false
 
 method emit(self: CodeGenerator, statement: ReturnStmt): string =
-  "return " & (if statement.value.isNil: "" else: self.emit(statement.value)) & ";"
+  "return " & (if statement.value.isNil: "" else: self.emit(statement.value))
 
 method emit(self: CodeGenerator, statement: BreakStmt): string =
-  "break;"
+  "break"
 
 method emit(self: CodeGenerator, statement: ContinueStmt): string =
-  "continue;"
+  "continue"
 
 # TODO: Implement emit method for ImportStmt node
 method emit(self: CodeGenerator, statement: ImportStmt): string =
@@ -153,12 +153,10 @@ method emit(self: CodeGenerator, statement: ClassStmt): string =
 
 
 
-proc compile*(self: CodeGenerator) = 
-  var source = "\n/*\n\tCompiled by the SLAP compiler!\n*/\n\n"
+proc compile*(self: CodeGenerator): string = 
+  result = "\n/*\n\tCompiled by the SLAP compiler!\n*/\n\n"
   for s in self.ast:
-    source &= self.emit(s) & "\n\n"
-  
-  echo source
+    result &= self.emit(s) & ";\n\n"
 
 # ----------------------------------------- HELPERS -----------------------------------------------
 
