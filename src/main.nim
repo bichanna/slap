@@ -43,8 +43,7 @@ proc execute*(source: string, path: string) =
   if not compile:
     interpreter.interpret(nodes)
   else:
-    var compiler = newCodeGenerator(nodes, TargetLang.JAVASCRIPT)
-    writeFile(compileFileName, compiler.compile())
+    writeFile(compileFileName, compile(nodes))
 
 # reads a file and pass it to the execute func
 proc runFile(path: string) =
