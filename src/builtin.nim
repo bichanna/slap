@@ -6,7 +6,7 @@
 #
 
 import slaptype, interpreterObj, error, env, token
-import strutils, tables
+import strutils, tables, sugar
 
 const RuntimeError = "RuntimeError"
 
@@ -175,6 +175,29 @@ proc slapLower(self: var Interpreter, args: seq[BaseType], token: Token): BaseTy
   if not (args[0] of SlapString):
     error(token, RuntimeError, "lower function only accepts a string")
   return newString(toLower(SlapString(args[0]).value))
+
+let builtins* = [
+  ("println", (0, 1), (args: seq[string]) -> string => "console.log(" & args.join(", ") & ")"),
+  ("print", (1, 1), (args: seq[string]) -> string => "process.stdout.write(" & args.join(", ") & ")"),
+  ("append", (2, 2), (args: seq[string]) -> string => args[0] & ".push(" & args[1] & ")"),
+  ("pop", (1, 1), (args: seq[string]) -> string => args[0] & ".pop()"),
+  ("len", (1, 1), (args: seq[string]) -> string => args[0] & ".length"),
+  ("type", (1, 1), (args: seq[string]) -> string => "typeof " & args[0]),
+  ("input", (0, 1), (args: seq[string]) -> string => ""), # TODO: Implement this!
+  ("isInt", (1, 1), (args: seq[string]) -> string => "Number.isInteger(" & args[0] & ")"),
+  ("isFloat", (1, 1), (args: seq[string]) -> string => "(Number(" & args[0] & ") === " & args[0] & " && " & args[0] & " % 1 !== 0)"),
+  ("isBool", (1, 1), (args: seq[string]) -> string => "(typeof " & args[0] & " === \"boolean\")"),
+  ("isStr", (1, 1), (args: seq[string]) -> string => "(typeof " & args[0] & " === \"string\" )"),
+  ("isList", (1, 1), (args: seq[string]) -> string => "Array.isArray(" & args[0] & ")"),
+  ("isMap", (1, 1), (args: seq[string]) -> string => "(" & args[0] & ".constructor === Object)"),
+  ("isNull", (1, 1), (args: seq[string]) -> string => "(" & args[0] & " === null)"),
+  ("int", (1, 1), (args: seq[string]) -> string => "parseInt(" & args[0] & ")"),
+  ("str", (1, 1), (args: seq[string]) -> string => "String(" & args[0] & ")"),
+  ("keys", (1, 1), (args: seq[string]) -> string => "Object.keys(" & args[0] & ")"),
+  ("values", (1, 1), (args: seq[string]) -> string => "Object.values(" & args[0] & ")"),
+  ("upper", (1, 1), (args: seq[string]) -> string => args[0] & ".toUpperCase()"),
+  ("lower", (1, 1), (args: seq[string]) -> string => args[0] & ".toLowerCase()"),
+]
 
 # This proc loads every built-in functions.
 proc loadBuiltins*(): Environment =

@@ -5,8 +5,8 @@
 # Created by Nobuharu Shimazu on 4/2/2022
 #
 
-import node, token
-import sugar, sequtils, strutils
+import node, token, error
+import sugar, sequtils, strutils, builtin
 
 const
   ErrorName = "CompilerError"
@@ -31,6 +31,11 @@ proc newCodeGenerator*(nodes: seq[Stmt], language: TargetLang): CodeGenerator =
 # These are the base methods for the emit methods below.
 method emit(self: CodeGenerator, expre: Expr): string {.base, locks: "unknown".} = discard
 method emit(self: CodeGenerator, statement: Stmt): string {.base, locks: "unknown".} = discard
+
+# ------------------------------------------------------------------------------------------
+# forward declarations for helper procs
+
+proc checkBuiltinFunc(self: CodeGenerator, funcName: string, args: seq[string], token: Token): string
 
 # ------------------------------------------------------------------------------------------
 
@@ -73,7 +78,13 @@ method emit(self: CodeGenerator, expre: ListOrMapAssignExpr): string =
   self.emit(expre.variable) & "[" & self.emit(expre.indexOrKey) & "]" & " = " & self.emit(expre.value)
 
 method emit(self: CodeGenerator, expre: CallExpr): string =
-  self.emit(expre.callee) & "(" & toSeq(0..<expre.arguments.len).map(i => self.emit(expre.arguments[i])).join(",") & ")"
+  let args = expre.arguments.map(arg => self.emit(arg))
+  let fun = self.emit(expre.callee)
+  let str = self.checkBuiltinFunc(fun, args, expre.paren)
+  if str.isEmptyOrWhitespace:
+    return fun & "(" & args.join(",") & ")"
+  else:
+    return str
 
 method emit(self: CodeGenerator, expre: GetExpr): string =
   self.emit(expre.instance) & "." & expre.name.value
@@ -92,8 +103,8 @@ method emit(self: CodeGenerator, expre: FuncExpr): string =
     if arg of DefaultValued: return DefaultValued(arg).paramName.value & "=" & self.emit(DefaultValued(arg).default)
     if arg of RequiredArg: return RequiredArg(arg).paramName.value
     if arg of RestArg: return "..." & RestArg(arg).paramName.value
-  return "(" & toSeq(0..<expre.parameters.len).map(i => getArgType(expre.parameters[i])).join(", ") & ") " & (if isNamedFunc: "" else: "=> ") &
-    "{\n\t" & toSeq(0..<expre.body.len).map(i => self.emit(expre.body[i])).join("\n") & "\n}"
+  return "(" & expre.parameters.map(param => getArgType(param)).join(", ") & ") " & (if isNamedFunc: "" else: "=> ") &
+    "{\n\t" & expre.body.map(i => self.emit(i)).join("\n") & "\n}"
 
 # -----------------------------------------------------------------------------------------------
 
@@ -112,7 +123,7 @@ method emit(self: CodeGenerator, statement: IfStmt): string =
     result &= "else {\n\t" & self.emit(statement.elseBranch) & "\n}"
 
 method emit(self: CodeGenerator, statement: BlockStmt): string =
-  toSeq(0..<statement.statements.len).map(i => self.emit(statement.statements[i])).join(";\n")
+  statement.statements.map(st => self.emit(st)).join(";\n")
 
 method emit(self: CodeGenerator, statement: WhileStmt): string =
   "while (" & self.emit(statement.condition) & ") {\n\t" & self.emit(statement.body) & "}"
@@ -137,14 +148,25 @@ method emit(self: CodeGenerator, statement: ImportStmt): string =
 
 method emit(self: CodeGenerator, statement: ClassStmt): string =
   "class " & statement.name.value & (if statement.superclass.isNil: "" else: " extends " & self.emit(statement.superclass)) &
-    " {\n\t" & toSeq(0..<statement.methods.len).map(i => self.emit(statement.methods[i])).join(";\n") &
-    toSeq(0..<statement.classMethods.len).map(i => self.emit(statement.classMethods[i])).join(";\n") & "}"
+    " {\n\t" & statement.methods.map(mt => self.emit(mt)).join(";\n") &
+    statement.classMethods.map(cm => self.emit(cm)).join(";\n") & "}"
 
 
 
 proc compile*(self: CodeGenerator) = 
-  var source = ""
+  var source = "\n/*\n\tCompiled by the SLAP compiler!\n*/\n\n"
   for s in self.ast:
     source &= self.emit(s) & "\n\n"
   
   echo source
+
+# ----------------------------------------- HELPERS -----------------------------------------------
+
+proc checkBuiltinFunc(self: CodeGenerator, funcName: string, args: seq[string], token: Token): string = 
+  for bi in builtins:
+    if bi[0] == funcName:
+      if args.len <= bi[1][1] and args.len >= bi[1][0]:
+        return bi[2](args)
+      else:
+        error(token, ErrorName, "Expected at least " & $bi[1][0] & " or at most " & $bi[1][1] & " arguments but got " & $args.len)
+  return ""
