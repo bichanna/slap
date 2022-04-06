@@ -116,7 +116,7 @@ proc makeString(l: var Lexer) =
       if l.currentChar() == '"': break
     strValue.add(l.currentChar())
     l.advance()
-  if l.currentChar() != '"': error(token.sourceId, l.line, ErrorName, "Unterminated string, expected '\"'")
+  if l.currentChar() != '"': error(int8(token.sourceId), l.line, ErrorName, "Unterminated string, expected '\"'")
   l.advance()
   l.appendToken(String, strValue)
 
@@ -125,7 +125,7 @@ proc skipBlockComment(l: var Lexer) =
   var nesting = 1
   while nesting > 0:
     if l.currentChar() == '\n': l.line += 1
-    if l.currentChar() == '\0': error(token.sourceId, l.line, ErrorName, "Unterminated block comment")
+    if l.currentChar() == '\0': error(int8(token.sourceId), l.line, ErrorName, "Unterminated block comment")
     if l.currentChar() == '#' and l.nextChar() == '{':
       l.advance()
       l.advance()
@@ -275,7 +275,7 @@ proc tokenize*(l: var Lexer): seq[Token] =
         l.reverse()
         l.makeIdentifier()
       elif c in " \t": discard
-      else: error(token.sourceId, l.line, ErrorName, fmt"Unrecognized character '{c}'")
+      else: error(int8(token.sourceId), l.line, ErrorName, fmt"Unrecognized character '{c}'")
   if not strInterpBreak:
     l.appendToken(EOF)
   if not inStrInterp: token.sourceId += 1
