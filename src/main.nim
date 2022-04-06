@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 # 
 
-import lexer, parser, interpreter, resolver, error
+import lexer, parser, interpreter, resolver, error, codegen
 import os, parseopt
 
 when compileOption("profiler"): # this is for profiler, obviously
@@ -13,11 +13,16 @@ when compileOption("profiler"): # this is for profiler, obviously
 
 const HELP_MESSAGE = """
 usage: slap [option] <filename>.slap
--h, --help             : show this message and exit
--v, --version          : show current SLAP version and exit
+-h, --help              Show this message and exit.
+-v, --version           Show current SLAP version and exit.
+    --js=<filename>     Compile SLAP to JavaScript.
 """
 
 const CURRENT_VERSION = "0.1.0"
+
+var
+  compile = false
+  compileFileName = ""
 
 # actually executes a source code
 proc execute*(source: string, path: string) = 
@@ -35,7 +40,11 @@ proc execute*(source: string, path: string) =
     resolver = newResolver(interpreter)
   resolver.resolve(nodes)
   interpreter = resolver.interpreter
-  interpreter.interpret(nodes)
+  if not compile:
+    interpreter.interpret(nodes)
+  else:
+    var compiler = newCodeGenerator(nodes, TargetLang.JAVASCRIPT)
+    writeFile(compileFileName, compiler.compile())
 
 # reads a file and pass it to the execute func
 proc runFile(path: string) =
@@ -85,6 +94,11 @@ when isMainModule:
         showHelp()
       elif p.key == "version" or p.key == "v":
         showVersion()
+      elif p.key == "js":
+        if p.val == "":
+          quit("Please specify a file name")
+        compile = true
+        compileFileName = p.val
       elif p.key == "test":
         isInTest = true
     of cmdArgument:
