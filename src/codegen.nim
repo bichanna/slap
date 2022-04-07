@@ -5,28 +5,28 @@
 # Created by Nobuharu Shimazu on 4/2/2022
 #
 
-import node, token, error
-import sugar, sequtils, strutils, builtin
+import node, token, error, builtin
+import sugar, sequtils, strutils, tables
 
 const
   ErrorName = "CompilerError"
 
 var
-  isNamedFunc = false
   hadInputFunc = false
 
 # These are the base methods for the emit methods below.
-method emit(expre: Expr): string {.base, locks: "unknown".} = discard
-method emit(statement: Stmt): string {.base, locks: "unknown".} = discard
+method emit(expre: Expr, context: Table[string, string]): string {.base, locks: "unknown".} = discard
+method emit(statement: Stmt, context: Table[string, string]): string {.base, locks: "unknown".} = discard
 
 # ------------------------------------------------------------------------------------------
 # forward declarations for helper procs
 
 proc checkBuiltinFunc(funcName: string, args: seq[string], token: Token): string
+proc initEmptyContext(): Table[string, string]
 
 # ------------------------------------------------------------------------------------------
 
-method emit(expre: LiteralExpr): string =
+method emit(expre: LiteralExpr, context: Table[string, string]): string =
   case expre.kind:
   of String: return "\"" & expre.value & "\""
   of Int, Float: return expre.value
@@ -35,117 +35,124 @@ method emit(expre: LiteralExpr): string =
   of Null: return "null"
   else: discard
 
-method emit(expre: GroupingExpr): string =
-  "(" & emit(expre.expression) & ")"
+method emit(expre: GroupingExpr, context: Table[string, string]): string =
+  "(" & emit(expre.expression, initEmptyContext()) & ")"
 
-method emit(expre: UnaryExpr): string =
-  expre.operator.value & emit(expre.right)
+method emit(expre: UnaryExpr, context: Table[string, string]): string =
+  expre.operator.value & emit(expre.right, initEmptyContext())
 
-method emit(expre: BinaryExpr): string =
+method emit(expre: BinaryExpr, context: Table[string, string]): string =
   if expre.operator.value != "++" and expre.operator.value != "--":
-    emit(expre.left) & " " & (if expre.operator.value == "==": "===" else: expre.operator.value) & " " & emit(expre.right)
+    emit(expre.left, initEmptyContext()) & " " & (if expre.operator.value == "==": "===" else: expre.operator.value) & " " & emit(expre.right, initEmptyContext())
   else:
-    return emit(expre.left) & expre.operator.value
+    return emit(expre.left, initEmptyContext()) & expre.operator.value
 
-method emit(expre: ListLiteralExpr): string =
-  "[" & expre.values.map(x => emit(x)).join(", ") & "]"
+method emit(expre: ListLiteralExpr, context: Table[string, string]): string =
+  "[" & expre.values.map(x => emit(x, initEmptyContext())).join(", ") & "]"
 
-method emit(expre: MapLiteralExpr): string =
-  "{" & toSeq(0..<expre.keys.len).map(i => emit(expre.keys[i]) & ": " & emit(expre.values[i])).join(", ") & "}"
+method emit(expre: MapLiteralExpr, context: Table[string, string]): string =
+  "{" & toSeq(0..<expre.keys.len).map(i => emit(expre.keys[i], initEmptyContext()) & ": " & emit(expre.values[i], initEmptyContext())).join(", ") & "}"
 
-method emit(expre: LogicalExpr): string =
-  result = emit(expre.left) & " " & (if expre.operator.value == "and": "&&" else: "||") & " " & emit(expre.right)
+method emit(expre: LogicalExpr, context: Table[string, string]): string =
+  result = emit(expre.left, initEmptyContext()) & " " & (if expre.operator.value == "and": "&&" else: "||") & " " & emit(expre.right, initEmptyContext())
 
-method emit(expre: VariableExpr): string = expre.name.value
+method emit(expre: VariableExpr, context: Table[string, string]): string = expre.name.value
 
-method emit(expre: ListOrMapVariableExpr): string =
-  emit(expre.variable) & "[" & emit(expre.indexOrKey) & "]"
+method emit(expre: ListOrMapVariableExpr, context: Table[string, string]): string =
+  emit(expre.variable, initEmptyContext()) & "[" & emit(expre.indexOrKey, initEmptyContext()) & "]"
 
-method emit(expre: AssignExpr): string =
-  expre.name.value & " = " & emit(expre.value)
+method emit(expre: AssignExpr, context: Table[string, string]): string =
+  expre.name.value & " = " & emit(expre.value, initEmptyContext())
 
-method emit(expre: ListOrMapAssignExpr): string =
-  emit(expre.variable) & "[" & emit(expre.indexOrKey) & "]" & " = " & emit(expre.value)
+method emit(expre: ListOrMapAssignExpr, context: Table[string, string]): string =
+  emit(expre.variable, initEmptyContext()) & "[" & emit(expre.indexOrKey, initEmptyContext()) & "]" & " = " & emit(expre.value, initEmptyContext())
 
-method emit(expre: CallExpr): string =
-  let args = expre.arguments.map(arg => emit(arg))
-  let fun = emit(expre.callee)
-  let str = checkBuiltinFunc(fun, args, expre.paren)
+method emit(expre: CallExpr, context: Table[string, string]): string =
+  let args = expre.arguments.map(arg => emit(arg, initEmptyContext()))
+  let callee = emit(expre.callee, initEmptyContext())
+  let str = checkBuiltinFunc(callee, args, expre.paren)
   if str.isEmptyOrWhitespace:
-    return fun & "(" & args.join(",") & ")"
+    return callee & "(" & args.join(", ") & ")"
   else:
     return str
 
-method emit(expre: GetExpr): string =
-  emit(expre.instance) & "." & expre.name.value
+method emit(expre: GetExpr, context: Table[string, string]): string =
+  emit(expre.instance, initEmptyContext()) & "." & expre.name.value
 
-method emit(expre: SetExpr): string =
-  emit(expre.instance) & "." & expre.name.value & " = " & emit(expre.value)
+method emit(expre: SetExpr, context: Table[string, string]): string =
+  emit(expre.instance, initEmptyContext()) & "." & expre.name.value & " = " & emit(expre.value, initEmptyContext())
 
-method emit(expre: SuperExpr): string =
+method emit(expre: SuperExpr, context: Table[string, string]): string =
   "super." & expre.classMethod.value
 
-method emit(expre: SelfExpr): string =
+method emit(expre: SelfExpr, context: Table[string, string]): string =
   "this"
 
-method emit(expre: FuncExpr): string =
+method emit(expre: FuncExpr, context: Table[string, string]): string =
   proc getArgType(arg: FuncArg): string =
-    if arg of DefaultValued: return DefaultValued(arg).paramName.value & "=" & emit(DefaultValued(arg).default)
+    if arg of DefaultValued: return DefaultValued(arg).paramName.value & "=" & emit(DefaultValued(arg).default, initEmptyContext())
     if arg of RequiredArg: return RequiredArg(arg).paramName.value
     if arg of RestArg: return "..." & RestArg(arg).paramName.value
-  return "(" & expre.parameters.map(param => getArgType(param)).join(", ") & ") " & (if isNamedFunc: "" else: "=> ") &
-    "{\n\t" & expre.body.map(i => emit(i)).join("\n") & "\n}"
+  proc checkContext(): string =
+    if context.hasKey("named"): return ""
+    else: return "=> "
+  return "(" & expre.parameters.map(param => getArgType(param)).join(", ") & ") " & checkContext() &
+    "{\n\t" & expre.body.map(i => emit(i, initEmptyContext())).join("\n") & "\n}"
 
 # -----------------------------------------------------------------------------------------------
 
-method emit(statement: ExprStmt): string =
-  emit(statement.expression) & ";"
+method emit(statement: ExprStmt, context: Table[string, string]): string =
+  emit(statement.expression, initEmptyContext()) & ";"
 
-method emit(statement: VariableStmt): string =
-  "var " & statement.name.value & " = " & emit(statement.init)
+method emit(statement: VariableStmt, context: Table[string, string]): string =
+  "var " & statement.name.value & " = " & emit(statement.init, initEmptyContext())
 
-method emit(statement: IfStmt): string =
-  result = "if (" & emit(statement.condition) & ") {\n\t" & emit(statement.thenBranch) & "\n}"
+method emit(statement: IfStmt, context: Table[string, string]): string =
+  result = "if (" & emit(statement.condition, initEmptyContext()) & ") {\n\t" & emit(statement.thenBranch, initEmptyContext()) & "\n}"
   if statement.elifBranches.len != 0:
     for each in statement.elifBranches:
-      result &= "else if (" & emit(each.condition) & ") {\n\t" & emit(each.thenBranch) & "\n}"
+      result &= "else if (" & emit(each.condition, initEmptyContext()) & ") {\n\t" & emit(each.thenBranch, initEmptyContext()) & "\n}"
   if not statement.elseBranch.isNil:
-    result &= "else {\n\t" & emit(statement.elseBranch) & "\n}"
+    result &= "else {\n\t" & emit(statement.elseBranch, initEmptyContext()) & "\n}"
 
-method emit(statement: BlockStmt): string =
-  statement.statements.map(st => emit(st)).join(";\n")
+method emit(statement: BlockStmt, context: Table[string, string]): string =
+  statement.statements.map(st => emit(st, initEmptyContext())).join(";\n")
 
-method emit(statement: WhileStmt): string =
-  "while (" & emit(statement.condition) & ") {\n\t" & emit(statement.body) & "}"
+method emit(statement: WhileStmt, context: Table[string, string]): string =
+  "while (" & emit(statement.condition, initEmptyContext()) & ") {\n\t" & emit(statement.body, initEmptyContext()) & "}"
 
-method emit(statement: FuncStmt): string =
-  isNamedFunc = true
-  result = "function " & statement.name.value & emit(statement.function)
-  isNamedFunc = false
+method emit(statement: FuncStmt, context: Table[string, string]): string =
+  proc isMethod(): bool = context.hasKey("method")
+  proc isStatic(): bool = context.hasKey("static")
+  proc checkContext(): string =
+    if isStatic(): return "static " else: return "function "
+    if isMethod(): return "" else: return "function "
+  
+  result = checkContext() & (if statement.name.value == "new" and isMethod(): "constructor" else: statement.name.value) & " " & emit(statement.function, {"named": "true"}.toTable)
 
-method emit(statement: ReturnStmt): string =
-  "return " & (if statement.value.isNil: "" else: emit(statement.value)) & ";"
+method emit(statement: ReturnStmt, context: Table[string, string]): string =
+  "return " & (if statement.value.isNil: "" else: emit(statement.value, initEmptyContext())) & ";"
 
-method emit(statement: BreakStmt): string =
+method emit(statement: BreakStmt, context: Table[string, string]): string =
   "break;"
 
-method emit(statement: ContinueStmt): string =
+method emit(statement: ContinueStmt, context: Table[string, string]): string =
   "continue;"
 
 # TODO: Implement emit method for ImportStmt node
-method emit(statement: ImportStmt): string =
+method emit(statement: ImportStmt, context: Table[string, string]): string =
   discard
 
-method emit(statement: ClassStmt): string =
-  "class " & statement.name.value & (if statement.superclass.isNil: "" else: " extends " & emit(statement.superclass)) &
-    " {\n\t" & statement.methods.map(mt => emit(mt)).join(";\n") &
-    statement.classMethods.map(cm => emit(cm)).join(";\n") & "}"
+method emit(statement: ClassStmt, context: Table[string, string]): string =
+  "class " & statement.name.value & (if statement.superclass.isNil: "" else: " extends " & emit(statement.superclass, initEmptyContext())) &
+    " {\n\t" & statement.methods.map(mt => emit(mt, {"method": "true"}.toTable)).join(";\n") &
+    statement.classMethods.map(cm => emit(cm, {"method": "true", "static": "true"}.toTable)).join(";\n") & "}"
 
 
 
 proc compile*(ast: seq[Stmt]): string = 
   for s in ast:
-    result &= emit(s) & ";\n\n"
+    result &= emit(s, initEmptyContext()) & ";\n\n"
 
   if hadInputFunc:
     result = JSPrompotFunc & result
@@ -164,3 +171,5 @@ proc checkBuiltinFunc(funcName: string, args: seq[string], token: Token): string
       else:
         error(token, ErrorName, "Expected at least " & $bi[1][0] & " or at most " & $bi[1][1] & " arguments but got " & $args.len)
   return ""
+
+proc initEmptyContext(): Table[string, string] = return initTable[string, string]()
