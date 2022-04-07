@@ -45,6 +45,7 @@ proc execute*(source: string, path: string) =
   else:
     writeFile(compileFileName, compile(nodes))
     echo "Compiled"
+    echo "path: " & absolutePath(compileFileName)
 
 # reads a file and pass it to the execute func
 proc runFile(path: string) =
