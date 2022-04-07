@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 4/2/2022
 #
 
-import node, token, error, builtin
+import node, token, error, builtin, interpreter, lexer, parser, resolver
 import sugar, sequtils, strutils, tables
 
 const
@@ -17,6 +17,8 @@ var
 # These are the base methods for the emit methods below.
 method emit(expre: Expr, context: Table[string, string]): string {.base, locks: "unknown".} = discard
 method emit(statement: Stmt, context: Table[string, string]): string {.base, locks: "unknown".} = discard
+
+proc compile*(ast: seq[Stmt]): string
 
 # ------------------------------------------------------------------------------------------
 # forward declarations for helper procs
@@ -105,7 +107,7 @@ method emit(statement: ExprStmt, context: Table[string, string]): string =
   emit(statement.expression, initEmptyContext()) & ";"
 
 method emit(statement: VariableStmt, context: Table[string, string]): string =
-  "var " & statement.name.value & " = " & emit(statement.init, initEmptyContext())
+  "var " & statement.name.value & " = " & emit(statement.init, initEmptyContext()) & ";"
 
 method emit(statement: IfStmt, context: Table[string, string]): string =
   result = "if (" & emit(statement.condition, initEmptyContext()) & ") {\n\t" & emit(statement.thenBranch, initEmptyContext()) & "\n}"
@@ -142,9 +144,49 @@ method emit(statement: BreakStmt, context: Table[string, string]): string =
 method emit(statement: ContinueStmt, context: Table[string, string]): string =
   "continue;"
 
-# TODO: Implement emit method for ImportStmt node
 method emit(statement: ImportStmt, context: Table[string, string]): string =
-  discard
+  var source: string
+  var path: string
+  var possiblePath = emit(statement.name, initEmptyContext()).replace("\"", "")
+  
+  if slapStdLibs.contains(possiblePath):
+    source = slapStdLibs[possiblePath][0]
+    path = slapStdLibs[possiblePath][1]
+  
+  elif stdLibs.contains(possiblePath):
+    error(statement.keyword, ErrorName, "Cannot import written-in-Nim libraries.")
+  
+  else:
+    path = possiblePath
+    try:
+      source = readFile(path)
+    except IOError:
+      error(statement.keyword, ErrorName, "Cannot open '" & path & "'.")
+  
+  # These are setups for really doing the job (importing).
+  var
+    lexer: Lexer
+    tokens: seq[Token]
+    parser: Parser
+    nodes: seq[Stmt]
+    resolver: Resolver
+  
+  # Here's where the lexing and parsing of the source
+  # file occurs.
+  try:
+    lexer = newLexer(source, path)
+    tokens = lexer.tokenize()
+    parser = newParser(tokens)
+    nodes = parser.parse()
+    resolver = newResolver(newInterpreter())
+  # If Nim catches OverflowDefect, it might mean that the user
+  # is circular importing.
+  except OverflowDefect:
+    error(statement.keyword, ErrorName, "May be a circular import")
+  
+  resolver.resolve(nodes)
+
+  return compile(nodes)
 
 method emit(statement: ClassStmt, context: Table[string, string]): string =
   "class " & statement.name.value & (if statement.superclass.isNil: "" else: " extends " & emit(statement.superclass, initEmptyContext())) &
@@ -155,12 +197,10 @@ method emit(statement: ClassStmt, context: Table[string, string]): string =
 
 proc compile*(ast: seq[Stmt]): string = 
   for s in ast:
-    result &= emit(s, initEmptyContext()) & ";\n\n"
+    result &= emit(s, initEmptyContext()) & "\n\n"
 
   if hadInputFunc:
     result = JSPrompotFunc & result
-  
-  result = "\n/*\n\tCompiled by the SLAP compiler!\n*/\n\n" & result
 
 # ----------------------------------------- HELPERS -----------------------------------------------
 

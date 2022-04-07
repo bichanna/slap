@@ -34,16 +34,17 @@ proc execute*(source: string, path: string) =
   var parser = newParser(tokens)
   let nodes = parser.parse()
 
-  # interpreting
   var
     interpreter = newInterpreter()
     resolver = newResolver(interpreter)
   resolver.resolve(nodes)
   interpreter = resolver.interpreter
+  # interpreting
   if not compile:
     interpreter.interpret(nodes)
+  # compiling
   else:
-    writeFile(compileFileName, compile(nodes))
+    writeFile(compileFileName, "\n/*\n\tCompiled by the SLAP compiler!\n*/\n\n" & compile(nodes))
     echo "Compiled"
     echo "path: " & absolutePath(compileFileName)
 
