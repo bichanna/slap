@@ -34,17 +34,19 @@ proc execute*(source: string, path: string) =
   var parser = newParser(tokens)
   let nodes = parser.parse()
 
-  # interpreting
   var
     interpreter = newInterpreter()
     resolver = newResolver(interpreter)
   resolver.resolve(nodes)
   interpreter = resolver.interpreter
+  # interpreting
   if not compile:
     interpreter.interpret(nodes)
+  # compiling
   else:
-    var compiler = newCodeGenerator(nodes, TargetLang.JAVASCRIPT)
-    writeFile(compileFileName, compiler.compile())
+    writeFile(compileFileName, "\n/*\n\tCompiled by the SLAP compiler!\n*/\n\n" & compile(nodes))
+    echo "Compiled"
+    echo "path: " & absolutePath(compileFileName)
 
 # reads a file and pass it to the execute func
 proc runFile(path: string) =

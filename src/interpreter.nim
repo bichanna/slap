@@ -23,14 +23,14 @@ const
   libmath = staticRead "../" & mathpath
 
 # libraries written in SLAP
-const slapStdLibs = {
+const slapStdLibs* = {
     "std": @[libstd, stdpath],
     "strutils": @[libstr, strpath],
     "math": @[libmath, mathpath],
   }.toTable
 
 # libraries written in Nim
-const stdLibs = {
+const stdLibs* = {
     "os": loadOSLib,
     "io": loadIOLib,
   }.toTable
