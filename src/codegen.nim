@@ -122,13 +122,16 @@ method emit(statement: WhileStmt, context: Table[string, string]): string =
   "while (" & emit(statement.condition, initEmptyContext()) & ") {\n\t" & emit(statement.body, initEmptyContext()) & "}"
 
 method emit(statement: FuncStmt, context: Table[string, string]): string =
-  proc isMethod(): bool = context.hasKey("method")
-  proc isStatic(): bool = context.hasKey("static")
+  proc isMethod(): bool =
+    context.hasKey("method")
+  proc isStatic(): bool =
+    context.hasKey("static")
   proc checkContext(): string =
-    if isStatic(): return "static " else: return "function "
-    if isMethod(): return "" else: return "function "
+    if isStatic(): return "static "
+    else:
+      if isMethod(): return "" else: return "function "
   
-  result = checkContext() & (if statement.name.value == "new" and isMethod(): "constructor" else: statement.name.value) & " " & emit(statement.function, {"named": "true"}.toTable)
+  result = checkContext() & (if statement.name.value == "new" and isMethod(): "constructor" else: statement.name.value) & emit(statement.function, {"named": "true"}.toTable)
 
 method emit(statement: ReturnStmt, context: Table[string, string]): string =
   "return " & (if statement.value.isNil: "" else: emit(statement.value, initEmptyContext())) & ";"
