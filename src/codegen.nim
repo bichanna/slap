@@ -11,7 +11,9 @@ import sugar, sequtils, strutils, builtin
 const
   ErrorName = "CompilerError"
 
-var isNamedFunc = false
+var
+  isNamedFunc = false
+  hadInputFunc = false
 
 # These are the base methods for the emit methods below.
 method emit(expre: Expr): string {.base, locks: "unknown".} = discard
@@ -142,9 +144,13 @@ method emit(statement: ClassStmt): string =
 
 
 proc compile*(ast: seq[Stmt]): string = 
-  result = "\n/*\n\tCompiled by the SLAP compiler!\n*/\n\n"
   for s in ast:
     result &= emit(s) & ";\n\n"
+
+  if hadInputFunc:
+    result = JSPrompotFunc & result
+  
+  result = "\n/*\n\tCompiled by the SLAP compiler!\n*/\n\n" & result
 
 # ----------------------------------------- HELPERS -----------------------------------------------
 
@@ -152,6 +158,8 @@ proc checkBuiltinFunc(funcName: string, args: seq[string], token: Token): string
   for bi in builtins:
     if bi[0] == funcName:
       if args.len <= bi[1][1] and args.len >= bi[1][0]:
+        if bi[0] == "input":
+          hadInputFunc = true
         return bi[2](args)
       else:
         error(token, ErrorName, "Expected at least " & $bi[1][0] & " or at most " & $bi[1][1] & " arguments but got " & $args.len)

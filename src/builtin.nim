@@ -176,6 +176,8 @@ proc slapLower(self: var Interpreter, args: seq[BaseType], token: Token): BaseTy
     error(token, RuntimeError, "lower function only accepts a string")
   return newString(toLower(SlapString(args[0]).value))
 
+let JSPrompotFunc* = "// BE SURE TO INSTALL 'propmpt-sync'\nconst prompt238322184738283 = require(\"prompt-sync\")({sigint: true});\n\n"
+
 let builtins* = [
   ("println", (0, 1), (args: seq[string]) -> string => "console.log(" & args.join(", ") & ")"),
   ("print", (1, 1), (args: seq[string]) -> string => "process.stdout.write(" & args.join(", ") & ")"),
@@ -183,7 +185,7 @@ let builtins* = [
   ("pop", (1, 1), (args: seq[string]) -> string => args[0] & ".pop()"),
   ("len", (1, 1), (args: seq[string]) -> string => args[0] & ".length"),
   ("type", (1, 1), (args: seq[string]) -> string => "typeof " & args[0]),
-  ("input", (0, 1), (args: seq[string]) -> string => ""), # TODO: Implement this!
+  ("input", (0, 1), (args: seq[string]) -> string => "prompt238322184738283(" & (if args.len > 0: args[0] else: "\"\"") & ")"),
   ("isInt", (1, 1), (args: seq[string]) -> string => "Number.isInteger(" & args[0] & ")"),
   ("isFloat", (1, 1), (args: seq[string]) -> string => "(Number(" & args[0] & ") === " & args[0] & " && " & args[0] & " % 1 !== 0)"),
   ("isBool", (1, 1), (args: seq[string]) -> string => "(typeof " & args[0] & " === \"boolean\")"),

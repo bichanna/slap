@@ -44,6 +44,7 @@ proc execute*(source: string, path: string) =
     interpreter.interpret(nodes)
   else:
     writeFile(compileFileName, compile(nodes))
+    echo "Compiled"
 
 # reads a file and pass it to the execute func
 proc runFile(path: string) =
