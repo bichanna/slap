@@ -16,4 +16,4 @@ You can see the benchmarks [here](https://github.com/bichanna/slap/tree/master/b
  - [Classes](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/classes.md#classes)
  - [Import Statement](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/import.md#import-statement)
  - [Syntax Sugars](https://github.com/bichanna/slap/blob/master/docs/syntax_doc/syntax_sugars.md#--expression)
- - [SLAP-to-JS Compiler](https://github.com/bichanna/slap/blob/master/docs/slap-to-js-compiler)
+ - [SLAP-to-JS Compiler](https://github.com/bichanna/slap/blob/master/docs/slap-to-js-compiler.md#slap-to-js-compiler)
