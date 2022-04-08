@@ -6,7 +6,7 @@
 # 
 
 import lexer, parser, interpreter, resolver, error, codegen
-import os, parseopt
+import os, parseopt, strutils
 
 when compileOption("profiler"): # this is for profiler, obviously
   import nimprof
@@ -97,7 +97,7 @@ when isMainModule:
       elif p.key == "version" or p.key == "v":
         showVersion()
       elif p.key == "js":
-        if p.val == "":
+        if p.val.isEmptyOrWhitespace:
           quit("Please specify a file name")
         compile = true
         compileFileName = p.val
