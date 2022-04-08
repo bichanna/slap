@@ -16,13 +16,20 @@
 **WARNING!! THIS LANGUAGE IS IN DEVELOPMENT (AND FOR LEARNING PURPOSES). ANYTHING CAN CHANGE AT ANY MOMENT.**
 
 🖐 **SLAP** stands for "**SL**ow **A**nd **P**owerless." And I hope to make it "**P**owerful" someday.<br>
-> The SLAP-to-JS compiler is in progress (see [compiler branch](https://github.com/bichanna/slap/tree/compiler)). So, SLAP will be quite fast.
 
 **SLAP** is a dynamically- and strongly-typed, object-oriented programming language with a small portion of functional-language-like features. Its syntax is a member of the C family with a bit of difference.
 
 As of March 2022, you can write pretty decent, small programs in SLAP.
+<div align="center">
+  <img width="70%" src="https://user-images.githubusercontent.com/60306074/161585270-6ce59735-f910-4068-994b-d74d12371f5d.png">
+</div>
 
-![carbon](https://user-images.githubusercontent.com/60306074/161585270-6ce59735-f910-4068-994b-d74d12371f5d.png)
+>*Note*: The SLAP-to-JS compiler is in progress (see [compiler branch](https://github.com/bichanna/slap/tree/compiler)).
+<details>
+<summary>SLAP-to-JS Compiler Example</summary>
+	
+https://user-images.githubusercontent.com/60306074/162365051-630e6171-93c0-4af5-a55c-c600ae1efa92.mov
+</details>
 
 ## Installation
 On Linux/macOS, you may be able to run the following commands to install SLAP.
@@ -99,8 +106,8 @@ $ nimble test
 
 ## Contribution
 Bug reports and contributions are always welcome :)<br>
-Please be sure to add test files if you want to add new features (see [tests directory](https://github.com/bichanna/slap/tree/master/tests#tests) for more info).
-
+Please  be sure to add test files if you want to add new features (see [tests directory](https://github.com/bichanna/slap/tree/master/tests#tests) for more info).
+ 
 
 ## Credits
 I learned a lot from
