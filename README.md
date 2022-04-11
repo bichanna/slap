@@ -102,7 +102,8 @@ $ nimble test
  - [x] Vim Highlighter
  - [ ] VSCode Highlighter
  - [x] Transpiler (to JavaScript)
- - [ ] New line as statement separator
+ - [ ] Newline As Statement Separator
+ - [ ] Gradually Becoming A Bytecode Interpreter
 
 ## Contribution
 Bug reports and contributions are always welcome :)<br>
