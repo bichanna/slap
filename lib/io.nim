@@ -5,7 +5,8 @@
 # Created by Nobuharu Shimazu on 3/20/2022
 #
 
-import ../src/slaptype, ../src/interpreterObj, ../src/error, ../src/env, ../src/token
+import ../src/obj/[slaptype, interpreterObj, token]
+import ../src/[error, env]
 
 const RuntimeError = "RuntimeError"
 

@@ -5,7 +5,8 @@
 # Created by Nobuharu Shimazu on 2/15/2022
 #
 
-import token, error, node
+import error
+import obj/[token, node]
 import hashes
 
 const ErrorName = "SyntaxError"

@@ -6,7 +6,8 @@
 #
 
 import tables, hashes
-import slaptype, token, error, objhash
+import obj/[slaptype, token, objhash]
+import error
 
 const ErrorName = "RuntimeError"
 

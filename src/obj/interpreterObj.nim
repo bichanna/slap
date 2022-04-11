@@ -5,7 +5,7 @@
 # Created by Nobuharu Shimazu on 2/28/2022
 #
 
-import env, slaptype, node, token, objhash
+import ../env, slaptype, node, token, objhash
 import tables, strutils, hashes
 
 type

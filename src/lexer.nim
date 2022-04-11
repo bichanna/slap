@@ -6,7 +6,7 @@
 #
 
 import tables, std/strformat, hashes
-import token, error
+import obj/[token], error
 
 const
   ErrorName = "SyntaxError"

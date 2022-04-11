@@ -5,7 +5,8 @@
 # Created by Nobuharu Shimazu on 2/28/2022
 #
 
-import slaptype, interpreterObj, error, env, token
+import env, error
+import obj/[slaptype, interpreterObj, token]
 import strutils, tables, sugar
 
 const RuntimeError = "RuntimeError"

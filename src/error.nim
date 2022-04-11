@@ -6,7 +6,7 @@
 # 
 
 import strformat, strutils, tables
-import token, node
+import obj/[token, node]
 
 # `sources` stores paths.
 var sources*: Table[int, string]

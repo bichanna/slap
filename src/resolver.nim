@@ -5,7 +5,8 @@
 # Created by Nobuharu Shimazu on 2/22/2022
 #
 
-import node, token, error, interpreterObj
+import error
+import obj/[node, token, interpreterObj]
 import tables
 
 const ErrorName = "SyntaxError"

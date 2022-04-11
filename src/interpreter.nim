@@ -5,8 +5,9 @@
 # Created by Nobuharu Shimazu on 2/16/2022
 #
 
-import error, node, token, slaptype, env, exception, interpreterObj, builtin, objhash, lexer, resolver, parser
+import error, env, builtin, lexer, resolver, parser
 import ../lib/[io, os]
+import obj/[node, token, slaptype, exception, interpreterObj, objhash]
 import strutils, tables, sequtils, hashes
   
 const

@@ -5,7 +5,8 @@
 # Created by Nobuharu Shimazu on 4/2/2022
 #
 
-import node, token, error, builtin, interpreter, lexer, parser, resolver
+import error, builtin, interpreter, lexer, parser, resolver
+import obj/[node, token]
 import sugar, sequtils, strutils, tables
 
 const
