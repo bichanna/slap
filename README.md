@@ -103,7 +103,6 @@ $ nimble test
  - [ ] VSCode Highlighter
  - [x] Transpiler (to JavaScript)
  - [ ] Newline As Statement Separator
- - [ ] Gradually Becoming A Bytecode Interpreter
 
 ## Contribution
 Bug reports and contributions are always welcome :)<br>
