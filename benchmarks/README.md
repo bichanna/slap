@@ -1,4 +1,4 @@
-I don't really care about speed, but people seem to like benchmarks, so here they are.
+People seem to like benchmarks, so here they are.
 
 As of March 2022, SLAP is approximately 7-8x slower than Python 3.9. That's decently fast for a tree-walker.
 
