@@ -66,6 +66,7 @@ proc slapLen(self: var Interpreter, args: seq[BaseType], token: Token): BaseType
 proc slapTypeof(self: var Interpreter, args: seq[BaseType], token: Token): BaseType =
   if args[0] of SlapNull: return newString("null")
   if args[0] of SlapInt: return newString("int")
+  if args[0] of SlapFloat: return newString("float")
   if args[0] of SlapList: return newString("list")
   if args[0] of SlapString: return newString("str")
   if args[0] of SlapBool: return newString("bool")
