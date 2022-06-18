@@ -23,6 +23,7 @@ time slap benchmark/fib/slap.slap     # None
 | Language  | Time |
 | --------- | ---- |
 | JavaScript| 0.07s|
+| Reverie   | 0.09s|
 | Python    | 0.13s|
 | Julia     | 0.28s|
 | SLAP	    | 1.88s|
