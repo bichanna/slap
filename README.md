@@ -26,7 +26,7 @@ As of March 2022, you can write pretty decent, small programs in SLAP.
   <img width="100%" src="https://user-images.githubusercontent.com/60306074/161585270-6ce59735-f910-4068-994b-d74d12371f5d.png">
 </div>
 
->*Note*: The SLAP-to-JS compiler is in progress (see [compiler branch](https://github.com/bichanna/slap/tree/compiler)).
+>*Note*: The SLAP-to-JS transpiler is in progress (see [compiler branch](https://github.com/bichanna/slap/tree/compiler)).
 <details>
 <summary>SLAP-to-JS Compiler Example</summary>
 	
@@ -96,6 +96,7 @@ $ nimble test
      - [ ] Abstract Class (Interface)
  - [x] Import
  - [ ] Concurrency
+ - [ ] Virtual Machine Compiler
 ### Others
  - [x] Assignment Shorthands (e.g, `+=`, `*=`)
  - [x] String Interpolation
